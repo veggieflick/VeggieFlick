@@ -184,11 +184,13 @@ function CatalogWorkspace() {
         ))}
       </div>
 
-      {loading ? (
+      {loading && (
         <div className="card flex items-center justify-center gap-2 py-16 text-sm text-muted">
           <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading catalogue…
         </div>
-      ) : tab === "products" ? (
+      )}
+
+      {!loading && tab === "products" && (
         <>
           <div className="flex justify-end">
             <button
@@ -309,7 +311,9 @@ function CatalogWorkspace() {
             </table>
           </div>
         </>
-      ) : tab === "inventory" ? (
+      )}
+
+      {!loading && tab === "inventory" && (
         <div className="card overflow-x-auto">
           <table className="w-full min-w-[48rem] text-sm">
             <thead className="bg-surface text-left text-xs text-muted uppercase">
@@ -379,7 +383,9 @@ function CatalogWorkspace() {
             </tbody>
           </table>
         </div>
-      ) : (
+      )}
+
+      {!loading && tab === "coupons" && (
         <>
           <form onSubmit={createCoupon} className="card grid gap-3 p-5 md:grid-cols-3">
             <label className="grid gap-1.5">
@@ -452,7 +458,9 @@ function CatalogWorkspace() {
             </table>
           </div>
         </>
-      ) : (
+      )}
+
+      {!loading && tab === "spoilage" && (
         <div className="grid gap-5">
           <div className="card p-5 border-amber-200 bg-amber-50/40">
             <h2 className="text-lg font-bold text-amber-950 flex items-center gap-2">
