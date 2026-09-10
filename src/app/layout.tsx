@@ -7,7 +7,8 @@ import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { FloatingActions, HideOnAdmin, MobileBottomNav } from "@/components/mobile-nav";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://veggieflick.in";
+const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const siteUrl = rawSiteUrl && rawSiteUrl.length > 0 ? rawSiteUrl : "https://veggieflick.in";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),

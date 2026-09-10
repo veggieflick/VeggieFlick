@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://veggieflick.in";
+const rawBaseUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
+const baseUrl = rawBaseUrl && rawBaseUrl.length > 0 ? rawBaseUrl : "https://veggieflick.in";
 
 export default function robots(): MetadataRoute.Robots {
   return {
