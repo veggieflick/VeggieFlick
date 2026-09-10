@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Circle, MapPin, Phone, Star, Truck, XCircle } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABEL, formatDateTimeIST, formatINR } from "@/lib/utils";
 import { Breadcrumb, StatusPill } from "@/components/ui/primitives";
+import { ScratchCardModal } from "@/components/scratch-card-modal";
 
 type OrderDetail = {
   id: string;
@@ -47,11 +48,13 @@ type OrderDetail = {
 
 export default function OrderDetailPage() {
   const params = useParams<{ id: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { user, userLoading, notify } = useApp();
   const [order, setOrder] = useState<OrderDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [scratchOpen, setScratchOpen] = useState(searchParams.get("placed") === "1");
 
   const load = useCallback(async () => {
     const response = await fetch(`/api/v1/orders/${params.id}`, { cache: "no-store" });
@@ -285,6 +288,7 @@ export default function OrderDetailPage() {
           </Link>
         </aside>
       </div>
+      <ScratchCardModal isOpen={scratchOpen} onClose={() => setScratchOpen(false)} />
     </div>
   );
 }

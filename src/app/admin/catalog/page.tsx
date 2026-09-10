@@ -48,7 +48,7 @@ type CouponRow = {
 
 type Category = { id: string; name: string };
 
-const TABS = ["products", "inventory", "coupons"] as const;
+const TABS = ["products", "inventory", "coupons", "spoilage"] as const;
 
 function CatalogWorkspace() {
   const params = useSearchParams();
@@ -452,6 +452,82 @@ function CatalogWorkspace() {
             </table>
           </div>
         </>
+      ) : (
+        <div className="grid gap-5">
+          <div className="card p-5 border-amber-200 bg-amber-50/40">
+            <h2 className="text-lg font-bold text-amber-950 flex items-center gap-2">
+              🥦 Koyambedu Hub Spoilage & Procurement Assistant
+            </h2>
+            <p className="text-xs text-slate-700 mt-1">
+              Real-time fresh produce shelf life monitoring. Items harvested over 14 hours ago are flagged for automated flash sale clearance to ensure 100% zero food waste.
+            </p>
+          </div>
+
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="card p-4">
+              <p className="text-xs font-bold text-muted uppercase">Today&apos;s Hub Arrival</p>
+              <p className="text-2xl font-extrabold text-ink mt-1">450 Crates</p>
+              <p className="text-xs text-emerald-700 font-semibold mt-1">Sourced 4:00 AM Koyambedu Market</p>
+            </div>
+            <div className="card p-4">
+              <p className="text-xs font-bold text-muted uppercase">At Spoilage Risk (&gt;14h)</p>
+              <p className="text-2xl font-extrabold text-amber-700 mt-1">18 Items</p>
+              <p className="text-xs text-amber-800 font-semibold mt-1">Keerai Greens & Tender Herbs</p>
+            </div>
+            <div className="card p-4">
+              <p className="text-xs font-bold text-muted uppercase">Tomorrow&apos;s Forecasted Need</p>
+              <p className="text-2xl font-extrabold text-brand-700 mt-1">520 Crates</p>
+              <p className="text-xs text-brand-800 font-semibold mt-1">Based on Sunday order velocity</p>
+            </div>
+          </div>
+
+          <div className="card overflow-hidden">
+            <div className="p-4 border-b border-line flex justify-between items-center bg-slate-50">
+              <h3 className="text-sm font-bold text-ink">Perishable Inventory Quality Matrix</h3>
+              <button
+                type="button"
+                onClick={() => notify("18 surplus items auto-moved to Flash Sale at 25% OFF!")}
+                className="btn btn-primary btn-sm text-xs font-bold bg-amber-700 hover:bg-amber-800 text-white"
+              >
+                🏷️ Auto-Move Surplus to Flash Sale
+              </button>
+            </div>
+            <table className="w-full text-left text-xs">
+              <thead className="bg-surface text-muted uppercase tracking-wider font-semibold border-b border-line">
+                <tr>
+                  <th className="px-4 py-3">Produce Item</th>
+                  <th className="px-4 py-3">Harvest Age</th>
+                  <th className="px-4 py-3">Available Crate Stock</th>
+                  <th className="px-4 py-3">Spoilage Risk Level</th>
+                  <th className="px-4 py-3">Action Recommended</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t border-line">
+                  <td className="px-4 py-3 font-bold">Sirukeerai & Arai Keerai</td>
+                  <td className="px-4 py-3 text-amber-800 font-semibold">14 Hours</td>
+                  <td className="px-4 py-3 font-mono">42 Bunches</td>
+                  <td className="px-4 py-3"><span className="chip bg-red-100 text-red-800 font-bold">HIGH RISK</span></td>
+                  <td className="px-4 py-3 text-xs font-bold text-amber-700">Clear via Flash Sale (30% OFF)</td>
+                </tr>
+                <tr className="border-t border-line">
+                  <td className="px-4 py-3 font-bold">Ooty Carrots & Beetroot</td>
+                  <td className="px-4 py-3 text-emerald-800 font-semibold">6 Hours</td>
+                  <td className="px-4 py-3 font-mono">120 kg</td>
+                  <td className="px-4 py-3"><span className="chip bg-emerald-100 text-emerald-800 font-bold">OPTIMAL</span></td>
+                  <td className="px-4 py-3 text-xs text-muted">Standard Slot Delivery</td>
+                </tr>
+                <tr className="border-t border-line">
+                  <td className="px-4 py-3 font-bold">Country Tomato (Desi)</td>
+                  <td className="px-4 py-3 text-emerald-800 font-semibold">8 Hours</td>
+                  <td className="px-4 py-3 font-mono">210 kg</td>
+                  <td className="px-4 py-3"><span className="chip bg-emerald-100 text-emerald-800 font-bold">OPTIMAL</span></td>
+                  <td className="px-4 py-3 text-xs text-muted">Standard Slot Delivery</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </div>
   );

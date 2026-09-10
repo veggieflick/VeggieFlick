@@ -9,6 +9,7 @@ import { ProductCard, ProductCarousel } from "@/components/product-card";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { CategoryIconTile, SectionHeading, Badge } from "@/components/ui/primitives";
 import { lookupIcon } from "@/lib/icons";
+import { ComboKitsSection } from "@/components/combo-kits-section";
 
 export const dynamic = "force-dynamic";
 
@@ -191,6 +192,9 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* SMART COOKING MEAL KITS COMBOS */}
+      <ComboKitsSection />
 
       {/* FLASH SALE */}
       {flashSale.length > 0 && (
