@@ -28,7 +28,7 @@ export function RecipeAddToCartButton({ recipeTitle, ingredients }: RecipeAddToC
         // Batch add top 3-4 key ingredients matching products
         let addedCount = 0;
         for (let i = 0; i < Math.min(products.length, 4); i++) {
-          const prod = products[i];
+          const prod = products[i] as { id: string; variantId?: string };
           if (prod.variantId) {
             await addItem(prod.id, prod.variantId, 1);
             addedCount++;

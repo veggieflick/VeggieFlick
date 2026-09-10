@@ -21,6 +21,7 @@ export type ProductCardData = {
   isOrganic: boolean;
   isBestSeller: boolean;
   isFreshToday: boolean;
+  isCutVegetable?: boolean;
   rating: number;
   ratingCount: number;
   categorySlug: string;
