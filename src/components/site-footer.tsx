@@ -39,8 +39,8 @@ export function SiteFooter() {
       <div className="container-page grid gap-10 py-14 md:grid-cols-2 lg:grid-cols-5">
         {/* Brand */}
         <div className="lg:col-span-2">
-          <Link href="/" className="text-[20px] font-bold tracking-[-0.03em] text-ink">
-            Veggie<span className="text-brand-700">Flick</span>
+          <Link href="/" className="inline-block">
+            <img src="/logo.png" alt="VeggieFlick - Easy Cook" className="h-14 w-auto object-contain" />
           </Link>
           <p className="mt-3 max-w-sm text-[13px] leading-relaxed text-muted">
             Chennai&apos;s premium fresh produce delivery. Harvested at dawn, quality-checked twice and delivered

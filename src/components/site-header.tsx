@@ -160,9 +160,7 @@ export function SiteHeader() {
         </button>
 
         <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="VeggieFlick home">
-          <span className="text-[20px] font-bold tracking-[-0.03em] text-ink">
-            Veggie<span className="text-brand-700">Flick</span>
-          </span>
+          <img src="/logo.png" alt="VeggieFlick - Easy Cook" className="h-10 sm:h-12 w-auto object-contain drop-shadow-sm" />
         </Link>
 
         {/* Search */}

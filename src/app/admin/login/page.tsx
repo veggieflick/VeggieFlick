@@ -38,9 +38,7 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4 py-12">
       <div className="w-full max-w-md rounded-[20px] bg-white p-8 shadow-2xl">
         <div className="mb-6 flex items-center gap-3">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-600 text-white">
-            <Carrot size={22} strokeWidth={1.7} />
-          </span>
+          <img src="/logo.png" alt="VeggieFlick Logo" className="h-12 w-auto object-contain" />
           <div>
             <h1 className="text-xl font-bold">VeggieFlick staff portal</h1>
             <p className="text-xs text-muted">Role-based access · audit logged · 2FA ready</p>

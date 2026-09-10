@@ -178,6 +178,9 @@ function LoginFlow() {
       </div>
 
       <div className="card mx-auto w-full max-w-md p-6 md:p-8">
+        <div className="mb-4 flex justify-center">
+          <img src="/logo.png" alt="VeggieFlick - Easy Cook" className="h-16 w-auto object-contain drop-shadow-sm" />
+        </div>
         {/* Navigation Mode Tabs */}
         <div className="mb-6 flex rounded-xl border border-line bg-surface p-1">
           <button

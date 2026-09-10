@@ -36,12 +36,10 @@ export default async function AdminLayout({ children }: { children: ReactNode })
     <div className="min-h-screen bg-slate-50">
       <div className="flex">
         <aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-line bg-white lg:flex">
-          <div className="flex items-center gap-2 border-b border-line px-5 py-4">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-600 text-white">
-              <Carrot size={18} strokeWidth={1.8} />
-            </span>
+          <div className="flex items-center gap-3 border-b border-line px-5 py-3.5">
+            <img src="/logo.png" alt="VeggieFlick Logo" className="h-10 w-auto object-contain" />
             <div>
-              <p className="text-sm font-bold">VeggieFlick</p>
+              <p className="text-sm font-bold text-slate-900">VeggieFlick</p>
               <p className="text-[10px] font-semibold tracking-widest text-brand-600 uppercase">Back office</p>
             </div>
           </div>
@@ -72,9 +70,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <div className="min-w-0 flex-1">
           <header className="sticky top-0 z-40 flex items-center justify-between gap-3 border-b border-line bg-white/95 px-4 py-3 backdrop-blur md:px-6">
             <div className="flex items-center gap-2 lg:hidden">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white">
-                <Carrot size={16} strokeWidth={1.8} />
-              </span>
+              <img src="/logo.png" alt="VeggieFlick Logo" className="h-8 w-auto object-contain" />
               <span className="text-sm font-bold">VeggieFlick Admin</span>
             </div>
             <nav aria-label="Admin quick links" className="hidden gap-1 lg:flex">
