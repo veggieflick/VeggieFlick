@@ -40,7 +40,7 @@ export async function POST(request: Request) {
       id: string;
       name: string;
       phone: string;
-      email: string;
+      email: string | null;
       role: AppRole;
     } | null = null;
 
