@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { CartDrawer } from "@/components/cart-drawer";
 import { FloatingActions, HideOnAdmin, MobileBottomNav } from "@/components/mobile-nav";
+import { OrderStatusToast } from "@/components/order-status-toast";
 
 const rawSiteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 const siteUrl = rawSiteUrl && rawSiteUrl.length > 0 ? rawSiteUrl : "https://veggieflick.in";
@@ -108,6 +109,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <CartDrawer />
           <MobileBottomNav />
           <FloatingActions />
+          <OrderStatusToast />
         </AppProviders>
       </body>
     </html>

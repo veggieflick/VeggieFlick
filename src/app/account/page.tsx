@@ -7,6 +7,7 @@ import { Bell, Gift, Heart, MapPin, Trash2, User, Wallet } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatDateTimeIST, formatINR, initials } from "@/lib/utils";
 import { Breadcrumb, CategoryIconTile, EmptyState } from "@/components/ui/primitives";
+import { ReorderWidget } from "@/components/reorder-widget";
 
 type Address = {
   id: string;
@@ -119,6 +120,8 @@ function AccountContent() {
           </button>
         ))}
       </div>
+
+      <ReorderWidget />
 
       {tab === "profile" && (
         <div className="grid gap-4 md:grid-cols-3">

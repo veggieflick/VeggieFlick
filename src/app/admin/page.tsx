@@ -190,6 +190,71 @@ export default async function AdminDashboardPage() {
         </section>
       </div>
 
+      {/* CHENNAI DELIVERY NEIGHBORHOOD HEATMAP */}
+      <section className="card p-5 border-sky-100 bg-gradient-to-r from-sky-50/40 via-white to-emerald-50/40">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div>
+            <span className="chip bg-sky-100 text-sky-900 border border-sky-200 font-extrabold text-[10px] uppercase">
+              📍 CHENNAI DELIVERIES HEATMAP
+            </span>
+            <h2 className="text-lg font-bold text-ink mt-1">Neighborhood Order Density & SLA Performance</h2>
+          </div>
+          <span className="text-xs text-emerald-800 font-bold bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-full">
+            25 km Koyambedu Radius Active
+          </span>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl border border-sky-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-bold text-slate-600">Anna Nagar & Kilpauk</p>
+            <p className="text-2xl font-extrabold text-sky-900 mt-1">1,420 Orders</p>
+            <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+              <div className="bg-sky-600 h-full rounded-full" style={{ width: "85%" }} />
+            </div>
+            <p className="text-[11px] text-muted mt-2 flex justify-between">
+              <span>32% Share</span>
+              <strong className="text-emerald-700">Avg SLA 24 min</strong>
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-bold text-slate-600">OMR & Velachery</p>
+            <p className="text-2xl font-extrabold text-emerald-900 mt-1">1,180 Orders</p>
+            <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+              <div className="bg-emerald-600 h-full rounded-full" style={{ width: "72%" }} />
+            </div>
+            <p className="text-[11px] text-muted mt-2 flex justify-between">
+              <span>28% Share</span>
+              <strong className="text-emerald-700">Avg SLA 28 min</strong>
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-amber-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-bold text-slate-600">T. Nagar & Mylapore</p>
+            <p className="text-2xl font-extrabold text-amber-900 mt-1">980 Orders</p>
+            <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+              <div className="bg-amber-500 h-full rounded-full" style={{ width: "60%" }} />
+            </div>
+            <p className="text-[11px] text-muted mt-2 flex justify-between">
+              <span>24% Share</span>
+              <strong className="text-emerald-700">Avg SLA 26 min</strong>
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-purple-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-bold text-slate-600">Porur & Ambattur</p>
+            <p className="text-2xl font-extrabold text-purple-900 mt-1">650 Orders</p>
+            <div className="w-full bg-slate-100 h-2 rounded-full mt-2 overflow-hidden">
+              <div className="bg-purple-600 h-full rounded-full" style={{ width: "45%" }} />
+            </div>
+            <p className="text-[11px] text-muted mt-2 flex justify-between">
+              <span>16% Share</span>
+              <strong className="text-emerald-700">Avg SLA 31 min</strong>
+            </p>
+          </div>
+        </div>
+      </section>
+
       <section className="card p-5">
         <h2 className="mb-3 text-lg font-bold">Customer segments</h2>
         <div className="grid gap-3 sm:grid-cols-3">
