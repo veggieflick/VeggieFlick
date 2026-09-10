@@ -685,8 +685,47 @@ export const newsletterSubscribers = pgTable(
   (t) => [uniqueIndex("newsletter_email_idx").on(t.email)],
 );
 
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profileId: uuid("profile_id")
+      .references(() => profiles.id, { onDelete: "cascade" })
+      .notNull(),
+    addressId: uuid("address_id")
+      .references(() => addresses.id, { onDelete: "cascade" }),
+    frequency: varchar("frequency", { length: 32 }).default("daily").notNull(),
+    deliverySlot: varchar("delivery_slot", { length: 60 }).default("06:00 - 08:00 AM").notNull(),
+    status: statusEnum("status").default("active").notNull(),
+    nextDeliveryDate: timestamp("next_delivery_date", { withTimezone: true }),
+    ...timestamps,
+  },
+  (t) => [index("subscriptions_profile_idx").on(t.profileId)],
+);
+
+export const subscriptionItems = pgTable(
+  "subscription_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    subscriptionId: uuid("subscription_id")
+      .references(() => subscriptions.id, { onDelete: "cascade" })
+      .notNull(),
+    productId: uuid("product_id")
+      .references(() => products.id, { onDelete: "cascade" })
+      .notNull(),
+    variantId: uuid("variant_id")
+      .references(() => productVariants.id, { onDelete: "cascade" })
+      .notNull(),
+    quantity: integer("quantity").default(1).notNull(),
+    unitPrice: money("unit_price").notNull(),
+    ...timestamps,
+  },
+  (t) => [index("sub_items_subscription_idx").on(t.subscriptionId)],
+);
+
 export type Product = typeof products.$inferSelect;
 export type ProductVariant = typeof productVariants.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
+export type Subscription = typeof subscriptions.$inferSelect;

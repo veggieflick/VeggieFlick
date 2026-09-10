@@ -217,16 +217,42 @@ function AccountContent() {
           </div>
           <div className="card p-6">
             <h2 className="flex items-center gap-2 text-[16px] font-semibold">
-              <Gift size={18} className="text-offer" /> Refer & earn
+              <Gift size={18} className="text-emerald-700" /> Refer & earn (மச்சி Refer பண்ணு)
             </h2>
-            <p className="mt-4 text-[13px] text-muted">
-              Share your code and both of you get ₹100 off once their first order is delivered.
+            <p className="mt-2 text-[13px] text-muted">
+              Share your code with friends in Chennai. Both of you get ₹100 credited to your VeggieFlick Wallet on their 1st order!
             </p>
-            <p className="mt-3 rounded-2xl bg-surface px-4 py-3 text-lg font-bold tracking-widest">
-              {user.referralCode ?? "VEGGIE100"}
-            </p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3">
+              <span className="font-mono text-lg font-bold tracking-widest text-emerald-900">
+                {user.referralCode ?? "VEGGIE100"}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    void navigator.clipboard.writeText(user.referralCode ?? "VEGGIE100");
+                    notify("Referral code copied!");
+                  }}
+                  className="btn btn-outline btn-sm bg-white text-xs font-bold"
+                >
+                  Copy
+                </button>
+                <a
+                  href={`https://wa.me/?text=${encodeURIComponent(
+                    `Hey! Get ₹100 off your first farm fresh vegetable order on VeggieFlick Chennai using my code: ${
+                      user.referralCode ?? "VEGGIE100"
+                    }\nShop here: https://veggieflick.in`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-sm bg-emerald-600 text-white hover:bg-emerald-700 text-xs font-bold"
+                >
+                  Share WhatsApp
+                </a>
+              </div>
+            </div>
             <p className="mt-3 text-[11px] text-muted">
-              Tier progress: {user.loyaltyTier} · {user.loyaltyPoints} points. Earn 1 point per ₹100 spent.
+              Tier progress: <strong className="text-ink">{user.loyaltyTier}</strong> · {user.loyaltyPoints} points. Earn 1 point per ₹100 spent.
             </p>
           </div>
         </div>

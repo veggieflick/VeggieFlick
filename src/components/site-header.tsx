@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
+import { useLanguage } from "@/components/language-context";
 import { formatINR } from "@/lib/utils";
 import { CategoryIconTile } from "@/components/ui/primitives";
 
@@ -38,6 +39,7 @@ export function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const { cart, user, logout, setDrawerOpen } = useApp();
+  const { lang, setLang, t } = useLanguage();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [term, setTerm] = useState("");
@@ -113,30 +115,36 @@ export function SiteHeader() {
           <div className="flex items-center gap-2">
             <span className="info-pill">
               <Bike size={13} strokeWidth={1.6} aria-hidden />
-              Free delivery above ₹499
+              {t("hero.free_delivery_banner")}
             </span>
             <span className="info-pill hidden sm:inline-flex">
               <Leaf size={13} strokeWidth={1.6} aria-hidden />
-              Harvested today
-            </span>
-            <span className="info-pill hidden md:inline-flex">
-              <Sparkles size={13} strokeWidth={1.6} aria-hidden />
-              10% cashback on first order
+              {t("hero.fresh_badge")}
             </span>
           </div>
-          <label className="info-pill">
-            <MapPin size={13} strokeWidth={1.6} aria-hidden />
-            <select
-              value={area}
-              onChange={(e) => setArea(e.target.value)}
-              className="bg-transparent text-[12px] font-medium outline-none"
-              aria-label="Delivery area"
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setLang(lang === "en" ? "ta" : "en")}
+              className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 transition-colors hover:bg-emerald-100"
+              aria-label="Switch language"
             >
-              {DELIVERY_AREAS.map((a) => (
-                <option key={a}>{a}</option>
-              ))}
-            </select>
-          </label>
+              🌐 {lang === "en" ? "தமிழ்" : "English"}
+            </button>
+            <label className="info-pill">
+              <MapPin size={13} strokeWidth={1.6} aria-hidden />
+              <select
+                value={area}
+                onChange={(e) => setArea(e.target.value)}
+                className="bg-transparent text-[12px] font-medium outline-none"
+                aria-label="Delivery area"
+              >
+                {DELIVERY_AREAS.map((a) => (
+                  <option key={a}>{a}</option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -169,7 +177,7 @@ export function SiteHeader() {
                   setTerm(e.target.value);
                   setShowSuggest(true);
                 }}
-                placeholder='Search “tomato”, “mango”, “organic”…'
+                placeholder={t("nav.search_placeholder")}
                 className="w-full bg-transparent text-[15px] outline-none placeholder:text-muted"
                 aria-label="Search products"
               />

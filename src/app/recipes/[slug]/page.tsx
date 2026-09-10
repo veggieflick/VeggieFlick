@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { recipes } from "@/db/schema";
 import { Breadcrumb } from "@/components/ui/primitives";
 import { DynamicIcon } from "@/lib/icons";
+import { RecipeAddToCartButton } from "@/components/recipe-add-to-cart-button";
 
 export const dynamic = "force-dynamic";
 
@@ -71,9 +72,9 @@ export default async function RecipeDetailPage({ params }: { params: Params }) {
           </div>
 
           <div className="relative mt-8 aspect-[16/9] overflow-hidden rounded-3xl bg-surface">
-          <span className="absolute inset-0 flex items-center justify-center text-brand-700/60">
-            <DynamicIcon name={icon} size={80} strokeWidth={1.1} />
-          </span>
+            <span className="absolute inset-0 flex items-center justify-center text-brand-700/60">
+              <DynamicIcon name={icon} size={80} strokeWidth={1.1} />
+            </span>
           </div>
 
           <section className="mt-10">
@@ -102,9 +103,7 @@ export default async function RecipeDetailPage({ params }: { params: Params }) {
                 </li>
               ))}
             </ul>
-            <Link href="/shop" className="btn btn-primary mt-6 w-full">
-              Shop these ingredients
-            </Link>
+            <RecipeAddToCartButton recipeTitle={recipe.title} ingredients={recipe.ingredients} />
           </div>
         </aside>
       </div>
