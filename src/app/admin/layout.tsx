@@ -5,6 +5,8 @@ import {
   Boxes,
   Carrot,
   LayoutDashboard,
+  Megaphone,
+  Settings,
   ShoppingCart,
   Ticket,
   Truck,
@@ -17,11 +19,11 @@ export const dynamic = "force-dynamic";
 const NAV = [
   { href: "/admin", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/admin/orders", label: "Orders", Icon: ShoppingCart },
-  { href: "/admin/catalog", label: "Products", Icon: Boxes },
-  { href: "/admin/catalog?tab=inventory", label: "Inventory", Icon: BarChart3 },
-  { href: "/admin/catalog?tab=coupons", label: "Coupons", Icon: Ticket },
-  { href: "/admin/orders?status=out_for_delivery", label: "Delivery", Icon: Truck },
-  { href: "/admin/orders?status=delivered", label: "Customers", Icon: Users },
+  { href: "/admin/catalog", label: "Products & Stock", Icon: Boxes },
+  { href: "/admin/customers", label: "Customers CRM", Icon: Users },
+  { href: "/admin/marketing", label: "Marketing & Promos", Icon: Megaphone },
+  { href: "/admin/delivery-settings", label: "Delivery Hub", Icon: Truck },
+  { href: "/admin/settings", label: "Store Settings", Icon: Settings },
 ];
 
 export default async function AdminLayout({ children }: { children: ReactNode }) {
