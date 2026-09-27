@@ -160,9 +160,6 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
               {product.name}
             </h3>
           </Link>
-          {product.tamilName && (
-            <p className="mt-0.5 line-clamp-1 text-[11px] font-medium text-emerald-800">{product.tamilName}</p>
-          )}
 
           {/* Unit Pill Tag */}
           <div className="mt-1.5">

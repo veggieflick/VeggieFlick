@@ -169,14 +169,14 @@ function orderClause(sort: ProductQuery["sort"]) {
 }
 
 const FALLBACK_CATEGORIES = [
-  { id: "cat-1", name: "Fresh Vegetables", slug: "fresh-vegetables", tamilName: "காய்கறிகள்", icon: "vegetables", accent: "#15803d", description: "Handpicked daily from Koyambedu and nearby farms.", sortOrder: 1 },
-  { id: "cat-2", name: "Fresh Fruits", slug: "fresh-fruits", tamilName: "பழங்கள்", icon: "fruits", accent: "#15803d", description: "Naturally ripened seasonal fruits, sweetness guaranteed.", sortOrder: 2 },
-  { id: "cat-3", name: "Cut Vegetables", slug: "cut-vegetables", tamilName: "நறுக்கிய காய்கறி", icon: "cut", accent: "#15803d", description: "Washed, peeled and chopped — cooking made effortless.", sortOrder: 3 },
-  { id: "cat-4", name: "Leafy Vegetables", slug: "leafy-vegetables", tamilName: "கீரை வகைகள்", icon: "leafy", accent: "#15803d", description: "Farm-fresh keerai bunches sorted every morning.", sortOrder: 4 },
-  { id: "cat-5", name: "Organic", slug: "organic", tamilName: "இயற்கை", icon: "organic", accent: "#15803d", description: "Certified organic, zero pesticide residue produce.", sortOrder: 5 },
-  { id: "cat-6", name: "Exotic Vegetables", slug: "exotic-vegetables", tamilName: "விசேஷ காய்கறி", icon: "exotic", accent: "#15803d", description: "Continental favourites for your gourmet kitchen.", sortOrder: 6 },
-  { id: "cat-7", name: "Salads", slug: "சாலட்", icon: "salad", accent: "#15803d", description: "Ready-to-toss salad bowls and healthy mixes.", sortOrder: 7 },
-  { id: "cat-8", name: "Ready To Cook", slug: "ready-to-cook", tamilName: "சமைக்க தயார்", icon: "ready", accent: "#15803d", description: "Recipe kits with pre-cut veggies and spice packs.", sortOrder: 8 },
+  { id: "cat-1", name: "Fresh Vegetables", slug: "fresh-vegetables", tamilName: null, icon: "vegetables", accent: "#15803d", description: "Handpicked daily from Koyambedu and nearby farms.", sortOrder: 1 },
+  { id: "cat-2", name: "Fresh Fruits", slug: "fresh-fruits", tamilName: null, icon: "fruits", accent: "#15803d", description: "Naturally ripened seasonal fruits, sweetness guaranteed.", sortOrder: 2 },
+  { id: "cat-3", name: "Cut Vegetables", slug: "cut-vegetables", tamilName: null, icon: "cut", accent: "#15803d", description: "Washed, peeled and chopped — cooking made effortless.", sortOrder: 3 },
+  { id: "cat-4", name: "Leafy Vegetables", slug: "leafy-vegetables", tamilName: null, icon: "leafy", accent: "#15803d", description: "Farm-fresh keerai bunches sorted every morning.", sortOrder: 4 },
+  { id: "cat-5", name: "Organic", slug: "organic", tamilName: null, icon: "organic", accent: "#15803d", description: "Certified organic, zero pesticide residue produce.", sortOrder: 5 },
+  { id: "cat-6", name: "Exotic Vegetables", slug: "exotic-vegetables", tamilName: null, icon: "exotic", accent: "#15803d", description: "Continental favourites for your gourmet kitchen.", sortOrder: 6 },
+  { id: "cat-7", name: "Salads", slug: "salads", tamilName: null, icon: "salad", accent: "#15803d", description: "Ready-to-toss salad bowls and healthy mixes.", sortOrder: 7 },
+  { id: "cat-8", name: "Ready To Cook", slug: "ready-to-cook", tamilName: null, icon: "ready", accent: "#15803d", description: "Recipe kits with pre-cut veggies and spice packs.", sortOrder: 8 },
 ];
 
 export const FALLBACK_PRODUCTS: (ProductCard & { imageUrl?: string })[] = [
