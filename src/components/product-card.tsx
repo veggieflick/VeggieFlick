@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import { motion } from "framer-motion";
 import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
 import { Badge, Rating } from "@/components/ui/primitives";
@@ -40,8 +41,6 @@ const CATEGORY_HERO: Record<string, string> = {
   organic: "https://images.unsplash.com/photo-1546470427-227c7369a9e3?auto=format&fit=crop&w=600&q=80",
   "exotic-vegetables": "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80",
 };
-
-import { motion } from "framer-motion";
 
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const { cart, addItem, setQuantity, user, notify } = useApp();
@@ -221,9 +220,6 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           </div>
         </div>
       </motion.article>
-    </>
-  );
-}
     </>
   );
 }
