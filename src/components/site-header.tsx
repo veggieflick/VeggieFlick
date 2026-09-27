@@ -124,14 +124,6 @@ export function SiteHeader() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setLang(lang === "en" ? "ta" : "en")}
-              className="flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 transition-colors hover:bg-emerald-100"
-              aria-label="Switch language"
-            >
-              🌐 {lang === "en" ? "தமிழ்" : "English"}
-            </button>
             <label className="info-pill">
               <MapPin size={13} strokeWidth={1.6} aria-hidden />
               <select

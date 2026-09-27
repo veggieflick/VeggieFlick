@@ -220,7 +220,7 @@ function AccountContent() {
           </div>
           <div className="card p-6">
             <h2 className="flex items-center gap-2 text-[16px] font-semibold">
-              <Gift size={18} className="text-emerald-700" /> Refer & earn (மச்சி Refer பண்ணு)
+              <Gift size={18} className="text-emerald-700" /> Refer & Earn ₹100
             </h2>
             <p className="mt-2 text-[13px] text-muted">
               Share your code with friends in Chennai. Both of you get ₹100 credited to your VeggieFlick Wallet on their 1st order!

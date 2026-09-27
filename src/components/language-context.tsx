@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-export type Language = "en" | "ta";
+export type Language = "en";
 
 type Dictionary = Record<string, string>;
 
@@ -64,66 +64,6 @@ const DICTIONARIES: Record<Language, Dictionary> = {
     // General UI
     "ui.language": "Language",
     "ui.english": "English",
-    "ui.tamil": "தமிழ்",
-  },
-  ta: {
-    // Header & Nav
-    "nav.search_placeholder": "காய்கறிகள், பழங்கள் & பொருட்கள் தேடுக...",
-    "nav.delivery_to": "டெலிவரி இடம்",
-    "nav.chennai": "சென்னை 600001",
-    "nav.account": "என் கணக்கு",
-    "nav.login": "உள்நுழைக",
-    "nav.logout": "வெளியேறு",
-    "nav.cart": "கூடை",
-    "nav.recipes": "சமையல் குறிப்புகள்",
-    "nav.shop": "அனைத்தும்",
-    "nav.blog": "பதிவுகள்",
-    "nav.about": "எங்களைப் பற்றி",
-    "nav.admin": "பணியாளர் தளம்",
-
-    // Banner & Hero
-    "hero.free_delivery_banner": "🚀 சென்னை முழுவதும் ₹199-க்கு மேல் இலவச டெலிவரி!",
-    "hero.cta_shop": "இன்றைய அறுவடை வாங்க",
-    "hero.cta_fresh": "இன்றைய ஃப்ரெஷ் சலுகைகள்",
-    "hero.fresh_badge": "காலை 4 மணி அறுவடை · சென்னை மட்டும்",
-    "hero.easy_cooking": "✨ சுலபமான சமையல் & Meal Kits",
-    "hero.next_slot": "அடுத்த டெலிவரி நேரம்",
-    "hero.next_slot_time": "நாளை · காலை 06:00 – 08:00",
-
-    // Product Cards & Shop
-    "product.add": "சேர்",
-    "product.out_of_stock": "கையிருப்பில் இல்லை",
-    "product.organic": "இயற்கை",
-    "product.fresh_today": "இன்றைய ஃப்ரெஷ்",
-    "product.best_seller": "அதிகம் விற்பனை",
-    "product.select_cut": "நறுக்கும் முறை",
-
-    // Cut Types
-    "cut.whole": "முழு காய்கறி",
-    "cut.sambar": "சாம்பார் நறுக்கல்",
-    "cut.poriyal": "பொரியல் பொடி நறுக்கல்",
-    "cut.curry": "குழம்பு பெரிய நறுக்கல்",
-
-    // Recipe Details
-    "recipe.add_all_ingredients": "🛒 சமையல் பொருட்கள் அனைத்தும் கூடைக்குச் சேர்",
-    "recipe.ingredients_added": "சமையல் பொருட்கள் அனைத்தும் கூடையில சேர்க்கப்பட்டது!",
-    "recipe.prep_time": "ஆயத்த நேரம்",
-    "recipe.cook_time": "சமையல் நேரம்",
-    "recipe.servings": "நபர்கள்",
-
-    // Cart & Checkout
-    "cart.title": "உங்கள் ஃப்ரெஷ் கூடை",
-    "cart.empty": "உங்கள் கூடை காலியாக உள்ளது",
-    "cart.checkout": "செக்அவுட் செய்ய",
-    "cart.subtotal": "மொத்தத் தொகை",
-    "cart.delivery_fee": "டெலிவரி கட்டணம்",
-    "cart.grand_total": "இறுதித் தொகை",
-    "cart.free_delivery_needed": "இலவச டெலிவரிக்கு இன்னும் ₹{amount} பொருட்களுக்குச் சேர்க்கவும்!",
-
-    // General UI
-    "ui.language": "மொழி",
-    "ui.english": "English",
-    "ui.tamil": "தமிழ்",
   },
 };
 
@@ -136,23 +76,18 @@ type LanguageContextValue = {
 const LanguageContext = createContext<LanguageContextValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Language>("en");
+  const [lang] = useState<Language>("en");
 
   useEffect(() => {
-    const saved = localStorage.getItem("veggie_lang") as Language;
-    if (saved && (saved === "en" || saved === "ta")) {
-      setLangState(saved);
-    }
+    localStorage.setItem("veggie_lang", "en");
   }, []);
 
-  const setLang = (newLang: Language) => {
-    setLangState(newLang);
-    localStorage.setItem("veggie_lang", newLang);
+  const setLang = () => {
+    localStorage.setItem("veggie_lang", "en");
   };
 
   const t = (key: string, replacements?: Record<string, string | number>): string => {
-    const dict = DICTIONARIES[lang] || DICTIONARIES.en;
-    let text = dict[key] || DICTIONARIES.en[key] || key;
+    let text = DICTIONARIES.en[key] || key;
     if (replacements) {
       Object.entries(replacements).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, String(v));

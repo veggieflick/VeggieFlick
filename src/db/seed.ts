@@ -51,14 +51,14 @@ type ProductSeed = {
 };
 
 const CATEGORIES = [
-  { name: "Fresh Vegetables", tamil: "காய்கறிகள்", icon: "vegetables", accent: "#15803d", desc: "Handpicked daily from Koyambedu and nearby farms." },
-  { name: "Fresh Fruits", tamil: "பழங்கள்", icon: "fruits", accent: "#15803d", desc: "Naturally ripened seasonal fruits, sweetness guaranteed." },
-  { name: "Cut Vegetables", tamil: "நறுக்கிய காய்கறி", icon: "cut", accent: "#15803d", desc: "Washed, peeled and chopped — cooking made effortless." },
-  { name: "Leafy Vegetables", tamil: "கீரை வகைகள்", icon: "leafy", accent: "#15803d", desc: "Farm-fresh keerai bunches sorted every morning." },
-  { name: "Organic", tamil: "இயற்கை", icon: "organic", accent: "#15803d", desc: "Certified organic, zero pesticide residue produce." },
-  { name: "Exotic Vegetables", tamil: "விசேஷ காய்கறி", icon: "exotic", accent: "#15803d", desc: "Continental favourites for your gourmet kitchen." },
-  { name: "Salads", tamil: "சாலட்", icon: "salad", accent: "#15803d", desc: "Ready-to-toss salad bowls and healthy mixes." },
-  { name: "Ready To Cook", tamil: "சமைக்க தயார்", icon: "ready", accent: "#15803d", desc: "Recipe kits with pre-cut veggies and spice packs." },
+  { name: "Fresh Vegetables", tamil: null, icon: "vegetables", accent: "#15803d", desc: "Handpicked daily from Koyambedu and nearby farms." },
+  { name: "Fresh Fruits", tamil: null, icon: "fruits", accent: "#15803d", desc: "Naturally ripened seasonal fruits, sweetness guaranteed." },
+  { name: "Cut Vegetables", tamil: null, icon: "cut", accent: "#15803d", desc: "Washed, peeled and chopped — cooking made effortless." },
+  { name: "Leafy Vegetables", tamil: null, icon: "leafy", accent: "#15803d", desc: "Farm-fresh keerai bunches sorted every morning." },
+  { name: "Organic", tamil: null, icon: "organic", accent: "#15803d", desc: "Certified organic, zero pesticide residue produce." },
+  { name: "Exotic Vegetables", tamil: null, icon: "exotic", accent: "#15803d", desc: "Continental favourites for your gourmet kitchen." },
+  { name: "Salads", tamil: null, icon: "salad", accent: "#15803d", desc: "Ready-to-toss salad bowls and healthy mixes." },
+  { name: "Ready To Cook", tamil: null, icon: "ready", accent: "#15803d", desc: "Recipe kits with pre-cut veggies and spice packs." },
 ];
 
 const SUB_CATEGORIES: Record<string, string[]> = {

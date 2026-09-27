@@ -82,7 +82,7 @@ export function ReorderWidget() {
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-ink">Reorder My Usual Basket (மீண்டும் வாங்க)</h3>
+              <h3 className="text-base font-bold text-ink">Reorder My Usual Basket</h3>
               <span className="chip bg-emerald-100 text-emerald-900 border border-emerald-200 font-extrabold text-[10px]">
                 1-CLICK REORDER
               </span>

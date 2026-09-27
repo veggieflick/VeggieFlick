@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { UtensilsCrossed, Plus, CheckCircle2, Sparkles, ShoppingBag } from "lucide-react";
+import { UtensilsCrossed, CheckCircle2, Sparkles, ShoppingBag } from "lucide-react";
 import { useApp } from "@/components/providers";
-import { useLanguage } from "@/components/language-context";
 import { formatINR } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 type ComboKit = {
   id: string;
   name: string;
-  tamilName: string;
   description: string;
   price: number;
   originalPrice: number;
@@ -22,7 +21,6 @@ const COMBO_KITS: ComboKit[] = [
   {
     id: "combo-sambar",
     name: "Sunday Classic Sambar Meal Kit",
-    tamilName: "ஞாயிறு சாம்பார் காம்போ கிட்",
     description: "Country Tomatoes (1kg), Small Sambar Onions (500g), Fresh Drumstick, Curry Leaves & Coriander bundle.",
     price: 129,
     originalPrice: 175,
@@ -33,7 +31,6 @@ const COMBO_KITS: ComboKit[] = [
   {
     id: "combo-biryani",
     name: "Chennai Sunday Veg Biryani Kit",
-    tamilName: "சென்னை வெஜ் பிரியாணி காம்போ",
     description: "Seeraga Samba Rice (1kg), Fresh Green Peas, Ooty Carrots, French Beans, Fresh Mint & Ginger-Garlic Paste.",
     price: 199,
     originalPrice: 260,
@@ -44,7 +41,6 @@ const COMBO_KITS: ComboKit[] = [
   {
     id: "combo-poriyal",
     name: "Quick Weekday Poriyal & Soup Kit",
-    tamilName: "தினசரி பொரியல் & சூப் காம்போ",
     description: "Pre-cut Chow Chow, Cabbage, Tender Green Peas & Immunity Pepper Soup vegetables.",
     price: 99,
     originalPrice: 140,
@@ -54,11 +50,8 @@ const COMBO_KITS: ComboKit[] = [
   },
 ];
 
-import { motion } from "framer-motion";
-
 export function ComboKitsSection() {
   const { addItem, setDrawerOpen, notify } = useApp();
-  const { t } = useLanguage();
   const [addingId, setAddingId] = useState<string | null>(null);
 
   const handleAddCombo = async (kit: ComboKit) => {
@@ -94,10 +87,10 @@ export function ComboKitsSection() {
               <Sparkles size={13} className="text-amber-600" /> SMART COOKING COMBOS
             </span>
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-[-0.02em] text-ink mt-2">
-              Single-Click Recipe Meal Kits (சமையல் காம்போ)
+              Single-Click Recipe Meal Kits
             </h2>
             <p className="text-xs md:text-sm text-slate-600 mt-1 max-w-2xl">
-              Everything required for Chennai home cooking bundled together at zero prep waste and wholesale Koyambedu pricing.
+              Everything required for home cooking bundled together at zero prep waste and wholesale pricing.
             </p>
           </div>
         </motion.div>
@@ -124,7 +117,6 @@ export function ComboKitsSection() {
                   <span className="text-4xl">{kit.emoji}</span>
                   <div>
                     <h3 className="text-base font-bold text-ink leading-tight">{kit.name}</h3>
-                    <p className="text-xs font-semibold text-emerald-800 mt-0.5">{kit.tamilName}</p>
                   </div>
                 </div>
 
