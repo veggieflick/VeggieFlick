@@ -41,6 +41,8 @@ const CATEGORY_HERO: Record<string, string> = {
   "exotic-vegetables": "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80",
 };
 
+import { motion } from "framer-motion";
+
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const { cart, addItem, setQuantity, user, notify } = useApp();
   const [cutModalOpen, setCutModalOpen] = useState(false);
@@ -82,9 +84,13 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           notify(`Added ${product.name} (${cutStyle.toUpperCase()} cut)`);
         }}
       />
-      <article
-        className="card card-lift group relative flex h-full flex-col overflow-hidden bg-white"
-        style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
+      <motion.article
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: Math.min(index * 0.04, 0.3) }}
+        whileHover={{ y: -4 }}
+        className="card group relative flex h-full flex-col overflow-hidden bg-white border border-slate-200/90 shadow-xs hover:shadow-xl transition-all rounded-2xl"
       >
         {/* Image area */}
         <div className="relative block aspect-square overflow-hidden bg-surface">
@@ -95,7 +101,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 220px"
-                className="object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
               <span className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50/80 via-white to-surface text-brand-700 transition-transform duration-300 group-hover:scale-105">
@@ -105,9 +111,9 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           </Link>
 
           {/* Badges */}
-          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none">
+          <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
             {discountPct > 0 && (
-              <span className="chip chip-offer bg-emerald-600 text-white font-bold">{discountPct}% OFF</span>
+              <span className="chip bg-emerald-800 text-white font-extrabold text-[10px] tracking-wider shadow-sm">{discountPct}% OFF</span>
             )}
             {product.isOrganic && (
               <Badge tone="fresh">Organic</Badge>
@@ -117,28 +123,33 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             )}
           </div>
 
-          {/* Floating Quick Add (+) Button Overlay like Instamart */}
+          {/* Floating Quick Add (+) Button Overlay */}
           {!outOfStock && !line && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.15, rotate: 90 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
               type="button"
               onClick={handleAddClick}
               aria-label={`Add ${product.name} to cart`}
-              className="absolute bottom-2.5 right-2.5 flex h-9 w-9 items-center justify-center rounded-xl bg-[#005a43] text-white shadow-md transition-transform hover:scale-110 active:scale-95"
+              className="absolute bottom-2.5 right-2.5 z-10 flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-800 text-white shadow-md hover:bg-emerald-900"
             >
               <Plus size={18} strokeWidth={2.5} />
-            </button>
+            </motion.button>
           )}
 
-          <button
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
             type="button"
             onClick={() => void toggleWishlist()}
             aria-label={`Save ${product.name} to wishlist`}
-            className="absolute top-2.5 right-2.5 flex h-8 w-8 items-center justify-center rounded-full bg-white/95 text-muted shadow-sm backdrop-blur transition-colors hover:text-brand-700"
+            className="absolute top-2.5 right-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted shadow-sm backdrop-blur transition-colors hover:text-emerald-800"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z" />
             </svg>
-          </button>
+          </motion.button>
         </div>
 
         {/* Content */}
@@ -146,7 +157,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           <Rating value={product.rating} count={product.ratingCount} />
 
           <Link href={`/product/${product.slug}`}>
-            <h3 className="mt-1 line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-brand-700">
+            <h3 className="mt-1 line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-emerald-800">
               {product.name}
             </h3>
           </Link>
@@ -176,11 +187,11 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             {outOfStock ? (
               <span className="chip chip-muted">Out of stock</span>
             ) : line ? (
-              <div className="flex items-center gap-0.5 rounded-full border border-brand-700 bg-brand-700 text-white shadow-sm">
+              <div className="flex items-center gap-0.5 rounded-full border border-emerald-800 bg-emerald-800 text-white shadow-sm">
                 <button
                   type="button"
                   aria-label={`Decrease ${product.name}`}
-                  className="flex h-7 w-7 items-center justify-center transition-colors hover:bg-brand-800"
+                  className="flex h-7 w-7 items-center justify-center transition-colors hover:bg-emerald-900"
                   onClick={() => void setQuantity(line.id, line.quantity - 1)}
                 >
                   <Minus size={12} strokeWidth={2.5} />
@@ -189,7 +200,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 <button
                   type="button"
                   aria-label={`Increase ${product.name}`}
-                  className="flex h-7 w-7 items-center justify-center transition-colors hover:bg-brand-800 disabled:opacity-40"
+                  className="flex h-7 w-7 items-center justify-center transition-colors hover:bg-emerald-900 disabled:opacity-40"
                   disabled={line.quantity >= product.availableStock}
                   onClick={() => void setQuantity(line.id, line.quantity + 1)}
                 >
@@ -197,17 +208,22 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 </button>
               </div>
             ) : (
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={handleAddClick}
-                className="btn btn-outline btn-sm border-brand-700 font-bold text-brand-700 hover:bg-brand-700 hover:text-white"
+                className="btn btn-outline btn-sm border-emerald-800 font-bold text-emerald-800 hover:bg-emerald-800 hover:text-white"
               >
                 Add
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
-      </article>
+      </motion.article>
+    </>
+  );
+}
     </>
   );
 }

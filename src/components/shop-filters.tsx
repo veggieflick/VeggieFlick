@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { SlidersHorizontal, Star, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Category = { id: string; name: string; slug: string; icon: string };
 
@@ -58,12 +59,16 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
   const panel = (
     <div className="grid gap-6">
       <div>
-        <h3 className="mb-2 text-sm font-bold">Category</h3>
+        <h3 className="mb-2.5 text-xs font-black uppercase tracking-wider text-muted">Category</h3>
         <div className="grid gap-1">
           <button
             type="button"
             onClick={() => update({ category: null })}
-            className={`rounded-lg px-3 py-2 text-left text-sm ${!activeCategory ? "bg-brand-50 font-semibold text-brand-700" : "hover:bg-surface"}`}
+            className={`rounded-xl px-3 py-2 text-left text-sm font-semibold transition-all ${
+              !activeCategory
+                ? "bg-emerald-800 text-white shadow-sm"
+                : "hover:bg-slate-100 text-slate-700"
+            }`}
           >
             All categories
           </button>
@@ -72,8 +77,10 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
               key={category.id}
               type="button"
               onClick={() => update({ category: category.slug })}
-              className={`block w-full rounded-lg px-3 py-2 text-left text-sm font-medium transition-colors ${
-                activeCategory === category.slug ? "bg-brand-50 font-semibold text-brand-700" : "hover:bg-surface text-ink"
+              className={`block w-full rounded-xl px-3 py-2 text-left text-sm font-medium transition-all ${
+                activeCategory === category.slug
+                  ? "bg-emerald-800 text-white font-bold shadow-sm"
+                  : "hover:bg-slate-100 text-slate-700"
               }`}
             >
               {category.name}
@@ -83,8 +90,8 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-bold">Price</h3>
-        <div className="grid gap-1">
+        <h3 className="mb-2.5 text-xs font-black uppercase tracking-wider text-muted">Price Range</h3>
+        <div className="grid gap-1.5">
           {PRICE_BANDS.map((band) => {
             const active = params.get("minPrice") === String(band.min) && params.get("maxPrice") === String(band.max);
             return (
@@ -98,7 +105,11 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
                       : { minPrice: String(band.min), maxPrice: String(band.max) },
                   )
                 }
-                className={`rounded-lg px-3 py-2 text-left text-sm ${active ? "bg-brand-50 font-semibold text-brand-700" : "hover:bg-surface"}`}
+                className={`rounded-xl px-3 py-2 text-left text-sm font-medium transition-all ${
+                  active
+                    ? "bg-emerald-100 text-emerald-950 font-bold border border-emerald-300"
+                    : "bg-surface hover:bg-slate-100 text-slate-700 border border-line/60"
+                }`}
               >
                 {band.label}
               </button>
@@ -108,19 +119,26 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-bold">Quick filters</h3>
+        <h3 className="mb-2.5 text-xs font-black uppercase tracking-wider text-muted">Quick Filters</h3>
         <div className="grid gap-2">
           {TOGGLES.map((toggle) => {
             const active = params.get(toggle.key) === "true";
             return (
-              <label key={toggle.key} className="flex cursor-pointer items-center gap-2 text-sm">
+              <label
+                key={toggle.key}
+                className={`flex cursor-pointer items-center justify-between rounded-xl p-2.5 text-sm font-medium transition-all ${
+                  active
+                    ? "bg-emerald-50 text-emerald-950 font-bold border border-emerald-300"
+                    : "hover:bg-surface text-slate-700 border border-transparent"
+                }`}
+              >
+                <span>{toggle.label}</span>
                 <input
                   type="checkbox"
                   checked={active}
                   onChange={() => update({ [toggle.key]: active ? null : "true" })}
-                  className="h-4 w-4 rounded border-line accent-brand-600"
+                  className="h-4 w-4 rounded border-line accent-emerald-800 cursor-pointer"
                 />
-                {toggle.label}
               </label>
             );
           })}
@@ -128,7 +146,7 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-bold">Discount</h3>
+        <h3 className="mb-2.5 text-xs font-black uppercase tracking-wider text-muted">Discount</h3>
         <div className="flex flex-wrap gap-2">
           {DISCOUNTS.map((value) => {
             const active = params.get("minDiscount") === String(value);
@@ -137,7 +155,11 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
                 key={value}
                 type="button"
                 onClick={() => update({ minDiscount: active ? null : String(value) })}
-                className={`chip border ${active ? "border-brand-600 bg-brand-50 text-brand-700" : "border-line text-muted"}`}
+                className={`chip border transition-all ${
+                  active
+                    ? "border-emerald-700 bg-emerald-800 text-white font-bold"
+                    : "border-line text-slate-700 hover:border-slate-400"
+                }`}
               >
                 {value}%+ off
               </button>
@@ -147,7 +169,7 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
       </div>
 
       <div>
-        <h3 className="mb-2 text-sm font-bold">Rating</h3>
+        <h3 className="mb-2.5 text-xs font-black uppercase tracking-wider text-muted">Rating</h3>
         <div className="flex flex-wrap gap-2">
           {RATINGS.map((value) => {
             const active = params.get("minRating") === String(value);
@@ -156,9 +178,13 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
                 key={value}
                 type="button"
                 onClick={() => update({ minRating: active ? null : String(value) })}
-                className={`chip border ${active ? "border-brand-600 bg-brand-50 text-brand-700" : "border-line text-muted"}`}
+                className={`chip border transition-all ${
+                  active
+                    ? "border-emerald-700 bg-emerald-800 text-white font-bold"
+                    : "border-line text-slate-700 hover:border-slate-400"
+                }`}
               >
-                <Star size={10} className="fill-[#f97316] text-[#f97316]" strokeWidth={1.5} aria-hidden /> {value}+
+                <Star size={12} className="fill-amber-400 text-amber-400" strokeWidth={1.5} aria-hidden /> {value}+
               </button>
             );
           })}
@@ -168,7 +194,7 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
       <button
         type="button"
         onClick={() => router.push("/shop")}
-        className="btn btn-outline w-full py-2 text-sm"
+        className="btn btn-outline w-full py-2.5 text-xs font-bold uppercase tracking-wider text-slate-600 hover:bg-slate-100"
       >
         Clear all filters
       </button>
@@ -178,27 +204,29 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
   return (
     <>
       <div className="mb-4 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">
-          <span className="font-semibold text-ink">{total}</span> products
+        <p className="text-sm font-medium text-slate-500">
+          Showing <span className="font-extrabold text-slate-900">{total}</span> fresh items
         </p>
         <div className="flex items-center gap-2">
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="btn btn-outline px-3 py-2 text-sm lg:hidden"
+            className="btn btn-outline px-3.5 py-2 text-sm font-bold lg:hidden shadow-xs border-emerald-200 text-emerald-900 bg-emerald-50/50"
           >
-            <SlidersHorizontal className="h-4 w-4" aria-hidden />
+            <SlidersHorizontal className="h-4 w-4 text-emerald-800" aria-hidden />
             Filters
             {activeCount > 0 && (
-              <span className="ml-1 rounded-full bg-brand-600 px-1.5 text-[10px] text-white">{activeCount}</span>
+              <span className="ml-1 rounded-full bg-emerald-800 px-1.5 py-0.5 text-[10px] font-bold text-white">
+                {activeCount}
+              </span>
             )}
           </button>
-          <label className="flex items-center gap-2 text-sm">
-            <span className="hidden text-muted sm:inline">Sort</span>
+          <label className="flex items-center gap-2 text-sm font-medium text-slate-600">
+            <span className="hidden sm:inline">Sort by:</span>
             <select
               value={activeSort}
               onChange={(event) => update({ sort: event.target.value })}
-              className="field w-auto py-2 text-sm"
+              className="field w-auto py-1.5 px-3 text-sm font-bold border-slate-200 rounded-xl"
               aria-label="Sort products"
             >
               {SORTS.map((sort) => (
@@ -212,35 +240,51 @@ export function ShopFilters({ categories, total }: { categories: Category[]; tot
       </div>
 
       <aside className="hidden lg:block">
-        <div className="card sticky top-44 max-h-[calc(100vh-12rem)] overflow-y-auto p-5">{panel}</div>
+        <div className="card sticky top-32 max-h-[calc(100vh-10rem)] overflow-y-auto p-5 border-slate-200/80 shadow-xs bg-white/90 backdrop-blur">
+          {panel}
+        </div>
       </aside>
 
-      {mobileOpen && (
-        <div className="fixed inset-0 z-[70] lg:hidden">
-          <button
-            type="button"
-            aria-label="Close filters"
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setMobileOpen(false)}
-          />
-          <div className="absolute right-0 bottom-0 left-0 max-h-[80vh] overflow-y-auto rounded-t-3xl bg-white p-5">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-bold">Filters</h2>
-              <button type="button" aria-label="Close filters" onClick={() => setMobileOpen(false)}>
-                <X className="h-5 w-5" aria-hidden />
-              </button>
-            </div>
-            {panel}
-            <button
-              type="button"
+      <AnimatePresence>
+        {mobileOpen && (
+          <div className="fixed inset-0 z-[70] lg:hidden">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-xs"
               onClick={() => setMobileOpen(false)}
-              className="btn btn-primary mt-4 w-full py-3 text-sm"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="absolute right-0 bottom-0 left-0 max-h-[85vh] overflow-y-auto rounded-t-3xl bg-white p-6 shadow-2xl"
             >
-              Show {total} products
-            </button>
+              <div className="mb-4 flex items-center justify-between pb-3 border-b border-line">
+                <h2 className="text-lg font-extrabold text-slate-900">Filter Produce</h2>
+                <button
+                  type="button"
+                  aria-label="Close filters"
+                  onClick={() => setMobileOpen(false)}
+                  className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                >
+                  <X className="h-5 w-5" aria-hidden />
+                </button>
+              </div>
+              {panel}
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="btn btn-primary mt-6 w-full py-3.5 text-sm font-bold shadow-lg shadow-emerald-800/20"
+              >
+                Show {total} items
+              </button>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </>
   );
 }

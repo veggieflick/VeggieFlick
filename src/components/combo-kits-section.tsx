@@ -54,6 +54,8 @@ const COMBO_KITS: ComboKit[] = [
   },
 ];
 
+import { motion } from "framer-motion";
+
 export function ComboKitsSection() {
   const { addItem, setDrawerOpen, notify } = useApp();
   const { t } = useLanguage();
@@ -62,11 +64,10 @@ export function ComboKitsSection() {
   const handleAddCombo = async (kit: ComboKit) => {
     setAddingId(kit.id);
     try {
-      // Fetch catalog to find matching items or add primary item
       const res = await fetch("/api/v1/products?limit=5");
       const json = await res.json();
-      if (json.success && json.data?.products?.length) {
-        const prod = json.data.products[0];
+      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+        const prod = json.data[0];
         await addItem(prod.id, prod.variantId, 1);
         setDrawerOpen(true);
         notify(`Added ${kit.name} to basket!`);
@@ -79,11 +80,17 @@ export function ComboKitsSection() {
   };
 
   return (
-    <section className="bg-gradient-to-br from-amber-50/70 via-orange-50/40 to-white py-12 md:py-16 border-y border-amber-100">
+    <section className="bg-gradient-to-br from-amber-50/70 via-orange-50/30 to-white py-12 md:py-16 border-y border-amber-100">
       <div className="container-page">
-        <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-40px" }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-wrap items-center justify-between gap-4 mb-8"
+        >
           <div>
-            <span className="chip bg-amber-100 text-amber-900 border border-amber-200 font-extrabold text-xs inline-flex items-center gap-1.5">
+            <span className="chip bg-amber-100 text-amber-900 border border-amber-200/90 font-extrabold text-xs inline-flex items-center gap-1.5 shadow-xs">
               <Sparkles size={13} className="text-amber-600" /> SMART COOKING COMBOS
             </span>
             <h2 className="text-2xl md:text-3xl font-extrabold tracking-[-0.02em] text-ink mt-2">
@@ -93,16 +100,21 @@ export function ComboKitsSection() {
               Everything required for Chennai home cooking bundled together at zero prep waste and wholesale Koyambedu pricing.
             </p>
           </div>
-        </div>
+        </motion.div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {COMBO_KITS.map((kit) => (
-            <div
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {COMBO_KITS.map((kit, index) => (
+            <motion.div
               key={kit.id}
-              className="card card-lift bg-white p-5 border-amber-200/80 shadow-md flex flex-col justify-between relative overflow-hidden"
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: index * 0.1 }}
+              whileHover={{ y: -4 }}
+              className="card bg-white p-5 border-amber-200/90 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden rounded-2xl"
             >
               <div className="absolute top-3 right-3">
-                <span className="chip bg-red-600 text-white font-extrabold text-[10px] tracking-wider">
+                <span className="chip bg-gradient-to-r from-red-600 to-rose-600 text-white font-extrabold text-[10px] tracking-wider shadow-sm">
                   {kit.badge}
                 </span>
               </div>
@@ -118,7 +130,7 @@ export function ComboKitsSection() {
 
                 <p className="text-xs text-slate-600 leading-relaxed mt-3">{kit.description}</p>
 
-                <div className="mt-4 rounded-xl bg-amber-50/60 p-3 border border-amber-100">
+                <div className="mt-4 rounded-xl bg-amber-50/60 p-3 border border-amber-100/80">
                   <p className="text-[11px] font-bold text-amber-950 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                     <UtensilsCrossed size={12} /> Included in Combo:
                   </p>
@@ -138,16 +150,18 @@ export function ComboKitsSection() {
                   <span className="text-xl font-extrabold text-ink">{formatINR(kit.price)}</span>
                   <span className="text-xs text-muted line-through ml-1.5">{formatINR(kit.originalPrice)}</span>
                 </div>
-                <button
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
                   type="button"
                   onClick={() => handleAddCombo(kit)}
                   disabled={addingId === kit.id}
-                  className="btn btn-primary btn-sm bg-emerald-700 text-white font-bold text-xs shadow-md hover:bg-emerald-800"
+                  className="btn btn-primary btn-sm bg-emerald-800 text-white font-bold text-xs shadow-md hover:bg-emerald-900 border-none"
                 >
                   <ShoppingBag size={14} /> Add Combo Kit
-                </button>
+                </motion.button>
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

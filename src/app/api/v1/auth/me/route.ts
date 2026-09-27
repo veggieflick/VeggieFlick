@@ -11,25 +11,34 @@ export async function GET() {
     const session = await getSession();
     if (!session) return ok({ authenticated: false, user: null });
 
-    const [profile] = await db.select().from(profiles).where(eq(profiles.id, session.id)).limit(1);
-    if (!profile) return ok({ authenticated: false, user: null });
+    let profile: typeof profiles.$inferSelect | undefined;
+    let walletBalance = "0.00";
 
-    const [wallet] = await db.select().from(wallets).where(eq(wallets.profileId, profile.id)).limit(1);
+    try {
+      const [row] = await db.select().from(profiles).where(eq(profiles.id, session.id)).limit(1);
+      profile = row;
+      if (profile) {
+        const [wallet] = await db.select().from(wallets).where(eq(wallets.profileId, profile.id)).limit(1);
+        if (wallet) walletBalance = wallet.balance;
+      }
+    } catch {
+      // Fallback for demo/stateless session environment
+    }
 
     return ok({
       authenticated: true,
       user: {
-        id: profile.id,
-        fullName: profile.fullName,
-        phone: profile.phone,
-        email: profile.email,
-        role: profile.role,
-        loyaltyTier: profile.loyaltyTier,
-        loyaltyPoints: profile.loyaltyPoints,
-        referralCode: profile.referralCode,
-        walletBalance: wallet?.balance ?? "0.00",
+        id: session.id,
+        fullName: profile?.fullName ?? session.name,
+        phone: profile?.phone ?? session.phone,
+        email: profile?.email ?? session.email,
+        role: profile?.role ?? session.role,
+        loyaltyTier: profile?.loyaltyTier ?? "Bronze",
+        loyaltyPoints: profile?.loyaltyPoints ?? 0,
+        referralCode: profile?.referralCode ?? null,
+        walletBalance,
       },
-      permissions: ROLE_PERMISSIONS[profile.role],
+      permissions: ROLE_PERMISSIONS[profile?.role ?? session.role] ?? [],
     });
   });
 }

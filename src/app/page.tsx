@@ -1,33 +1,33 @@
 import Image from "next/image";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
-import { Bike, ChefHat, Clock, Leaf, MessageCircle, ShieldCheck, Sparkles, Star, Truck, UtensilsCrossed } from "lucide-react";
+import { Bike, Leaf, ShieldCheck, Sparkles, Star, Truck } from "lucide-react";
 import { db } from "@/db";
 import { blogs, recipes } from "@/db/schema";
 import { catalogCounts, listCategories, listCollection } from "@/lib/services/catalog";
 import { ProductCard, ProductCarousel } from "@/components/product-card";
 import { NewsletterForm } from "@/components/newsletter-form";
 import { CategoryIconTile, SectionHeading, Badge } from "@/components/ui/primitives";
+import { AnimatedSection } from "@/components/ui/animated-section";
 import { lookupIcon } from "@/lib/icons";
 import { ComboKitsSection } from "@/components/combo-kits-section";
+import { HeroDialogueHeading } from "@/components/hero-dialogue-heading";
+import { ChefDialogueSlider } from "@/components/chef-dialogue-slider";
 
 export const dynamic = "force-dynamic";
 
 const WHY_US = [
-  { Icon: Leaf, title: "Harvested this morning", body: "Sourced at 4 AM from Koyambedu and partner farms in Hosur, Ooty and Thiruvallur." },
-  { Icon: Truck, title: "Slot delivery in Chennai", body: "Six delivery slots a day, insulated bags and live tracking within a 25 km radius." },
-  { Icon: ShieldCheck, title: "Double quality check", body: "Graded at the farm gate and re-inspected at our hub. Anything over 24 hours never ships." },
-  { Icon: Sparkles, title: "No-questions refunds", body: "Not happy with an item? Instant wallet refund on the same day of delivery." },
+  { Icon: Leaf, title: "Harvested at 4 AM", body: "Sourced daily from Koyambedu and partner farms in Ooty, Hosur and Thiruvallur." },
+  { Icon: Truck, title: "Slot delivery in Chennai", body: "Six insulated delivery slots a day with live temperature-controlled tracking." },
+  { Icon: ShieldCheck, title: "Double quality check", body: "Graded at farm gate & re-inspected at hub. Nothing over 24 hours ever ships." },
+  { Icon: Sparkles, title: "Instant wallet refunds", body: "Not 100% delighted? Zero-questions instant credit to your VeggieFlick wallet." },
 ];
 
 const TESTIMONIALS = [
   { name: "Lakshmi Subramanian", area: "Anna Nagar", text: "The keerai actually snaps when you bend it — that never happens with other apps. Sambar kit is a lifesaver on weeknights.", rating: 5 },
-  { name: "Rahul Menon", area: "OMR Thoraipakkam", text: "Ordered at 9 PM, got my slot at 6 AM the next morning. Alphonso mangoes were exactly as promised, no carbide smell.", rating: 5 },
-  { name: "Fathima Noor", area: "T. Nagar", text: "Cut vegetables save me twenty minutes every day and the packaging is genuinely clean. Prices beat my local market.", rating: 4 },
+  { name: "Rahul Menon", area: "OMR Thoraipakkam", text: "Ordered at 9 PM, got my slot at 6 AM the next morning. Alphonso mangoes were exactly as promised, no chemical smell.", rating: 5 },
+  { name: "Fathima Noor", area: "T. Nagar", text: "Cut vegetables save me 20 minutes every morning. Clean packaging and unbeatable farm prices.", rating: 5 },
 ];
-
-import { HeroDialogueHeading } from "@/components/hero-dialogue-heading";
-import { ChefDialogueSlider } from "@/components/chef-dialogue-slider";
 
 export default async function HomePage() {
   const [categories, flashSale, bestSellers, freshToday, organic, exotic, counts] = await Promise.all([
@@ -73,55 +73,55 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* HERO SECTION WITH DUAL-TONE SOFT BLUE TO WHITE GRADIENT & DYNAMIC HERO QUOTES HEADING */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#e0f2fe] via-[#f0f9ff] to-white pb-6 pt-4 md:py-16">
-        {/* Subtle decorative color ambient glows */}
-        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-sky-200/40 blur-3xl" />
-        <div className="pointer-events-none absolute -right-20 top-40 h-96 w-96 rounded-full bg-indigo-100/40 blur-3xl" />
+      {/* HERO SECTION WITH LUXURY SOFT BLUE TO EMERALD GRADIENT & DYNAMIC HERO QUOTES HEADING */}
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#e0f2fe] via-[#f0f9ff] to-white pb-8 pt-4 md:py-16">
+        {/* Ambient glows */}
+        <div className="pointer-events-none absolute -left-20 -top-20 h-96 w-96 rounded-full bg-emerald-200/35 blur-3xl" />
+        <div className="pointer-events-none absolute -right-20 top-40 h-96 w-96 rounded-full bg-sky-200/40 blur-3xl" />
 
         <div className="container-page grid items-center gap-10 py-6 md:py-8 lg:grid-cols-[1.15fr_1fr]">
-          <div className="animate-fade-up">
+          <div>
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="brand" icon="fresh">
                 {counts.productCount}+ products · Chennai only
               </Badge>
-              <span className="chip bg-sky-100 font-semibold text-sky-900 border border-sky-200">
-                ✨ Easy Cooking & Ready to Meal
+              <span className="chip bg-emerald-100/90 font-extrabold text-emerald-950 border border-emerald-300/80 shadow-xs">
+                ✨ 10-Min Prep Ready Kits
               </span>
             </div>
 
-            {/* Dynamic Rotating Quotes Title Replacing Old Text */}
+            {/* Dynamic Rotating Quotes Title */}
             <div className="mt-4">
               <HeroDialogueHeading />
             </div>
 
-            <p className="mt-2 max-w-xl text-[17px] leading-relaxed text-slate-600">
-              Vegetables, fruits, pre-cut veggies and 10-minute ready-to-cook meal kits picked at dawn from Tamil Nadu farms — at your Chennai doorstep when you need them.
+            <p className="mt-3 max-w-xl text-[16px] md:text-[17px] leading-relaxed text-slate-600">
+              Vegetables, fruits, pre-cut veggies and 10-minute ready-to-cook meal kits picked at dawn from Tamil Nadu farms — delivered directly to your Chennai doorstep.
             </p>
 
             {/* EMBOSSED DYNAMIC CHEF DIALOGUE SLIDER */}
             <ChefDialogueSlider />
 
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/shop" className="btn btn-primary shadow-lg shadow-emerald-600/20">
-                Shop today&apos;s harvest
+            <div className="mt-7 flex flex-wrap gap-3.5">
+              <Link href="/shop" className="btn btn-primary shadow-xl shadow-emerald-700/25 px-6 py-3.5 text-sm md:text-base font-bold transition-transform hover:scale-[1.02] active:scale-[0.98]">
+                Shop Today&apos;s Harvest
               </Link>
-              <Link href="/shop?freshToday=true" className="btn btn-outline bg-white/90">
-                Fresh today collection
+              <Link href="/shop?freshToday=true" className="btn btn-outline bg-white/95 backdrop-blur px-5 py-3.5 text-sm md:text-base font-bold shadow-sm hover:bg-emerald-50/50">
+                Fresh Today Collection
               </Link>
             </div>
 
             <dl className="mt-8 grid max-w-lg grid-cols-3 gap-3">
               {[
-                { label: "Delivery radius", value: "25 km" },
-                { label: "Delivery slots", value: "6 daily" },
+                { label: "Delivery Radius", value: "25 km" },
+                { label: "Daily Slots", value: "6 Slots" },
                 { label: "Organic SKUs", value: `${counts.organicCount}+` },
               ].map((stat) => (
-                <div key={stat.label} className="rounded-2xl border border-sky-100 bg-white/90 px-3 py-3 shadow-sm">
-                  <dt className="text-[10px] font-semibold tracking-widest text-muted uppercase">
+                <div key={stat.label} className="rounded-2xl border border-sky-100 bg-white/90 px-3.5 py-3 shadow-xs">
+                  <dt className="text-[10px] font-bold tracking-widest text-muted uppercase">
                     {stat.label}
                   </dt>
-                  <dd className="mt-1 text-[20px] font-bold tracking-[-0.02em] text-ink">{stat.value}</dd>
+                  <dd className="mt-1 text-[19px] md:text-[21px] font-extrabold tracking-tight text-ink">{stat.value}</dd>
                 </div>
               ))}
             </dl>
@@ -137,133 +137,140 @@ export default async function HomePage() {
                 sizes="(max-width: 1024px) 100vw, 620px"
                 className="object-cover transition-transform duration-700 hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-950/60 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 text-white">
-                <span className="rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur-sm">
+                <span className="rounded-full bg-emerald-500/90 px-3 py-1 text-xs font-bold uppercase tracking-wider backdrop-blur-sm shadow-sm">
                   Fresh Daily Harvest
                 </span>
-                <p className="mt-1 text-sm font-semibold text-white/90">Ooty Carrots, Country Tomatoes, Alphonso Mangoes & Leafy Greens</p>
+                <p className="mt-2 text-sm font-semibold text-white/95">Ooty Carrots, Country Tomatoes, Alphonso Mangoes & Leafy Greens</p>
               </div>
             </div>
 
             <div className="card absolute -bottom-5 left-4 flex items-center gap-3 border border-sky-100 bg-white/95 px-4 py-3 shadow-xl backdrop-blur-md md:left-8">
-              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-sky-100 text-sky-700">
-                <Bike size={18} strokeWidth={1.6} />
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-800">
+                <Bike size={19} strokeWidth={1.8} />
               </span>
               <div>
-                <p className="text-[11px] text-muted">Next available slot</p>
+                <p className="text-[11px] font-medium text-muted">Next available slot</p>
                 <p className="text-[13px] font-bold text-ink">Tomorrow · 06:00 – 08:00 AM</p>
               </div>
             </div>
 
-            <div className="card absolute -top-4 right-4 hidden items-center gap-2 border border-emerald-100 bg-white/95 px-3 py-2 shadow-md md:flex">
-              <span className="text-emerald-600">
-                <Leaf size={14} strokeWidth={1.7} />
+            <div className="card absolute -top-4 right-4 hidden items-center gap-2 border border-emerald-100 bg-white/95 px-3.5 py-2 shadow-md md:flex backdrop-blur-md">
+              <span className="text-emerald-700">
+                <Leaf size={15} strokeWidth={2} />
               </span>
-              <span className="text-[12px] font-bold text-emerald-900">Farm Fresh Across Chennai</span>
+              <span className="text-[12px] font-bold text-emerald-950">Farm Fresh Across Chennai</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* INSTAMART-STYLE FREE DELIVERY BANNER */}
-      <div className="bg-[#e6f9f3] border-y border-[#b2edd6] py-3 text-center text-xs md:text-sm font-extrabold text-[#00684a]">
-        🚀 <span className="tracking-wide uppercase">FREE DELIVERY</span> on all orders above ₹199 across Chennai!
+      {/* FREE DELIVERY BANNER */}
+      <div className="bg-[#e6f9f3] border-y border-[#b2edd6] py-3 text-center text-xs md:text-sm font-black text-[#00684a] shadow-xs">
+        🚀 <span className="tracking-wide uppercase font-black">FREE EXPRESS DELIVERY</span> on all orders above ₹199 across Chennai!
       </div>
 
       {/* CATEGORIES */}
-      <section className="container-page py-10 md:py-14">
+      <AnimatedSection className="container-page py-10 md:py-14">
         <SectionHeading
           eyebrow="Shop by category"
           title="Everything fresh, sorted for you"
-          description="Eight curated aisles built around how Chennai kitchens actually cook."
+          description="Curated aisles designed around how Chennai kitchens actually cook."
           href="/shop"
         />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+        <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 lg:grid-cols-8">
           {categories.map((category) => (
             <Link
               key={category.id}
               href={`/shop?category=${category.slug}`}
-              className="card card-lift flex flex-col items-center gap-3 p-4 text-center border-sky-100/60 hover:border-sky-300"
+              className="card card-lift flex flex-col items-center gap-3 p-4 text-center border-sky-100/70 hover:border-emerald-300 hover:shadow-lg transition-all duration-300 bg-white/90"
             >
               <CategoryIconTile icon={category.icon} accent={category.accent} size={56} />
-              <span className="text-[13px] font-bold text-ink">{category.name}</span>
+              <span className="text-[13px] font-extrabold text-slate-800 leading-tight">{category.name}</span>
             </Link>
           ))}
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* SMART COOKING MEAL KITS COMBOS */}
       <ComboKitsSection />
 
       {/* FLASH SALE */}
       {flashSale.length > 0 && (
-        <section className="bg-surface py-14 md:py-16">
+        <AnimatedSection className="bg-surface py-14 md:py-16 border-y border-line/40">
           <div className="container-page">
             <SectionHeading
               eyebrow="Flash sale · Today only"
               title="Biggest savings of the day"
-              description="Deep discounts on surplus-fresh crates. Once they're gone, they're gone."
+              description="Deep discounts on surplus-fresh crates. Limited daily availability."
               href="/shop?sort=discount"
             />
             <ProductCarousel products={flashSale} />
           </div>
-        </section>
+        </AnimatedSection>
       )}
 
       {/* BEST SELLERS */}
-      <section className="container-page py-14 md:py-16">
+      <AnimatedSection className="container-page py-14 md:py-16">
         <SectionHeading
           eyebrow="Popular in Chennai"
           title="Most shopped near you"
-          description="The daily fresh staples that go into thousands of Chennai kitchens every morning."
+          description="Daily fresh staples delivered to thousands of Chennai kitchens every morning."
           href="/shop?bestSeller=true"
         />
         <ProductCarousel products={bestSellers} />
-      </section>
+      </AnimatedSection>
 
       {/* FRESH TODAY */}
       {freshToday.length > 0 && (
-        <section className="container-page py-14 md:py-16">
+        <AnimatedSection className="container-page py-14 md:py-16">
           <SectionHeading
             eyebrow="Fresh today"
             title="Harvested this morning"
             description="Crates that landed at our Koyambedu hub before sunrise."
             href="/shop?freshToday=true"
           />
-          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3.5 md:grid-cols-3 md:gap-4 lg:grid-cols-4">
             {freshToday.slice(0, 8).map((p, i) => (
               <ProductCard key={p.id} product={p} index={i} />
             ))}
           </div>
-        </section>
+        </AnimatedSection>
       )}
 
       {/* WHY US */}
-      <section className="bg-surface py-16 md:py-20">
-        <div className="container-page">
-          <SectionHeading
-            eyebrow="Why VeggieFlick"
-            title="Freshness is an operations problem. We solved it."
-            description="A cold chain built for Chennai's climate, run on a 24-hour rule."
-          />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <AnimatedSection className="bg-emerald-950 py-16 md:py-20 text-white relative overflow-hidden">
+        <div className="pointer-events-none absolute -right-20 -bottom-20 h-96 w-96 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="container-page relative z-10">
+          <div className="mb-10 text-center max-w-2xl mx-auto">
+            <span className="chip bg-emerald-900/80 text-emerald-300 border border-emerald-700/60 font-extrabold text-[11px] uppercase tracking-widest mb-3">
+              ✨ Why VeggieFlick
+            </span>
+            <h2 className="text-balance text-3xl font-extrabold tracking-tight text-white md:text-4xl mt-1">
+              Freshness is an operations problem. We solved it.
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-emerald-200/80">
+              A cold chain built for Chennai&apos;s climate, strictly enforced with our 24-hour freshness rule.
+            </p>
+          </div>
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
             {WHY_US.map(({ Icon, title, body }) => (
-              <div key={title} className="card p-6">
-                <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-700">
-                  <Icon size={20} strokeWidth={1.6} />
+              <div key={title} className="rounded-3xl border border-emerald-800/60 bg-emerald-900/40 p-6 backdrop-blur transition-transform hover:-translate-y-1 hover:border-emerald-500/40">
+                <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
+                  <Icon size={22} strokeWidth={1.8} />
                 </span>
-                <h3 className="text-[15px] font-semibold tracking-[-0.01em]">{title}</h3>
-                <p className="mt-2 text-[13px] leading-relaxed text-muted">{body}</p>
+                <h3 className="text-[16px] font-bold tracking-tight text-white">{title}</h3>
+                <p className="mt-2 text-[13px] leading-relaxed text-emerald-200/70">{body}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* ORGANIC */}
       {organic.length > 0 && (
-        <section className="container-page py-14 md:py-16">
+        <AnimatedSection className="container-page py-14 md:py-16">
           <SectionHeading
             eyebrow="Certified organic"
             title="Zero pesticide, full flavour"
@@ -271,12 +278,12 @@ export default async function HomePage() {
             href="/shop?organic=true"
           />
           <ProductCarousel products={organic} />
-        </section>
+        </AnimatedSection>
       )}
 
       {/* EXOTIC */}
       {exotic.length > 0 && (
-        <section className="container-page py-14 md:py-16">
+        <AnimatedSection className="container-page py-14 md:py-16">
           <SectionHeading
             eyebrow="Exotic & continental"
             title="For the gourmet kitchen"
@@ -284,11 +291,11 @@ export default async function HomePage() {
             href="/shop?category=exotic-vegetables"
           />
           <ProductCarousel products={exotic} />
-        </section>
+        </AnimatedSection>
       )}
 
       {/* RECIPES */}
-      <section className="container-page py-14 md:py-16">
+      <AnimatedSection className="container-page py-14 md:py-16">
         <SectionHeading
           eyebrow="Cook with us"
           title="Recipes built around today's basket"
@@ -299,16 +306,16 @@ export default async function HomePage() {
           {recipeRows.map((recipe) => {
             const Icon = lookupIcon(recipe.emoji);
             return (
-              <Link key={recipe.id} href={`/recipes/${recipe.slug}`} className="card card-lift overflow-hidden">
-                <div className="relative aspect-[4/3] bg-surface">
-                  <span className="absolute inset-0 flex items-center justify-center text-brand-700/60">
-                    <Icon size={44} strokeWidth={1.3} />
+              <Link key={recipe.id} href={`/recipes/${recipe.slug}`} className="card card-lift overflow-hidden bg-white/90">
+                <div className="relative aspect-[4/3] bg-emerald-50/50 flex items-center justify-center">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-800">
+                    <Icon size={32} strokeWidth={1.5} />
                   </span>
                 </div>
                 <div className="p-4">
-                  <h3 className="line-clamp-1 text-[14px] font-semibold">{recipe.title}</h3>
+                  <h3 className="line-clamp-1 text-[15px] font-bold text-ink">{recipe.title}</h3>
                   <p className="mt-1.5 line-clamp-2 text-[12px] text-muted">{recipe.summary}</p>
-                  <p className="mt-3 text-[10px] font-semibold tracking-widest text-muted uppercase">
+                  <p className="mt-3 text-[10px] font-bold tracking-widest text-emerald-800 uppercase">
                     {recipe.preparationTime + recipe.cookingTime} min · {recipe.difficulty}
                   </p>
                 </div>
@@ -316,96 +323,97 @@ export default async function HomePage() {
             );
           })}
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* TESTIMONIALS */}
-      <section className="bg-ink py-16 text-white md:py-20">
-        <div className="container-page">
+      <AnimatedSection className="bg-slate-950 py-16 text-white md:py-20 relative overflow-hidden">
+        <div className="pointer-events-none absolute -left-20 top-0 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
+        <div className="container-page relative z-10">
           <div className="mb-10 text-center">
-            <p className="eyebrow text-brand-300">Customer love</p>
-            <h2 className="mt-2 text-balance text-3xl font-bold tracking-[-0.02em] md:text-4xl">
+            <p className="eyebrow text-amber-400 font-extrabold uppercase tracking-widest">Customer love</p>
+            <h2 className="mt-2 text-balance text-3xl font-extrabold tracking-tight md:text-4xl text-white">
               Rated 4.8 by 12,400+ Chennai households
             </h2>
           </div>
-          <div className="grid gap-4 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-3">
             {TESTIMONIALS.map((item) => (
               <figure
                 key={item.name}
-                className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur"
+                className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur shadow-lg transition-transform hover:-translate-y-1"
               >
-                <div className="mb-3 flex gap-0.5" aria-label={`${item.rating} out of 5 stars`}>
+                <div className="mb-3 flex gap-1" aria-label={`${item.rating} out of 5 stars`}>
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      size={14}
-                      strokeWidth={1.6}
-                      className={i < item.rating ? "fill-[#f97316] text-[#f97316]" : "text-white/20"}
+                      size={15}
+                      strokeWidth={1.8}
+                      className={i < item.rating ? "fill-amber-400 text-amber-400" : "text-white/20"}
                     />
                   ))}
                 </div>
-                <blockquote className="text-[14px] leading-relaxed text-white/85">
+                <blockquote className="text-[14px] leading-relaxed text-slate-200">
                   &ldquo;{item.text}&rdquo;
                 </blockquote>
-                <figcaption className="mt-5 text-[12px] font-semibold tracking-wider text-brand-300 uppercase">
+                <figcaption className="mt-5 text-[12px] font-bold tracking-wider text-emerald-400 uppercase">
                   {item.name} · {item.area}
                 </figcaption>
               </figure>
             ))}
           </div>
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* BLOG */}
-      <section className="container-page py-14 md:py-16">
+      <AnimatedSection className="container-page py-14 md:py-16">
         <SectionHeading eyebrow="Healthy living" title="From the VeggieFlick journal" href="/blog" />
         <div className="grid gap-4 md:grid-cols-3">
           {blogRows.map((blog) => {
             const Icon = lookupIcon(blog.emoji);
             return (
-              <Link key={blog.id} href={`/blog/${blog.slug}`} className="card card-lift overflow-hidden">
-                <div className="relative aspect-[16/9] bg-surface">
-                  <span className="absolute inset-0 flex items-center justify-center text-brand-700/60">
-                    <Icon size={36} strokeWidth={1.3} />
+              <Link key={blog.id} href={`/blog/${blog.slug}`} className="card card-lift overflow-hidden bg-white/90">
+                <div className="relative aspect-[16/9] bg-emerald-50/40 flex items-center justify-center">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-800">
+                    <Icon size={26} strokeWidth={1.5} />
                   </span>
                 </div>
                 <div className="p-4">
-                  <h3 className="line-clamp-2 text-[14px] font-semibold">{blog.title}</h3>
+                  <h3 className="line-clamp-2 text-[14px] font-bold text-ink">{blog.title}</h3>
                   <p className="mt-1.5 line-clamp-2 text-[12px] text-muted">{blog.shortDescription}</p>
                 </div>
               </Link>
             );
           })}
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* NEWSLETTER CTA */}
-      <section className="container-page pb-16">
-        <div className="card grid items-center gap-6 bg-surface p-6 md:grid-cols-2 md:p-10">
+      <AnimatedSection className="container-page pb-16">
+        <div className="card grid items-center gap-6 bg-gradient-to-r from-emerald-900 to-emerald-950 p-6 md:grid-cols-2 md:p-10 text-white rounded-3xl border border-emerald-800/80 shadow-2xl">
           <div>
-            <p className="eyebrow">Fresh drops</p>
-            <h2 className="mt-2 text-balance text-2xl font-bold tracking-[-0.02em] md:text-3xl">
+            <span className="chip bg-emerald-800/80 text-emerald-200 border border-emerald-700/60 font-extrabold text-[11px] uppercase tracking-widest">
+              ✨ Fresh Drops
+            </span>
+            <h2 className="mt-2 text-balance text-2xl font-extrabold tracking-tight md:text-3xl text-white">
               Get Friday&apos;s fresh drop first
             </h2>
-            <p className="mt-3 text-[14px] leading-relaxed text-muted">
-              Weekly seasonal picks, recipes from our kitchen and subscriber-only offers. No spam, unsubscribe
-              anytime.
+            <p className="mt-3 text-[14px] leading-relaxed text-emerald-100/80">
+              Weekly seasonal picks, chef recipes, and exclusive subscriber deals delivered straight to your inbox.
             </p>
-            <ul className="mt-5 flex flex-wrap gap-4 text-[12px] font-semibold text-ink">
+            <ul className="mt-5 flex flex-wrap gap-4 text-[12px] font-semibold text-emerald-200">
               <li className="flex items-center gap-1.5">
-                <ShieldCheck size={14} className="text-brand-700" /> Secure payments
+                <ShieldCheck size={14} className="text-emerald-400" /> Secure checkout
               </li>
               <li className="flex items-center gap-1.5">
-                <Bike size={14} className="text-brand-700" /> Free above ₹499
+                <Bike size={14} className="text-emerald-400" /> Free delivery &gt; ₹199
               </li>
               <li className="flex items-center gap-1.5">
-                <Leaf size={14} className="text-brand-700" /> FSSAI certified
+                <Leaf size={14} className="text-emerald-400" /> 100% Farm fresh
               </li>
             </ul>
           </div>
           <NewsletterForm variant="hero" />
         </div>
-      </section>
-
+      </AnimatedSection>
     </>
   );
 }

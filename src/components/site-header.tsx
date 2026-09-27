@@ -20,6 +20,7 @@ import { useApp } from "@/components/providers";
 import { useLanguage } from "@/components/language-context";
 import { formatINR } from "@/lib/utils";
 import { CategoryIconTile } from "@/components/ui/primitives";
+import { lookupIcon } from "@/lib/icons";
 
 type Category = { id: string; name: string; slug: string; icon: string };
 type Suggestion = { name: string; slug: string; emoji: string; categoryName: string; price: string };
@@ -327,14 +328,14 @@ export function SiteHeader() {
             All products
           </Link>
           {categories.map((c) => {
-            const Icon = require("lucide-react")[iconMap[c.icon] ?? "Leaf"] as any;
+            const Icon = lookupIcon(c.icon);
             return (
               <Link
                 key={c.id}
                 href={`/shop?category=${c.slug}`}
                 className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface hover:text-brand-700"
               >
-                {Icon && <Icon size={14} strokeWidth={1.6} aria-hidden />}
+                <Icon size={14} strokeWidth={1.6} aria-hidden />
                 {c.name}
               </Link>
             );
@@ -377,7 +378,7 @@ export function SiteHeader() {
             </div>
             <div className="grid gap-1">
               {categories.map((c) => {
-                const Icon = require("lucide-react")[iconMap[c.icon] ?? "Leaf"] as any;
+                const Icon = lookupIcon(c.icon);
                 return (
                   <Link
                     key={c.id}
@@ -385,7 +386,7 @@ export function SiteHeader() {
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface"
                   >
-                    {Icon && <Icon size={18} strokeWidth={1.6} className="text-brand-700" />}
+                    <Icon size={18} strokeWidth={1.6} className="text-brand-700" />
                     <span className="text-sm font-medium">{c.name}</span>
                   </Link>
                 );

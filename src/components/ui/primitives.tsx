@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { Star } from "lucide-react";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { DynamicIcon } from "@/lib/icons";
 
@@ -74,12 +77,15 @@ export function CategoryIconTile({
   size?: number;
 }) {
   return (
-    <span
-      className="flex items-center justify-center rounded-full border border-line bg-white"
+    <motion.span
+      whileHover={{ scale: 1.08, rotate: 3 }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 400, damping: 20 }}
+      className="flex items-center justify-center rounded-full border border-line bg-white shadow-sm"
       style={{ width: size, height: size, color: accent }}
     >
       <DynamicIcon name={icon} size={Math.round(size * 0.44)} strokeWidth={1.5} />
-    </span>
+    </motion.span>
   );
 }
 
@@ -127,7 +133,7 @@ export function Badge({
     warning: "chip-warning",
   };
   return (
-    <span className={cn("chip", tones[tone], className)}>
+    <span className={cn("chip shadow-sm transition-transform hover:scale-105", tones[tone], className)}>
       {icon && <DynamicIcon name={icon} size={12} strokeWidth={1.8} />}
       {children}
     </span>
@@ -148,20 +154,30 @@ export function SectionHeading({
   linkLabel?: string;
 }) {
   return (
-    <div className="mb-7 flex flex-wrap items-end justify-between gap-3">
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      className="mb-7 flex flex-wrap items-end justify-between gap-3"
+    >
       <div>
-        {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
-        <h2 className="text-balance text-[28px] font-bold tracking-[-0.02em] text-ink md:text-4xl">
+        {eyebrow && (
+          <span className="chip bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-extrabold text-[11px] uppercase tracking-widest mb-2">
+            ✨ {eyebrow}
+          </span>
+        )}
+        <h2 className="text-balance text-[28px] font-extrabold tracking-[-0.02em] text-ink md:text-4xl mt-1">
           {title}
         </h2>
         {description && (
-          <p className="mt-2 max-w-2xl text-[15px] leading-relaxed text-muted">{description}</p>
+          <p className="mt-2 max-w-2xl text-[14px] md:text-[15px] leading-relaxed text-muted">{description}</p>
         )}
       </div>
       {href && (
         <Link
           href={href}
-          className="inline-flex items-center gap-1 text-sm font-semibold text-ink transition-colors hover:text-brand-700"
+          className="inline-flex items-center gap-1.5 text-xs md:text-sm font-bold text-emerald-800 transition-all hover:text-emerald-900 hover:translate-x-1"
         >
           {linkLabel}
           <svg
@@ -170,7 +186,7 @@ export function SectionHeading({
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="1.8"
+            strokeWidth="2.2"
             strokeLinecap="round"
             strokeLinejoin="round"
             aria-hidden
@@ -180,7 +196,7 @@ export function SectionHeading({
           </svg>
         </Link>
       )}
-    </div>
+    </motion.div>
   );
 }
 

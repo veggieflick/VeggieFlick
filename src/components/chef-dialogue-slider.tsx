@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChefHat, Clock, UtensilsCrossed } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChefHat, Clock, UtensilsCrossed, Sparkles } from "lucide-react";
 
 const DIALOGUES = [
   {
@@ -40,52 +41,71 @@ export function ChefDialogueSlider() {
   const current = DIALOGUES[index];
 
   return (
-    <div className="mt-6 rounded-3xl border border-sky-200/80 bg-white/90 p-5 shadow-xl backdrop-blur-md transition-all md:p-6">
+    <motion.div
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="mt-6 rounded-3xl border border-emerald-200/80 bg-white/85 p-5 shadow-xl backdrop-blur-xl md:p-6"
+    >
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-600 via-sky-700 to-indigo-800 text-white shadow-md">
-          <ChefHat className="h-8 w-8" />
-        </div>
+        <motion.div
+          whileHover={{ rotate: 10, scale: 1.05 }}
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-800 via-emerald-900 to-teal-950 text-white shadow-lg shadow-emerald-900/20"
+        >
+          <ChefHat className="h-7 w-7 text-amber-300" />
+        </motion.div>
         <div className="flex-1 overflow-hidden">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-sky-100 px-2.5 py-0.5 text-[11px] font-extrabold text-sky-900 uppercase tracking-wider">
+            <span className="rounded-full bg-emerald-100/90 px-2.5 py-0.5 text-[10px] font-extrabold text-emerald-900 uppercase tracking-widest border border-emerald-200">
               Chef&apos;s Special Solution
             </span>
             <span className="text-xs font-semibold text-muted flex items-center gap-1">
-              <Clock size={12} className="text-sky-600" /> 10-Min Meal Kits
+              <Clock size={12} className="text-emerald-700" /> 10-Min Kits
             </span>
           </div>
 
           {/* Animated Dynamic Text Overlay */}
-          <div className="relative mt-2 min-h-[4rem]">
-            <div
-              key={index}
-              className="animate-fade-in transition-all duration-700 ease-in-out"
-            >
-              <h3 className="text-base font-extrabold text-slate-900 md:text-lg">
-                &ldquo;{current.title}&rdquo;
-              </h3>
-              <p className="mt-1 text-xs text-slate-600 leading-relaxed md:text-sm">
-                {current.desc}
-              </p>
-            </div>
+          <div className="relative mt-2 min-h-[3.8rem] flex items-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: 15 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -15 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+              >
+                <h3 className="text-base font-extrabold text-slate-900 md:text-lg">
+                  &ldquo;{current.title}&rdquo;
+                </h3>
+                <p className="mt-0.5 text-xs text-slate-600 leading-relaxed md:text-sm">
+                  {current.desc}
+                </p>
+              </motion.div>
+            </AnimatePresence>
           </div>
 
           <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Link
-              href="/shop?category=ready-to-cook"
-              className="btn btn-primary bg-sky-800 hover:bg-sky-900 border-none py-2 text-xs font-bold shadow-sm"
-            >
-              <UtensilsCrossed size={14} /> Ready to Cook Kits
+            <Link href="/shop?category=ready-to-cook">
+              <motion.span
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="btn btn-primary bg-emerald-800 hover:bg-emerald-900 border-none py-2 text-xs font-bold shadow-md shadow-emerald-800/20"
+              >
+                <UtensilsCrossed size={14} /> Ready to Cook Kits
+              </motion.span>
             </Link>
-            <Link
-              href="/shop?category=cut-vegetables"
-              className="btn btn-outline border-sky-300 text-sky-900 hover:bg-sky-50 py-2 text-xs font-bold"
-            >
-              Pre-Cut Veggies 🥗
+            <Link href="/shop?category=cut-vegetables">
+              <motion.span
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="btn btn-outline border-emerald-300 text-emerald-950 hover:bg-emerald-50 py-2 text-xs font-bold"
+              >
+                Pre-Cut Veggies 🥗
+              </motion.span>
             </Link>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

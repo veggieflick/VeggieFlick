@@ -300,15 +300,51 @@ body {
 
   /* Animations */
   @keyframes vf-fade-up {
-    from { opacity: 0; transform: translateY(10px); }
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
   }
   @keyframes vf-marquee {
     from { transform: translateX(0); }
     to   { transform: translateX(-50%); }
   }
-  .animate-fade-up { animation: vf-fade-up 0.5s ease-out both; }
+  @keyframes vf-glow-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.8; transform: scale(1.04); }
+  }
+  @keyframes vf-gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .animate-fade-up { animation: vf-fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
   .animate-marquee { animation: vf-marquee 32s linear infinite; }
+  .animate-glow { animation: vf-glow-pulse 4s ease-in-out infinite; }
+
+  /* International Luxury Utilities */
+  .glass-panel {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+  .glass-dark {
+    background: rgba(6, 78, 59, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .gradient-text-emerald {
+    background: linear-gradient(135deg, #064e3b 0%, #10b981 50%, #047857 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: vf-gradient-shift 6s ease infinite;
+  }
+  .gradient-text-gold {
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #b45309 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
   /* Utility */
   .text-balance { text-wrap: balance; }

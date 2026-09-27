@@ -25,7 +25,10 @@ export async function POST(request: Request) {
         .orderBy(desc(otpCodes.createdAt))
         .limit(1);
 
-      if (record && record.codeHash === hashOtp(phone, code)) {
+      if (record) {
+        if (record.codeHash !== hashOtp(phone, code) || record.expiresAt < new Date()) {
+          throw new ApiError("Invalid or expired OTP code", 400, "INVALID_OTP");
+        }
         await db.update(otpCodes).set({ consumed: true }).where(eq(otpCodes.id, record.id));
       }
 
