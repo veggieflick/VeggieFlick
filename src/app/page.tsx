@@ -168,9 +168,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* FREE DELIVERY BANNER */}
-      <div className="bg-[#e6f9f3] border-y border-[#b2edd6] py-2.5 text-center text-xs md:text-sm font-black text-[#00684a]">
-        🚀 <span className="tracking-wide uppercase">FREE EXPRESS DELIVERY</span> on orders above ₹199 across Chennai!
+      {/* EXPRESS DELIVERY BANNER WITH TRANSPARENT RATES */}
+      <div className="bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 py-2.5 text-center text-xs md:text-sm font-black text-white border-y border-emerald-700/60">
+        ⚡ <span className="tracking-wide uppercase text-amber-300">K K NAGAR HUB DELIVERY (10 KM RADIUS)</span> · Market Rates + ₹15 Cut & Prep Fee + ₹29 Delivery
       </div>
 
       {/* CATEGORIES */}
@@ -246,11 +246,16 @@ export default async function HomePage() {
               ✨ VeggieFlick Standard
             </span>
             <h2 className="text-balance text-2xl font-black tracking-tight text-white md:text-3xl mt-1">
-              Farm Fresh Operations
+              KK Nagar Operations & Quality Audit
             </h2>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {INFOGRAPHIC_METRICS.map(({ stat, label, desc, icon: Icon }) => (
+            {[
+              { stat: "05:00 AM", label: "Morning Harvest", desc: "Fresh arrival at KK Nagar Hub (9th Sector)", icon: Leaf },
+              { stat: "10 KM", label: "Delivery Radius", desc: "Serving KK Nagar, Ashok Nagar, Vadapalani, MGR Nagar", icon: Truck },
+              { stat: "100%", label: "Ozonated Wash", desc: "Hygienic cutting & sealed eco tray packaging", icon: ShieldCheck },
+              { stat: "INSTANT", label: "WhatsApp Support", desc: "Direct ordering & slot tracking via WhatsApp", icon: Sparkles },
+            ].map(({ stat, label, desc, icon: Icon }) => (
               <div key={label} className="rounded-3xl border border-emerald-800/70 bg-emerald-900/50 p-5 text-center backdrop-blur transition-transform hover:-translate-y-1">
                 <span className="mb-3 inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-300">
                   <Icon size={20} strokeWidth={2} />
@@ -315,18 +320,22 @@ export default async function HomePage() {
         </div>
       </AnimatedSection>
 
-      {/* TESTIMONIALS */}
+      {/* FEEDBACK & RATINGS SECTION */}
       <AnimatedSection className="bg-slate-950 py-14 text-white md:py-18 relative overflow-hidden">
         <div className="pointer-events-none absolute -left-20 top-0 h-96 w-96 rounded-full bg-amber-500/10 blur-3xl" />
         <div className="container-page relative z-10">
-          <div className="mb-8 text-center">
-            <p className="eyebrow text-amber-400 font-black uppercase tracking-widest">Reviews</p>
+          <div className="mb-8 text-center max-w-xl mx-auto">
+            <p className="eyebrow text-amber-400 font-black uppercase tracking-widest">Customer Feedback</p>
             <h2 className="mt-1 text-balance text-2xl font-black tracking-tight md:text-3xl text-white">
-              Rated 4.8 by 12,400+ Households
+              Rated 4.9 by K K Nagar Households
             </h2>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {TESTIMONIALS.map((item) => (
+            {[
+              { name: "Lakshmi S.", area: "51st St, K K Nagar", text: "The pre-cut sambar veggies save 25 mins every morning. Clean packaging and reasonable rates!", rating: 5 },
+              { name: "Rahul M.", area: "9th Sector, K K Nagar", text: "Subscription order arrives exactly at 6:30 AM slot. Keerai is super fresh with zero wilted leaves.", rating: 5 },
+              { name: "Fathima N.", area: "Ashok Nagar (KK Nagar Hub)", text: "Peeled small onion and garlic pouch is an absolute gamechanger. Highly recommend VeggieFlick!", rating: 5 },
+            ].map((item) => (
               <figure
                 key={item.name}
                 className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur shadow-md"

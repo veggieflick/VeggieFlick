@@ -180,89 +180,180 @@ const FALLBACK_CATEGORIES = [
 ];
 
 export const FALLBACK_PRODUCTS: (ProductCard & { imageUrl?: string })[] = [
+  /* ---------------- Cutted Vegetables (Ready to Cook) ---------------- */
   {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a01", name: "Yelakki Banana", tamilName: null, slug: "yelakki-banana", emoji: "banana",
-    imageUrl: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Small, aromatic and intensely sweet bananas.", isOrganic: false, isBestSeller: true, isFeatured: true,
-    isFreshToday: false, isCutVegetable: false, rating: 4.8, ratingCount: 976, soldCount: 6120,
-    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b01", variantName: "500 g", unit: "g", mrp: 55, price: 42, discountPercentage: 24, availableStock: 150
+    id: "prod-cut-beans", name: "Cut Beans (Chopped)", tamilName: "நறுக்கிய பீன்ஸ்", slug: "cut-beans", emoji: "vegetables",
+    imageUrl: "https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Tender green beans finely chopped, 100% ready to cook.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.8, ratingCount: 420, soldCount: 3100,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-beans", variantName: "250 g", unit: "g", mrp: 45, price: 34, discountPercentage: 24, availableStock: 180
   },
   {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a02", name: "Country Tomato", tamilName: null, slug: "country-tomato", emoji: "tomato",
-    imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Juicy, tangy Ooty-belt tomatoes ideal for sambar and gravies.", isOrganic: false, isBestSeller: true, isFeatured: true,
-    isFreshToday: true, isCutVegetable: false, rating: 4.6, ratingCount: 812, soldCount: 5240,
-    categoryName: "Fresh Vegetables", categorySlug: "fresh-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b02", variantName: "500 g", unit: "g", mrp: 40, price: 29, discountPercentage: 28, availableStock: 180
-  },
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a03", name: "Bangalore Onion", tamilName: null, slug: "bangalore-onion", emoji: "onion",
-    imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Big sized onions with crisp layers and long shelf life.", isOrganic: false, isBestSeller: true, isFeatured: false,
-    isFreshToday: false, isCutVegetable: false, rating: 4.4, ratingCount: 645, soldCount: 4810,
-    categoryName: "Fresh Vegetables", categorySlug: "fresh-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b03", variantName: "1 kg", unit: "kg", mrp: 52, price: 38, discountPercentage: 27, availableStock: 260
-  },
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a04", name: "Potato", tamilName: null, slug: "potato", emoji: "potato",
-    imageUrl: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Smooth-skinned potatoes, great for fry, curry and mash.", isOrganic: false, isBestSeller: true, isFeatured: false,
-    isFreshToday: true, isCutVegetable: false, rating: 4.5, ratingCount: 590, soldCount: 4320,
-    categoryName: "Fresh Vegetables", categorySlug: "fresh-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b04", variantName: "1 kg", unit: "kg", mrp: 48, price: 34, discountPercentage: 29, availableStock: 240
-  },
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a05", name: "Grated Coconut", tamilName: null, slug: "grated-coconut", emoji: "coconut",
-    imageUrl: "https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Freshly grated coconut for chutney and poriyal.", isOrganic: false, isBestSeller: true, isFeatured: false,
-    isFreshToday: false, isCutVegetable: true, rating: 4.8, ratingCount: 401, soldCount: 3320,
-    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b05", variantName: "200 g", unit: "g", mrp: 55, price: 45, discountPercentage: 18, availableStock: 120
-  },
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a06", name: "Carrot Ooty", tamilName: null, slug: "carrot-ooty", emoji: "carrot",
+    id: "prod-cut-carrot", name: "Cut Carrot (Diced / Julienne)", tamilName: "நறுக்கிய கேரட்", slug: "cut-carrot", emoji: "carrot",
     imageUrl: "https://images.unsplash.com/photo-1598170845058-12ef4a457939?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Crunchy, sweet hill carrots rich in beta carotene.", isOrganic: false, isBestSeller: false, isFeatured: true,
-    isFreshToday: true, isCutVegetable: false, rating: 4.7, ratingCount: 431, soldCount: 3120,
-    categoryName: "Fresh Vegetables", categorySlug: "fresh-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b06", variantName: "500 g", unit: "g", mrp: 45, price: 32, discountPercentage: 29, availableStock: 160
+    shortDescription: "Ooty sweet carrots diced for poriyal or biryani.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.7, ratingCount: 380, soldCount: 2900,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-carrot", variantName: "250 g", unit: "g", mrp: 40, price: 29, discountPercentage: 28, availableStock: 160
   },
   {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a07", name: "Alphonso Mango", tamilName: null, slug: "alphonso-mango", emoji: "mango",
-    imageUrl: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "The king of mangoes — carbide free, naturally ripened.", isOrganic: false, isBestSeller: false, isFeatured: true,
-    isFreshToday: true, isCutVegetable: false, rating: 4.9, ratingCount: 512, soldCount: 2860,
-    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b07", variantName: "6 pieces", unit: "pc", mrp: 899, price: 649, discountPercentage: 28, availableStock: 45
+    id: "prod-cut-beetroot", name: "Cut Beetroot (Cubed / Shredded)", tamilName: "நறுக்கிய பீட்ரூட்", slug: "cut-beetroot", emoji: "beetroot",
+    imageUrl: "https://images.unsplash.com/photo-1528825871115-3581a5387919?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Deep red beetroots, peeled and cubed.", isOrganic: false, isBestSeller: false, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.6, ratingCount: 210, soldCount: 1850,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-beetroot", variantName: "250 g", unit: "g", mrp: 42, price: 32, discountPercentage: 24, availableStock: 140
   },
   {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a08", name: "Palak Spinach", tamilName: null, slug: "palak-spinach", emoji: "leafy",
-    imageUrl: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Iron-rich tender spinach bunches.", isOrganic: false, isBestSeller: true, isFeatured: false,
-    isFreshToday: true, isCutVegetable: false, rating: 4.5, ratingCount: 268, soldCount: 2050,
-    categoryName: "Leafy Vegetables", categorySlug: "leafy-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b08", variantName: "1 bunch", unit: "bunch", mrp: 25, price: 18, discountPercentage: 28, availableStock: 150
+    id: "prod-cut-lady-finger", name: "Lady's Finger (Ring Cut)", tamilName: "வெண்டைக்காய் (நறுக்கியது)", slug: "cut-lady-finger", emoji: "capsicum",
+    imageUrl: "https://images.unsplash.com/photo-1425543103986-22abb7d7e8d2?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Tender okra sliced into crisp rings.", isOrganic: false, isBestSeller: true, isFeatured: false,
+    isFreshToday: true, isCutVegetable: true, rating: 4.7, ratingCount: 310, soldCount: 2400,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-lady-finger", variantName: "250 g", unit: "g", mrp: 40, price: 28, discountPercentage: 30, availableStock: 120
   },
   {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a09", name: "Organic Tomato", tamilName: null, slug: "organic-tomato", emoji: "tomato",
-    imageUrl: "https://images.unsplash.com/photo-1546470427-227c7369a9e3?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Certified organic, grown with cow-based inputs.", isOrganic: true, isBestSeller: false, isFeatured: true,
-    isFreshToday: false, isCutVegetable: false, rating: 4.7, ratingCount: 198, soldCount: 1180,
-    categoryName: "Organic", categorySlug: "organic", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b09", variantName: "500 g", unit: "g", mrp: 75, price: 59, discountPercentage: 21, availableStock: 70
+    id: "prod-cut-cluster-beans", name: "Cluster Beans (Kothavaranga Cut)", tamilName: "கொத்தவரங்காய்", slug: "cut-cluster-beans", emoji: "vegetables",
+    imageUrl: "https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Cleaned and snipped cluster beans for paruppu usili.", isOrganic: false, isBestSeller: false, isFeatured: false,
+    isFreshToday: true, isCutVegetable: true, rating: 4.5, ratingCount: 190, soldCount: 1200,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-cluster-beans", variantName: "250 g", unit: "g", mrp: 38, price: 28, discountPercentage: 26, availableStock: 100
   },
   {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a10", name: "Broccoli", tamilName: null, slug: "broccoli", emoji: "broccoli",
-    imageUrl: "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Dense green crowns, rich in sulforaphane.", isOrganic: false, isBestSeller: false, isFeatured: true,
-    isFreshToday: false, isCutVegetable: false, rating: 4.5, ratingCount: 212, soldCount: 1420,
-    categoryName: "Exotic Vegetables", categorySlug: "exotic-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b10", variantName: "250 g", unit: "g", mrp: 89, price: 65, discountPercentage: 27, availableStock: 70
-  },
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11", name: "Sambar Recipe Kit", tamilName: null, slug: "sambar-recipe-kit", emoji: "soup",
-    imageUrl: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Pre-cut veggies plus fresh-ground sambar podi.", isOrganic: false, isBestSeller: true, isFeatured: true,
-    isFreshToday: false, isCutVegetable: true, rating: 4.8, ratingCount: 296, soldCount: 1980,
-    categoryName: "Ready To Cook", categorySlug: "ready-to-cook", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b11", variantName: "Serves 4", unit: "pack", mrp: 199, price: 149, discountPercentage: 25, availableStock: 60
-  },
-  {
-    id: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12", name: "Cut Mixed Vegetables", tamilName: null, slug: "cut-mixed-vegetables", emoji: "salad",
+    id: "prod-cut-avarakai", name: "Hyacinth Bean (Avarakai Cut)", tamilName: "அவரைக்காய்", slug: "cut-avarakai", emoji: "vegetables",
     imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
-    shortDescription: "Sambar-ready mix, washed and chopped this morning.", isOrganic: false, isBestSeller: false, isFeatured: true,
-    isFreshToday: true, isCutVegetable: true, rating: 4.7, ratingCount: 342, soldCount: 2480,
-    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b12", variantName: "400 g", unit: "g", mrp: 89, price: 69, discountPercentage: 22, availableStock: 80
+    shortDescription: "Destringed and chopped flat beans.", isOrganic: false, isBestSeller: true, isFeatured: false,
+    isFreshToday: true, isCutVegetable: true, rating: 4.6, ratingCount: 280, soldCount: 2100,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-avarakai", variantName: "250 g", unit: "g", mrp: 45, price: 32, discountPercentage: 28, availableStock: 130
+  },
+  {
+    id: "prod-cut-yam", name: "Elephant Foot Yam (Senai Cubes)", tamilName: "சேனைக்கிழங்கு", slug: "cut-yam", emoji: "potato",
+    imageUrl: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Peeled and cubed yam ready for fry or roast.", isOrganic: false, isBestSeller: false, isFeatured: false,
+    isFreshToday: false, isCutVegetable: true, rating: 4.4, ratingCount: 160, soldCount: 980,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-yam", variantName: "250 g", unit: "g", mrp: 50, price: 36, discountPercentage: 28, availableStock: 90
+  },
+  {
+    id: "prod-cut-kovakai", name: "Ivy Gourd (Kovakkai Sliced)", tamilName: "கோவக்காய்", slug: "cut-kovakai", emoji: "cucumber",
+    imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Thinly sliced kovakkai for spicy fry.", isOrganic: false, isBestSeller: true, isFeatured: false,
+    isFreshToday: true, isCutVegetable: true, rating: 4.7, ratingCount: 340, soldCount: 2500,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-kovakai", variantName: "250 g", unit: "g", mrp: 45, price: 32, discountPercentage: 28, availableStock: 110
+  },
+  {
+    id: "prod-cut-bitter-gourd", name: "Bitter Gourd (Pavakkai Rings)", tamilName: "பாகற்காய்", slug: "cut-bitter-gourd", emoji: "cucumber",
+    imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Deseeded ring slices of bitter gourd.", isOrganic: false, isBestSeller: false, isFeatured: false,
+    isFreshToday: true, isCutVegetable: true, rating: 4.3, ratingCount: 150, soldCount: 1100,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-bitter-gourd", variantName: "250 g", unit: "g", mrp: 40, price: 29, discountPercentage: 28, availableStock: 95
+  },
+  {
+    id: "prod-cut-cauliflower", name: "Cauliflower Florets", tamilName: "காலிஃபிளவர் நறுக்கியது", slug: "cut-cauliflower", emoji: "broccoli",
+    imageUrl: "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Ozonated clean florets, 100% insect free.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.8, ratingCount: 490, soldCount: 3800,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-cauliflower", variantName: "300 g", unit: "g", mrp: 60, price: 42, discountPercentage: 30, availableStock: 150
+  },
+  {
+    id: "prod-cut-peeled-onion-garlic", name: "Peeled Shallots & Garlic Mix", tamilName: "உரித்த சின்ன வெங்காயம் பூண்டு", slug: "cut-peeled-onion-garlic", emoji: "onion",
+    imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Peeled small onion (chinna vengayam) & garlic cloves.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.9, ratingCount: 610, soldCount: 4900,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-cut-peeled-onion-garlic", variantName: "200 g", unit: "g", mrp: 75, price: 55, discountPercentage: 26, availableStock: 200
+  },
+  {
+    id: "prod-grated-coconut", name: "Fresh Grated Coconut", tamilName: "தேங்காய் துருவல்", slug: "grated-coconut", emoji: "coconut",
+    imageUrl: "https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Same-day coconut scrapings for chutney & poriyal.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.9, ratingCount: 780, soldCount: 5600,
+    categoryName: "Cut Vegetables", categorySlug: "cut-vegetables", variantId: "var-grated-coconut", variantName: "200 g", unit: "g", mrp: 55, price: 42, discountPercentage: 24, availableStock: 220
+  },
+
+  /* ---------------- Fresh Fruits ---------------- */
+  {
+    id: "prod-fruit-papaya", name: "Papaya Cubes (Ready-to-Eat)", tamilName: "பப்பாளி (நறுக்கியது)", slug: "fruit-papaya", emoji: "papaya",
+    imageUrl: "https://images.unsplash.com/photo-1517256064527-09c73fc73e38?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Sweet Red Lady papaya chilled cubes.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: false, rating: 4.7, ratingCount: 390, soldCount: 2800,
+    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "var-fruit-papaya", variantName: "300 g", unit: "g", mrp: 65, price: 48, discountPercentage: 26, availableStock: 140
+  },
+  {
+    id: "prod-fruit-pineapple", name: "Pineapple Slices / Diced", tamilName: "அன்னாசிப்பழம்", slug: "fruit-pineapple", emoji: "pineapple",
+    imageUrl: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Juicy peeled pineapple wedges.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: false, rating: 4.8, ratingCount: 450, soldCount: 3200,
+    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "var-fruit-pineapple", variantName: "300 g", unit: "g", mrp: 80, price: 59, discountPercentage: 26, availableStock: 120
+  },
+  {
+    id: "prod-fruit-watermelon", name: "Seedless Watermelon Cubes", tamilName: "தர்பூசணி", slug: "fruit-watermelon", emoji: "watermelon",
+    imageUrl: "https://images.unsplash.com/photo-1589984662646-e7b2e4962f18?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Crisp red chilled watermelon cubes.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: false, rating: 4.8, ratingCount: 510, soldCount: 4100,
+    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "var-fruit-watermelon", variantName: "400 g", unit: "g", mrp: 60, price: 42, discountPercentage: 30, availableStock: 180
+  },
+  {
+    id: "prod-fruit-dragon", name: "Dragon Fruit Cubes", tamilName: "டிராகன் பழம்", slug: "fruit-dragon", emoji: "fruit",
+    imageUrl: "https://images.unsplash.com/photo-1527325678964-549216468488?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Fresh pink/white dragon fruit cubes.", isOrganic: false, isBestSeller: false, isFeatured: true,
+    isFreshToday: true, isCutVegetable: false, rating: 4.6, ratingCount: 220, soldCount: 1500,
+    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "var-fruit-dragon", variantName: "250 g", unit: "g", mrp: 120, price: 89, discountPercentage: 25, availableStock: 90
+  },
+  {
+    id: "prod-fruit-pomegranate", name: "Pomegranate Arils (Seeded)", tamilName: "மாதுளை விதைகள்", slug: "fruit-pomegranate", emoji: "apple",
+    imageUrl: "https://images.unsplash.com/photo-1541344999736-83eca272f6fc?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Ruby red Bhagwa pomegranate seeds.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: false, rating: 4.9, ratingCount: 680, soldCount: 4800,
+    categoryName: "Fresh Fruits", categorySlug: "fresh-fruits", variantId: "var-fruit-pomegranate", variantName: "200 g", unit: "g", mrp: 110, price: 79, discountPercentage: 28, availableStock: 160
+  },
+
+  /* ---------------- Diet Combos & Salads ---------------- */
+  {
+    id: "prod-diet-veg-salad", name: "Fresh Vegetables Salad Bowl", tamilName: "காய்கறி சாலட்", slug: "diet-veg-salad", emoji: "salad",
+    imageUrl: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Cucumber, carrot, cherry tomato, bell pepper & olive oil dressing.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.8, ratingCount: 340, soldCount: 2600,
+    categoryName: "Salads", categorySlug: "salads", variantId: "var-diet-veg-salad", variantName: "250 g", unit: "g", mrp: 140, price: 99, discountPercentage: 29, availableStock: 110
+  },
+  {
+    id: "prod-diet-sprouts-salad", name: "Protein Sprouts Power Salad", tamilName: "புரதச்சத்து முளைகட்டிய பயறு", slug: "diet-sprouts-salad", emoji: "sprout",
+    imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Moong & kala chana sprouts with lemon-mint dressing.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.9, ratingCount: 520, soldCount: 3900,
+    categoryName: "Salads", categorySlug: "salads", variantId: "var-diet-sprouts-salad", variantName: "250 g", unit: "g", mrp: 110, price: 79, discountPercentage: 28, availableStock: 140
+  },
+  {
+    id: "prod-diet-fruit-salad", name: "Exotic Fruit Salad Bowl", tamilName: "பழ சாலட்", slug: "diet-fruit-salad", emoji: "fruit",
+    imageUrl: "https://images.unsplash.com/photo-1568721769073-40e57fc61c28?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Papaya, watermelon, pineapple, kiwi & pomegranate mix.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: false, rating: 4.9, ratingCount: 610, soldCount: 4400,
+    categoryName: "Salads", categorySlug: "salads", variantId: "var-diet-fruit-salad", variantName: "300 g", unit: "g", mrp: 160, price: 119, discountPercentage: 25, availableStock: 130
+  },
+
+  /* ---------------- Meal Combos ---------------- */
+  {
+    id: "prod-combo-pulav", name: "Pulav Special Veggie Combo Kit", tamilName: "புலாவ் காய்கறி கிட்", slug: "combo-pulav", emoji: "rice",
+    imageUrl: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Carrot, beans, green peas, potato & whole spices pouch.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.8, ratingCount: 410, soldCount: 3100,
+    categoryName: "Ready To Cook", categorySlug: "ready-to-cook", variantId: "var-combo-pulav", variantName: "Serves 4", unit: "pack", mrp: 180, price: 129, discountPercentage: 28, availableStock: 95
+  },
+  {
+    id: "prod-combo-biryani", name: "Vegetables Biryani Special Kit", tamilName: "காய்கறி பிரியாணி கிட்", slug: "combo-biryani", emoji: "rice",
+    imageUrl: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Cut veggies, cauliflower, mint, fried onion & biryani masalas.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.9, ratingCount: 720, soldCount: 5200,
+    categoryName: "Ready To Cook", categorySlug: "ready-to-cook", variantId: "var-combo-biryani", variantName: "Serves 4", unit: "pack", mrp: 240, price: 179, discountPercentage: 25, availableStock: 120
+  },
+  {
+    id: "prod-combo-aviyal", name: "Traditional Aviyal 7-Veggie Cut Mix", tamilName: "அவியல் காய்கறி கிட்", slug: "combo-aviyal", emoji: "soup",
+    imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Drumstick, plantain, yam, beans, carrot, pumpkin & kovakai.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.9, ratingCount: 580, soldCount: 4300,
+    categoryName: "Ready To Cook", categorySlug: "ready-to-cook", variantId: "var-combo-aviyal", variantName: "Serves 4", unit: "pack", mrp: 170, price: 125, discountPercentage: 26, availableStock: 110
+  },
+  {
+    id: "prod-combo-bisibele", name: "Bisi Bele Bath Kit (With / Without Onion)", tamilName: "பிசிபேள பாத் கிட்", slug: "combo-bisibele", emoji: "rice",
+    imageUrl: "https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?auto=format&fit=crop&w=600&q=80",
+    shortDescription: "Special cut veggies + authentic stone-ground spice mix.", isOrganic: false, isBestSeller: true, isFeatured: true,
+    isFreshToday: true, isCutVegetable: true, rating: 4.8, ratingCount: 460, soldCount: 3400,
+    categoryName: "Ready To Cook", categorySlug: "ready-to-cook", variantId: "var-combo-bisibele", variantName: "Serves 4", unit: "pack", mrp: 190, price: 139, discountPercentage: 26, availableStock: 105
   }
 ];
 

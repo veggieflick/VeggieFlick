@@ -6,7 +6,7 @@
    ============================================================= */
 
 @theme {
-  /* Brand palette */
+  /* Vibrant Multi-Colour Palette inspired by VeggieFlick Logo */
   --color-brand-50: #f0fdf4;
   --color-brand-100: #dcfce7;
   --color-brand-200: #bbf7d0;
@@ -18,22 +18,30 @@
   --color-brand-800: #166534;
   --color-brand-900: #14532d;
 
+  /* Fresh Accent Palette */
+  --color-carrot-orange: #f97316;
+  --color-beetroot-purple: #9333ea;
+  --color-mango-yellow: #eab308;
+  --color-tomato-red: #ef4444;
+  --color-mint-teal: #14b8a6;
+  --color-berry-pink: #ec4899;
+
   /* Neutral palette */
-  --color-ink: #111827;
-  --color-muted: #6b7280;
-  --color-line: #e5e7eb;
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
   --color-surface: #f8fafc;
   --color-canvas: #ffffff;
 
   /* Semantic palette */
-  --color-success: #22c55e;
+  --color-success: #16a34a;
   --color-warning: #f59e0b;
-  --color-danger: #ef4444;
-  --color-offer: #f97316;
+  --color-danger: #dc2626;
+  --color-offer: #ea580c;
   --color-fresh: #15803d;
 
-  /* Typography */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Typography - Sleek & Compact */
+  --font-sans: var(--font-inter), "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
 
   /* Radii */
   --radius-sm: 8px;
@@ -42,18 +50,18 @@
   --radius-xl: 20px;
   --radius-pill: 999px;
 
-  /* Shadows — intentionally subtle, Apple-like */
-  --shadow-xs: 0 1px 2px rgba(17, 24, 39, 0.04);
-  --shadow-sm: 0 1px 2px rgba(17, 24, 39, 0.05), 0 1px 3px rgba(17, 24, 39, 0.03);
-  --shadow-md: 0 4px 6px -1px rgba(17, 24, 39, 0.06), 0 2px 4px -2px rgba(17, 24, 39, 0.04);
-  --shadow-lg: 0 10px 20px -8px rgba(17, 24, 39, 0.08), 0 4px 8px -4px rgba(17, 24, 39, 0.04);
-  --shadow-float: 0 12px 32px -12px rgba(21, 128, 61, 0.18);
-  --shadow-input: 0 2px 6px -2px rgba(17, 24, 39, 0.06);
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 24px -8px rgba(15, 23, 42, 0.12);
+  --shadow-float: 0 12px 32px -12px rgba(22, 163, 74, 0.22);
 }
 
 :root {
   color-scheme: light;
-  --font-inter: "Inter", "SF Pro Display", "Segoe UI", Roboto, -apple-system, sans-serif;
+  --font-inter: "Inter", "Plus Jakarta Sans", -apple-system, sans-serif;
+  font-size: 14px; /* Compact & stylish base font size */
 }
 
 html {

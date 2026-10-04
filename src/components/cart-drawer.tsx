@@ -52,30 +52,20 @@ export function CartDrawer() {
               </button>
             </div>
 
-            {/* Free-delivery progress */}
+            {/* Rate Transparency & Subscription Offer Banner */}
             {cart.items.length > 0 && (
-              <div className="border-b border-line bg-surface px-5 py-3">
-                <p className="text-[12px] font-medium text-ink">
-                  {cart.totals.amountToFreeDelivery > 0 ? (
-                    <>
-                      Add{" "}
-                      <span className="font-semibold text-brand-700">
-                        {formatINR(cart.totals.amountToFreeDelivery)}
-                      </span>{" "}
-                      more for free delivery
-                    </>
-                  ) : (
-                    <span className="font-semibold text-brand-700">
-                      Free delivery unlocked
-                    </span>
-                  )}
-                </p>
-                <div className="mt-2 h-1 overflow-hidden rounded-full bg-white">
-                  <div
-                    className="h-full rounded-full bg-brand-700 transition-all"
-                    style={{ width: `${progress}%` }}
-                  />
+              <div className="border-b border-line bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3">
+                <div className="flex items-center justify-between text-[11px] font-bold text-emerald-950">
+                  <span className="flex items-center gap-1">
+                    🏷️ Market Rate Produce + Transparent Cutting Fee
+                  </span>
+                  <span className="rounded-md bg-emerald-800 px-2 py-0.5 text-white font-black text-[10px]">
+                    KK Nagar Hub
+                  </span>
                 </div>
+                <p className="mt-1 text-[11px] font-medium text-emerald-800">
+                  🎁 <strong>Subscription Offer:</strong> Subscribe & save 15% extra on every daily box!
+                </p>
               </div>
             )}
 
@@ -83,17 +73,17 @@ export function CartDrawer() {
             <div className="flex-1 overflow-y-auto px-5 py-4">
               {cart.items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-3 text-center">
-                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface text-brand-700">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-surface text-emerald-800">
                     <ShoppingBag size={26} strokeWidth={1.5} />
                   </span>
-                  <p className="text-[15px] font-semibold">Your basket is empty</p>
-                  <p className="max-w-xs text-[13px] text-muted">
-                    Fresh vegetables, fruits and recipe kits are just a tap away.
+                  <p className="text-[15px] font-bold">Your basket is empty</p>
+                  <p className="max-w-xs text-[12px] text-muted">
+                    Fresh cut vegetables, fruits and meal kits prepared daily for K K Nagar.
                   </p>
                   <Link
                     href="/shop"
                     onClick={() => setDrawerOpen(false)}
-                    className="btn btn-primary btn-sm mt-2"
+                    className="btn btn-primary btn-sm mt-2 font-bold"
                   >
                     Start shopping
                   </Link>
@@ -103,42 +93,42 @@ export function CartDrawer() {
                   {cart.items.map((item) => (
                     <li
                       key={item.id}
-                      className="flex gap-3 rounded-2xl border border-line p-3"
+                      className="flex gap-3 rounded-2xl border border-line p-3 bg-white shadow-xs"
                     >
                       <CategoryIconTile icon={item.slug.split("-")[0]} size={56} />
                       <div className="flex-1">
                         <Link
                           href={`/product/${item.slug}`}
                           onClick={() => setDrawerOpen(false)}
-                          className="line-clamp-1 text-[13px] font-semibold hover:text-brand-700"
+                          className="line-clamp-1 text-[13px] font-extrabold hover:text-emerald-800"
                         >
                           {item.name}
                         </Link>
-                        <p className="text-[11px] text-muted">{item.variantName}</p>
+                        <p className="text-[11px] font-semibold text-muted">{item.variantName}</p>
                         <div className="mt-2 flex items-center justify-between">
                           <div className="flex items-center gap-0.5 rounded-full border border-line bg-white">
                             <button
                               type="button"
                               aria-label={`Decrease ${item.name}`}
-                              className="flex h-7 w-7 items-center justify-center text-brand-700"
+                              className="flex h-7 w-7 items-center justify-center text-emerald-800"
                               onClick={() => void setQuantity(item.id, item.quantity - 1)}
                             >
-                              <Minus size={12} strokeWidth={2} />
+                              <Minus size={12} strokeWidth={2.5} />
                             </button>
-                            <span className="min-w-5 text-center text-[12px] font-semibold">
+                            <span className="min-w-5 text-center text-[12px] font-extrabold">
                               {item.quantity}
                             </span>
                             <button
                               type="button"
                               aria-label={`Increase ${item.name}`}
-                              className="flex h-7 w-7 items-center justify-center text-brand-700 disabled:opacity-40"
+                              className="flex h-7 w-7 items-center justify-center text-emerald-800 disabled:opacity-40"
                               disabled={item.quantity >= item.availableStock}
                               onClick={() => void setQuantity(item.id, item.quantity + 1)}
                             >
-                              <Plus size={12} strokeWidth={2} />
+                              <Plus size={12} strokeWidth={2.5} />
                             </button>
                           </div>
-                          <span className="text-[13px] font-semibold">
+                          <span className="text-[13px] font-black">
                             {formatINR(item.totalPrice)}
                           </span>
                         </div>
@@ -157,41 +147,39 @@ export function CartDrawer() {
               )}
             </div>
 
-            {/* Footer */}
+            {/* Footer & Rates Breakdown */}
             {cart.items.length > 0 && (
-              <div className="border-t border-line px-5 py-4">
-                <dl className="mb-3 grid gap-1.5 text-[13px]">
-                  <Row label="Subtotal" value={formatINR(cart.totals.subtotal, true)} />
+              <div className="border-t border-line bg-slate-50 px-5 py-4">
+                <dl className="mb-3 grid gap-1.5 text-[12px]">
+                  <Row label="Vegetables (Market Price)" value={formatINR(cart.totals.subtotal, true)} />
+                  <Row label="Cutting & Shredding Fee" value="₹15.00" />
+                  <Row label="Hygienic Sealed Packing" value="₹10.00" />
+                  <Row label="KK Nagar 10km Delivery" value="₹29.00" />
                   {cart.totals.discount > 0 && (
                     <Row
-                      label={`Coupon ${cart.totals.couponCode}`}
+                      label={`Coupon Discount`}
                       value={`−${formatINR(cart.totals.discount, true)}`}
                       tone="brand"
                     />
                   )}
-                  <Row
-                    label="Delivery"
-                    value={cart.totals.deliveryCharge === 0 ? "FREE" : formatINR(cart.totals.deliveryCharge, true)}
-                    tone={cart.totals.deliveryCharge === 0 ? "brand" : undefined}
-                  />
-                  <div className="mt-2 flex justify-between border-t border-line pt-3 text-[15px]">
-                    <dt className="font-semibold">Total</dt>
-                    <dd className="font-semibold">{formatINR(cart.totals.grandTotal, true)}</dd>
+                  <div className="mt-2 flex justify-between border-t border-line pt-2 text-[15px] font-black">
+                    <dt className="text-slate-900">Total Payable</dt>
+                    <dd className="text-emerald-800">{formatINR(cart.totals.subtotal + 15 + 10 + 29 - cart.totals.discount, true)}</dd>
                   </div>
                 </dl>
                 <Link
                   href="/checkout"
                   onClick={() => setDrawerOpen(false)}
-                  className="btn btn-primary w-full"
+                  className="btn btn-primary w-full font-extrabold text-sm py-3"
                 >
-                  Proceed to checkout
+                  Proceed to Checkout →
                 </Link>
                 <Link
                   href="/cart"
                   onClick={() => setDrawerOpen(false)}
-                  className="btn btn-outline w-full mt-2"
+                  className="btn btn-outline w-full mt-2 font-bold text-xs"
                 >
-                  View full basket
+                  View Basket Details
                 </Link>
               </div>
             )}

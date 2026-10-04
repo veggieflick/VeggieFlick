@@ -26,14 +26,23 @@ type Category = { id: string; name: string; slug: string; icon: string };
 type Suggestion = { name: string; slug: string; emoji: string; categoryName: string; price: string };
 
 const DELIVERY_AREAS = [
+  "K K Nagar (10 km Radius)",
   "Anna Nagar",
   "T. Nagar",
   "Adyar",
   "Velachery",
   "Porur",
   "OMR Thoraipakkam",
-  "Ambattur",
   "Mylapore",
+];
+
+const DELIVERY_PARTNERS = [
+  { name: "Swiggy", color: "bg-orange-500" },
+  { name: "Zomato", color: "bg-red-500" },
+  { name: "Instamart", color: "bg-amber-500" },
+  { name: "Blinkit", color: "bg-yellow-500" },
+  { name: "BigBasket", color: "bg-green-600" },
+  { name: "Zepto", color: "bg-purple-600" },
 ];
 
 export function SiteHeader() {
@@ -50,6 +59,7 @@ export function SiteHeader() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [area, setArea] = useState(DELIVERY_AREAS[0]);
   const [unread, setUnread] = useState(0);
+  const [storeOpen, setStoreOpen] = useState(true);
 
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -109,35 +119,57 @@ export function SiteHeader() {
   if (pathname.startsWith("/admin")) return null;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-line bg-white/90 backdrop-blur-xl">
-      {/* Info bar */}
-      <div className="border-b border-line/60 bg-white">
-        <div className="container-page flex h-10 items-center justify-between gap-3 overflow-x-auto scrollbar-hide">
-          <div className="flex items-center gap-2">
-            <span className="info-pill">
-              <Bike size={13} strokeWidth={1.6} aria-hidden />
-              {t("hero.free_delivery_banner")}
-            </span>
-            <span className="info-pill hidden sm:inline-flex">
-              <Leaf size={13} strokeWidth={1.6} aria-hidden />
-              {t("hero.fresh_badge")}
-            </span>
+    <header className="sticky top-0 z-50 w-full border-b border-line bg-white/95 backdrop-blur-xl">
+      {/* Top Bar with Store Status Toggle, Location & Partners */}
+      <div className="border-b border-line/60 bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white">
+        <div className="container-page flex h-9 items-center justify-between gap-3 text-xs overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-3 shrink-0">
+            {/* Store Operational Status Toggle Button */}
+            <button
+              type="button"
+              onClick={() => setStoreOpen((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all shadow-xs ${
+                storeOpen
+                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30"
+                  : "bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30"
+              }`}
+              title="Click to toggle store operational hours"
+            >
+              <span className={`h-2 w-2 rounded-full ${storeOpen ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
+              {storeOpen ? "STORE OPEN • Accepting KK Nagar Orders" : "STORE CLOSED • Pre-orders Only"}
+            </button>
+
+            {/* Location Pill */}
+            <div className="flex items-center gap-1 bg-white/10 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-200">
+              <MapPin size={12} className="text-emerald-400" />
+              <span>K K Nagar Hub (10 km Radius)</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <label className="info-pill">
-              <MapPin size={13} strokeWidth={1.6} aria-hidden />
-              <select
-                value={area}
-                onChange={(e) => setArea(e.target.value)}
-                className="bg-transparent text-[12px] font-medium outline-none"
-                aria-label="Delivery area"
-              >
-                {DELIVERY_AREAS.map((a) => (
-                  <option key={a}>{a}</option>
-                ))}
-              </select>
-            </label>
+
+          {/* Delivery Partners Badge Strip */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0 text-[11px] text-slate-300">
+            <span className="font-semibold text-slate-400">Delivery via:</span>
+            <div className="flex items-center gap-1.5">
+              {DELIVERY_PARTNERS.map((partner) => (
+                <span key={partner.name} className="px-1.5 py-0.5 rounded-md bg-white/10 text-white font-extrabold text-[10px] tracking-tight">
+                  {partner.name}
+                </span>
+              ))}
+            </div>
           </div>
+
+          {/* WhatsApp Direct Order Button */}
+          <a
+            href="https://wa.me/919840012345?text=Hi%20VeggieFlick%20KK%20Nagar!%20I%20want%20to%20place%20an%20order."
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 px-2.5 py-0.5 rounded-full font-bold text-white text-[11px] shadow-xs transition-colors shrink-0"
+          >
+            <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+              <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.758.459 3.474 1.33 4.982l-1.413 5.163 5.285-1.386c1.455.794 3.09 1.213 4.784 1.214h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.924-7.062-1.887-1.886-4.395-2.924-7.065-2.924zm0 18.232h-.003c-1.493 0-2.957-.401-4.233-1.157l-.304-.18-3.147.825.84-3.067-.197-.314c-.832-1.325-1.272-2.862-1.272-4.437 0-4.509 3.67-8.178 8.18-8.178 2.184 0 4.238.85 5.783 2.396 1.545 1.545 2.395 3.6 2.394 5.784 0 4.51-3.669 8.18-8.177 8.18z"/>
+            </svg>
+            WhatsApp Order
+          </a>
         </div>
       </div>
 
