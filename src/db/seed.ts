@@ -370,6 +370,17 @@ const PRODUCTS: ProductSeed[] = [
     tax: 5, rating: 4.5, ratingCount: 141, sold: 910,
     variants: [v("Serves 3", 1, "pack", 129, 99, 55)],
   },
+  {
+    name: "Bisi Bele Bath Kit", tamil: "பிசிபேள பாத் கிட்", emoji: "rice", category: "Ready To Cook", sub: "South Indian Kits",
+    short: "Special cut veggies + authentic stone-ground spice mix.",
+    description: "Authentic Karnataka style Bisi Bele Bath kit with diced carrot, beans, potato, green peas, and stone-ground spice mix. Available with or without onion.",
+    origin: "VeggieFlick Chennai Hub", shelfLife: "Use within 24 hours",
+    flags: { featured: true, bestSeller: true, cut: true }, tax: 5, rating: 4.8, ratingCount: 460, sold: 3400,
+    variants: [
+      v("With Onion (Serves 4)", 1, "pack", 190, 139, 105),
+      v("Without Onion (No Garlic / Sattvic - Serves 4)", 1, "pack", 180, 129, 95),
+    ],
+  },
 ];
 
 const BLOGS = [

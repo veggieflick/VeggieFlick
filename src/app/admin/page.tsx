@@ -61,8 +61,9 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-950">
-            🟢 Store OPEN
+          <span className="rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-950 flex items-center">
+            <span className="h-2 w-2 rounded-full bg-emerald-600 animate-pulse mr-1.5" />
+            Store OPEN
           </span>
           <Link href="/admin/orders" className="btn btn-primary btn-sm font-bold">
             Order Dispatch Queue →
@@ -204,7 +205,7 @@ export default async function AdminDashboardPage() {
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
             <span className="chip bg-emerald-800 text-white font-extrabold text-[10px] uppercase">
-              📍 KK NAGAR HUB (10 KM RADIUS)
+              KK NAGAR HUB (10 KM RADIUS)
             </span>
             <h2 className="text-base font-extrabold text-slate-900 mt-1">Delivery Zone Order Density</h2>
           </div>

@@ -4,10 +4,10 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 
 const HERO_QUOTES = [
+  "Freshly Cut. Ready to Cook.",
   "No Chopping. No Stress. Just Fresh Cooking.",
-  "From Farm Harvest to Your Hot Pan.",
-  "Freshly Cut. Effortlessly Cooked.",
-  "Save Time on Prep. Spend Time on Dining.",
+  "From K.K. Nagar Hub to Your Hot Pan.",
+  "Save 25 Minutes of Prep Every Single Day.",
 ];
 
 export function HeroDialogueHeading() {

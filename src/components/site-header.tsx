@@ -342,39 +342,38 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* Category navigation — horizontal scroll */}
-      <nav aria-label="Categories" className="hidden border-t border-line/70 lg:block">
-        <div className="container-page flex items-center gap-1 py-2.5 overflow-x-auto scrollbar-hide">
-          <Link
-            href="/shop"
-            className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface hover:text-brand-700"
-          >
-            All products
+      {/* Navigation Bar */}
+      <nav aria-label="Main Navigation" className="hidden border-t border-line/70 lg:block bg-slate-50/50">
+        <div className="container-page flex items-center gap-1 py-2 overflow-x-auto scrollbar-hide text-[13px] font-semibold">
+          <Link href="/" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Home
           </Link>
-          {categories.map((c) => {
-            const Icon = lookupIcon(c.icon);
-            return (
-              <Link
-                key={c.id}
-                href={`/shop?category=${c.slug}`}
-                className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface hover:text-brand-700"
-              >
-                <Icon size={14} strokeWidth={1.6} aria-hidden />
-                {c.name}
-              </Link>
-            );
-          })}
-          <Link
-            href="/recipes"
-            className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface hover:text-brand-700"
-          >
-            Recipes
+          <Link href="/shop" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Shop All
           </Link>
-          <Link
-            href="/blog"
-            className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-[13px] font-medium text-ink transition-colors hover:bg-surface hover:text-brand-700"
-          >
-            Journal
+          <Link href="/shop?category=cut-vegetables" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800 font-bold text-emerald-800">
+            Cut Vegetables
+          </Link>
+          <Link href="/shop?category=fresh-fruits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Fruits
+          </Link>
+          <Link href="/shop?category=salads" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Diet Combos
+          </Link>
+          <Link href="/shop?category=ready-to-cook" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Combos
+          </Link>
+          <Link href="/subscriptions" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-amber-900 bg-amber-50 border border-amber-200/60 font-bold hover:bg-amber-100">
+            Subscription
+          </Link>
+          <Link href="/shop?sort=discount" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-emerald-800 font-bold hover:bg-emerald-50">
+            Offers
+          </Link>
+          <Link href="/about" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            About
+          </Link>
+          <Link href="/help#contact" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Contact
           </Link>
         </div>
       </nav>
@@ -390,7 +389,7 @@ export function SiteHeader() {
           />
           <div className="absolute top-0 left-0 h-full w-[84%] max-w-sm overflow-y-auto bg-white p-5 shadow-2xl">
             <div className="mb-6 flex items-center justify-between">
-              <span className="text-base font-semibold">Shop</span>
+              <span className="text-base font-extrabold text-slate-900">VeggieFlick Navigation</span>
               <button
                 type="button"
                 aria-label="Close menu"
@@ -400,38 +399,16 @@ export function SiteHeader() {
                 <X size={18} />
               </button>
             </div>
-            <div className="grid gap-1">
-              {categories.map((c) => {
-                const Icon = lookupIcon(c.icon);
-                return (
-                  <Link
-                    key={c.id}
-                    href={`/shop?category=${c.slug}`}
-                    onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-surface"
-                  >
-                    <Icon size={18} strokeWidth={1.6} className="text-brand-700" />
-                    <span className="text-sm font-medium">{c.name}</span>
-                  </Link>
-                );
-              })}
-            </div>
-            <div className="mt-5 border-t border-line pt-5 text-sm">
-              <Link href="/orders" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2.5 hover:bg-surface">
-                My orders
-              </Link>
-              <Link href="/recipes" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2.5 hover:bg-surface">
-                Recipes
-              </Link>
-              <Link href="/blog" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2.5 hover:bg-surface">
-                Journal
-              </Link>
-              <Link href="/about" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2.5 hover:bg-surface">
-                About
-              </Link>
-              <Link href="/help" onClick={() => setMenuOpen(false)} className="block rounded-xl px-3 py-2.5 hover:bg-surface">
-                Help
-              </Link>
+            <div className="grid gap-1 text-sm font-semibold text-slate-800">
+              <Link href="/" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Home</Link>
+              <Link href="/shop?category=cut-vegetables" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-extrabold hover:bg-emerald-50">Cut Vegetables (Ready to Cook)</Link>
+              <Link href="/shop?category=fresh-fruits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Fruits</Link>
+              <Link href="/shop?category=salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Diet Combos</Link>
+              <Link href="/shop?category=ready-to-cook" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Combos</Link>
+              <Link href="/subscriptions" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">Subscription & Pre-orders</Link>
+              <Link href="/shop?sort=discount" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-bold">Special Offers</Link>
+              <Link href="/about" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">About Us</Link>
+              <Link href="/help#contact" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Contact KK Nagar Hub</Link>
             </div>
           </div>
         </div>

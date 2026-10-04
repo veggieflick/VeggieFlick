@@ -191,7 +191,7 @@ export default function CheckoutPage() {
 
             {addresses.length === 0 && !showForm && (
               <p className="text-sm text-muted">
-                No saved addresses yet. Add one to continue — we deliver within 25 km of Chennai.
+                No saved addresses yet. Add one to continue — we deliver within a 10 KM radius of K.K. Nagar, Chennai.
               </p>
             )}
 
@@ -218,10 +218,10 @@ export default function CheckoutPage() {
                     <span className="block text-muted">
                       {address.doorNo}, {address.street}, {address.area}, {address.city} {address.postalCode}
                     </span>
-                    <span className="mt-1 block text-xs font-semibold text-brand-700">
+                    <span className={`mt-1 block text-xs font-semibold ${address.serviceable ? "text-emerald-700" : "text-rose-700"}`}>
                       {address.serviceable
-                        ? `${address.distanceKm} km from hub · deliverable`
-                        : `${address.distanceKm} km away · outside our 25 km radius`}
+                        ? `${address.distanceKm || 3} km from K.K. Nagar Hub · Serviceable`
+                        : `Sorry, we currently deliver only within a 10 KM radius of K.K. Nagar, Chennai.`}
                     </span>
                   </span>
                 </label>

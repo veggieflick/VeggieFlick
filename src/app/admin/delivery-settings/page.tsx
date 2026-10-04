@@ -118,9 +118,10 @@ export default function AdminDeliverySettingsPage() {
   const [drivers, setDrivers] = useState<Driver[]>(INITIAL_DRIVERS);
 
   // General Settings State
-  const [coverageRadius, setCoverageRadius] = useState(25);
-  const [freeShippingMin, setFreeShippingMin] = useState(299);
-  const [standardDeliveryFee, setStandardDeliveryFee] = useState(30);
+  const [coverageRadius, setCoverageRadius] = useState(10);
+  const [cuttingFee, setCuttingFee] = useState(15);
+  const [packingFee, setPackingFee] = useState(10);
+  const [standardDeliveryFee, setStandardDeliveryFee] = useState(29);
   const [isRainSurgeActive, setIsRainSurgeActive] = useState(false);
   const [rainSurgeFee, setRainSurgeFee] = useState(25);
 
@@ -138,7 +139,7 @@ export default function AdminDeliverySettingsPage() {
   };
 
   const handleSaveSettings = () => {
-    notify("Delivery Hub Radius & Surge Settings updated successfully!");
+    notify("K.K. Nagar Hub Delivery Radius & Fee Settings updated successfully!");
   };
 
   return (
@@ -146,9 +147,9 @@ export default function AdminDeliverySettingsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Delivery Hub & Fleet Settings</h1>
+          <h1 className="text-2xl font-bold text-slate-900">K.K. Nagar Hub Delivery & Fleet Settings</h1>
           <p className="text-sm text-slate-500">
-            Configure Koyambedu 25km radius dispatch rules, order capacity limits, and driver tracking.
+            Configure 50, 51st Street, 9th Sector, K.K. Nagar 10 km radius dispatch rules and fee matrix.
           </p>
         </div>
         <button
@@ -162,46 +163,59 @@ export default function AdminDeliverySettingsPage() {
 
       {/* Grid: Global Delivery Hub Parameters & Surge Controls */}
       <div className="grid gap-6 md:grid-cols-3">
-        {/* Coverage Radius & Min Threshold */}
+        {/* Coverage Radius & Fee Breakdown */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm space-y-4">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <MapPin className="h-5 w-5 text-brand-600" />
-            <h2 className="font-bold text-slate-900">Coverage & Thresholds</h2>
+            <h2 className="font-bold text-slate-900">K.K. Nagar Hub Coverage</h2>
           </div>
           <div className="space-y-4 text-sm">
             <div>
               <div className="flex justify-between font-semibold text-slate-700 mb-1">
-                <span>Koyambedu Radius</span>
+                <span>Max Delivery Radius</span>
                 <span className="text-brand-700 font-bold">{coverageRadius} km</span>
               </div>
               <input
                 type="range"
-                min="5"
-                max="40"
+                min="1"
+                max="10"
                 value={coverageRadius}
                 onChange={(e) => setCoverageRadius(Number(e.target.value))}
                 className="w-full accent-brand-600 cursor-pointer"
               />
               <p className="text-xs text-slate-400 mt-1">
-                Covers Anna Nagar, T. Nagar, Adyar, Velachery, OMR, Tambaram.
+                Strict 10 KM Radius from 50, 51st St, 9th Sector, K.K. Nagar (600078).
               </p>
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Free Delivery Min Order</label>
+              <label className="block font-semibold text-slate-700 mb-1">Cutting & Preparation Fee</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 font-bold">₹</span>
                 <input
                   type="number"
-                  value={freeShippingMin}
-                  onChange={(e) => setFreeShippingMin(Number(e.target.value))}
+                  value={cuttingFee}
+                  onChange={(e) => setCuttingFee(Number(e.target.value))}
                   className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2 text-slate-900 font-bold"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Base Delivery Charge</label>
+              <label className="block font-semibold text-slate-700 mb-1">Hygienic Packing Fee</label>
+              <div className="relative">
+                <span className="absolute left-3 top-2.5 text-slate-400 font-bold">₹</span>
+                <input
+                  type="number"
+                  value={packingFee}
+                  onChange={(e) => setPackingFee(Number(e.target.value))}
+                  className="w-full rounded-xl border border-slate-200 pl-8 pr-3 py-2 text-slate-900 font-bold"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-semibold text-slate-700 mb-1">Standard Delivery Fee (Within 10 KM)</label>
               <div className="relative">
                 <span className="absolute left-3 top-2.5 text-slate-400 font-bold">₹</span>
                 <input

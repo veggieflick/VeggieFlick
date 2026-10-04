@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Gift, Minus, Plus, ShoppingBag, Tag, Trash2, X } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
 import { CategoryIconTile } from "@/components/ui/primitives";
@@ -56,15 +56,16 @@ export function CartDrawer() {
             {cart.items.length > 0 && (
               <div className="border-b border-line bg-gradient-to-r from-emerald-50 to-teal-50 px-5 py-3">
                 <div className="flex items-center justify-between text-[11px] font-bold text-emerald-950">
-                  <span className="flex items-center gap-1">
-                    🏷️ Market Rate Produce + Transparent Cutting Fee
+                  <span className="flex items-center gap-1.5">
+                    <Tag size={13} className="text-emerald-700" /> Transparent Market Pricing + Cutting Fee
                   </span>
                   <span className="rounded-md bg-emerald-800 px-2 py-0.5 text-white font-black text-[10px]">
-                    KK Nagar Hub
+                    K.K. Nagar Hub
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] font-medium text-emerald-800">
-                  🎁 <strong>Subscription Offer:</strong> Subscribe & save 15% extra on every daily box!
+                <p className="mt-1 text-[11px] font-semibold text-emerald-800 flex items-center gap-1">
+                  <Gift size={12} className="text-amber-600" />
+                  <span><strong>Subscription Offer:</strong> Subscribe & save 15% extra on every daily box.</span>
                 </p>
               </div>
             )}
