@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
-import { Bike, Leaf, ShieldCheck, Sparkles, Star, Truck, Zap, Scissors, Clock } from "lucide-react";
+import { Bike, Leaf, ShieldCheck, Sparkles, Star, Truck, Zap, Scissors, Clock, ShoppingBag } from "lucide-react";
 import { db } from "@/db";
 import { blogs, recipes } from "@/db/schema";
 import { catalogCounts, listCategories, listCollection } from "@/lib/services/catalog";
