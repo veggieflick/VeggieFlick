@@ -263,24 +263,22 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
       </section>
-    </div>
-  );
-}
 
+      {/* Customer Segments */}
       <section className="card p-5">
-        <h2 className="mb-3 text-lg font-bold">Customer segments</h2>
+        <h2 className="mb-3 text-base font-extrabold text-slate-900">Customer Segments</h2>
         <div className="grid gap-3 sm:grid-cols-3">
           <div className="rounded-xl bg-surface p-4">
-            <p className="text-xs font-semibold text-muted uppercase">Total customers</p>
-            <p className="text-2xl font-bold">{segments.total}</p>
+            <p className="text-xs font-semibold text-muted uppercase">Total Customers</p>
+            <p className="text-2xl font-bold text-slate-900">{segments.total}</p>
           </div>
           <div className="rounded-xl bg-surface p-4">
-            <p className="text-xs font-semibold text-muted uppercase">Gold tier</p>
-            <p className="text-2xl font-bold">{segments.gold}</p>
+            <p className="text-xs font-semibold text-muted uppercase">Gold Tier</p>
+            <p className="text-2xl font-bold text-slate-900">{segments.gold}</p>
           </div>
           <div className="rounded-xl bg-surface p-4">
-            <p className="text-xs font-semibold text-muted uppercase">Platinum tier</p>
-            <p className="text-2xl font-bold">{segments.platinum}</p>
+            <p className="text-xs font-semibold text-muted uppercase">Platinum Tier</p>
+            <p className="text-2xl font-bold text-slate-900">{segments.platinum}</p>
           </div>
         </div>
       </section>
