@@ -16,7 +16,7 @@ type SubscriptionItem = {
 };
 
 const SUGGESTED_SUBSCRIPTIONS = [
-  { name: "Organic Farm Fresh Milk (A2 Cow Milk)", unit: "500 ml", frequency: "Daily 6:00 AM", price: "₹38", emoji: "🥛" },
+  { name: "Farm Fresh Milk (A2 Cow Milk)", unit: "500 ml", frequency: "Daily 6:00 AM", price: "₹38", emoji: "🥛" },
   { name: "Daily Keerai Bundle (Spinach / Sirukeerai)", unit: "1 Bunch", frequency: "Mon / Wed / Fri", price: "₹25", emoji: "🥬" },
   { name: "Country Tomatoes (Desi Thakkali)", unit: "1 kg", frequency: "Every 3 Days", price: "₹34", emoji: "🍅" },
   { name: "Tender Coconut Water (Sevvaneer)", unit: "1 Piece", frequency: "Daily Morning", price: "₹50", emoji: "🥥" },

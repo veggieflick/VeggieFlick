@@ -19,15 +19,15 @@ const REWARDS: Reward[] = [
     emoji: "🎉",
   },
   {
-    title: "FREE Organic Coriander & Curry Leaf Bundle",
+    title: "FREE Fresh Coriander & Curry Leaf Bundle",
     code: "FREECURRY",
-    description: "Harvested fresh at 4 AM and added to your next morning delivery slot.",
+    description: "Added complimentary to your next morning delivery slot.",
     emoji: "🥬",
   },
   {
     title: "10% Extra Cashback Coupon",
     code: "VEGGIE10",
-    description: "Valid on all cut vegetables and ready-to-cook meal kits.",
+    description: "Valid on all cut vegetables and recipe meal kits.",
     emoji: "🎁",
   },
 ];

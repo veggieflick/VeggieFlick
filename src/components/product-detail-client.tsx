@@ -20,10 +20,10 @@ export type VariantOption = {
 };
 
 const CATEGORY_HERO: Record<string, string> = {
-  "fresh-vegetables": "/images/hero-fresh.jpg",
-  "fresh-fruits": "/images/hero-fruits.jpg",
-  organic: "/images/hero-organic.jpg",
-  "exotic-vegetables": "/images/hero-exotic.jpg",
+  "vegetables-shopping": "/images/hero-fresh.jpg",
+  "fruit-salads": "/images/hero-fruits.jpg",
+  "veg-salads": "/images/hero-fresh.jpg",
+  "fruits-cutting-combo": "/images/hero-fruits.jpg",
 };
 
 export function ProductPurchasePanel({

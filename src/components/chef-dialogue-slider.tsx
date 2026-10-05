@@ -50,16 +50,16 @@ export function ChefDialogueSlider() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link href="/shop?category=ready-to-cook">
+            <Link href="#combo-kits">
               <motion.span
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
                 className="btn btn-primary bg-emerald-800 hover:bg-emerald-900 border-none py-2 px-3.5 text-xs font-bold shadow-md shadow-emerald-800/20"
               >
-                Meal Kits →
+                Combo Kits →
               </motion.span>
             </Link>
-            <Link href="/shop?category=cut-vegetables">
+            <Link href="/shop?category=vegetables-shopping&cut=true">
               <motion.span
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}

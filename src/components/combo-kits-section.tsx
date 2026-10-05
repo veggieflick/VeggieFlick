@@ -67,14 +67,11 @@ export function ComboKitsSection() {
   const handleAddCombo = async (kit: ComboKit) => {
     setAddingId(kit.id);
     try {
-      const res = await fetch("/api/v1/products?limit=5");
-      const json = await res.json();
-      if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-        const prod = json.data[0];
-        await addItem(prod.id, prod.variantId, 1);
-        setDrawerOpen(true);
-        notify(`Added ${kit.name} to basket!`);
-      }
+      const prodId = `prod-${kit.id}`;
+      const varId = `var-${kit.id}`;
+      await addItem(prodId, varId, 1);
+      setDrawerOpen(true);
+      notify(`Added ${kit.name} to basket!`);
     } catch {
       notify("Failed to add combo kit", "error");
     } finally {
@@ -83,7 +80,7 @@ export function ComboKitsSection() {
   };
 
   return (
-    <section className="bg-gradient-to-br from-amber-50/70 via-orange-50/30 to-white py-12 md:py-16 border-y border-amber-100">
+    <section id="combo-kits" className="bg-gradient-to-br from-amber-50/70 via-orange-50/30 to-white py-12 md:py-16 border-y border-amber-100 scroll-mt-20">
       <div className="container-page">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

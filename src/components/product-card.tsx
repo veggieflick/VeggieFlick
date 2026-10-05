@@ -36,10 +36,10 @@ export type ProductCardData = {
 
 /** Map category slug to a real product photo. */
 const CATEGORY_HERO: Record<string, string> = {
-  "fresh-vegetables": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
-  "fresh-fruits": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80",
-  organic: "https://images.unsplash.com/photo-1546470427-227c7369a9e3?auto=format&fit=crop&w=600&q=80",
-  "exotic-vegetables": "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?auto=format&fit=crop&w=600&q=80",
+  "vegetables-shopping": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+  "fruit-salads": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?auto=format&fit=crop&w=600&q=80",
+  "veg-salads": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
+  "fruits-cutting-combo": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80",
 };
 
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
@@ -51,7 +51,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const discountPct = Math.round(product.discountPercentage);
 
   const handleAddClick = () => {
-    if (product.categorySlug.includes("vegetables") || product.isCutVegetable) {
+    if (product.categorySlug === "vegetables-shopping" && !product.isCutVegetable) {
       setCutModalOpen(true);
     } else {
       void addItem(product.id, product.variantId, 1);
@@ -114,12 +114,11 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             {discountPct > 0 && (
               <span className="chip bg-emerald-800 text-white font-extrabold text-[10px] tracking-wider shadow-sm">{discountPct}% OFF</span>
             )}
-            {product.isOrganic && (
-              <Badge tone="fresh">Organic</Badge>
-            )}
-            {product.isFreshToday && !product.isOrganic && (
-              <Badge tone="brand">Fresh today</Badge>
-            )}
+            {product.isCutVegetable ? (
+              <span className="chip bg-amber-700 text-white font-bold text-[10px] tracking-wide shadow-xs">Pre-Cut</span>
+            ) : product.isFreshToday ? (
+              <span className="chip bg-emerald-700 text-white font-bold text-[10px] tracking-wide shadow-xs">Fresh Daily</span>
+            ) : null}
           </div>
 
           {/* Floating Quick Add (+) Button Overlay */}

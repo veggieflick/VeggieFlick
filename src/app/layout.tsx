@@ -59,7 +59,7 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "GroceryStore",
   name: "VeggieFlick",
-  image: `${siteUrl}/images/hero-basket.jpg`,
+  image: `${siteUrl}/images/hero-fresh.jpg`,
   description: "Farm fresh vegetables and fruits delivered across Chennai.",
   address: {
     "@type": "PostalAddress",
@@ -84,14 +84,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
         />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-white font-sans text-ink antialiased">
+      <body className="min-h-screen bg-[var(--color-canvas)] font-sans text-ink antialiased selection:bg-emerald-100 selection:text-emerald-950">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white"

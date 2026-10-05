@@ -17,10 +17,9 @@ const SORTS = [
 ];
 
 const TOGGLES = [
-  { key: "organic", label: "Organic only" },
-  { key: "bestSeller", label: "Best sellers" },
-  { key: "freshToday", label: "Fresh today" },
   { key: "cut", label: "Cut & ready" },
+  { key: "freshToday", label: "Fresh today" },
+  { key: "bestSeller", label: "Best sellers" },
   { key: "inStock", label: "In stock only" },
 ];
 

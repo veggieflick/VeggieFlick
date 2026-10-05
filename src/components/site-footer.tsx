@@ -3,12 +3,12 @@ import { Bike, Leaf, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 const SHOP_LINKS = [
-  { label: "Cut Vegetables (Ready to Cook)", href: "/shop?category=cut-vegetables" },
-  { label: "Fresh Fruits", href: "/shop?category=fresh-fruits" },
-  { label: "Leafy Vegetables (Keerai Mix)", href: "/shop?category=leafy-vegetables" },
-  { label: "Diet Combos & Salads", href: "/shop?category=salads" },
-  { label: "Meal Kits & Combos", href: "/shop?category=ready-to-cook" },
-  { label: "Organic Produce", href: "/shop?category=organic" },
+  { label: "Vegetables Shopping", href: "/shop?category=vegetables-shopping" },
+  { label: "Chopped & Cut Vegetables", href: "/shop?category=vegetables-shopping&cut=true" },
+  { label: "Fruit Salads", href: "/shop?category=fruit-salads" },
+  { label: "Veg Salads", href: "/shop?category=veg-salads" },
+  { label: "Fruits Cutting & Combo Pack", href: "/shop?category=fruits-cutting-combo" },
+  { label: "Recipe Combo Kits", href: "/#combo-kits" },
 ];
 
 const COMPANY_LINKS = [
