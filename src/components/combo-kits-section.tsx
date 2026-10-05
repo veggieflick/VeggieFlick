@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { UtensilsCrossed, CheckCircle2, Sparkles, ShoppingBag } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
@@ -13,6 +14,7 @@ type ComboKit = {
   price: number;
   originalPrice: number;
   emoji: string;
+  imageUrl: string;
   items: string[];
   badge: string;
 };
@@ -25,6 +27,7 @@ const COMBO_KITS: ComboKit[] = [
     price: 129,
     originalPrice: 180,
     emoji: "🍲",
+    imageUrl: "/images/products/combo-kit-pulav.jpg",
     items: ["Chopped Carrot 250g", "French Beans 250g", "Green Peas 200g", "Whole Spices Pouch"],
     badge: "SAVE ₹51",
   },
@@ -35,6 +38,7 @@ const COMBO_KITS: ComboKit[] = [
     price: 179,
     originalPrice: 240,
     emoji: "🍚",
+    imageUrl: "/images/products/combo-kit-biryani.jpg",
     items: ["Cauliflower Florets 300g", "Cut Veggies 500g", "Fresh Mint & Coriander", "Biryani Spice Pack"],
     badge: "SAVE ₹61",
   },
@@ -45,6 +49,7 @@ const COMBO_KITS: ComboKit[] = [
     price: 125,
     originalPrice: 170,
     emoji: "🥗",
+    imageUrl: "/images/products/combo-kit-aviyal.jpg",
     items: ["7-Veg Aviyal Cut Mix 500g", "Grated Coconut 100g", "Curry Leaves Bundle", "Green Chillies"],
     badge: "SAVE ₹45",
   },
@@ -55,6 +60,7 @@ const COMBO_KITS: ComboKit[] = [
     price: 139,
     originalPrice: 190,
     emoji: "🍛",
+    imageUrl: "/images/products/combo-kit-bisibele.jpg",
     items: ["Cut Sambar Veggies 500g", "Shallots (Optional)", "Stone-ground Masala 50g", "Ghee Tempering Pack"],
     badge: "SAVE ₹51",
   },
@@ -102,7 +108,7 @@ export function ComboKitsSection() {
           </div>
         </motion.div>
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {COMBO_KITS.map((kit, index) => (
             <motion.div
               key={kit.id}
@@ -111,29 +117,36 @@ export function ComboKitsSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: index * 0.1 }}
               whileHover={{ y: -4 }}
-              className="card bg-white p-5 border-amber-200/90 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden rounded-2xl"
+              className="card group bg-white p-4 border-amber-200/90 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden rounded-2xl"
             >
-              <div className="absolute top-3 right-3">
-                <span className="chip bg-gradient-to-r from-red-600 to-rose-600 text-white font-extrabold text-[10px] tracking-wider shadow-sm">
-                  {kit.badge}
-                </span>
-              </div>
-
               <div>
-                <div className="flex items-center gap-3">
-                  <span className="text-4xl">{kit.emoji}</span>
-                  <div>
-                    <h3 className="text-base font-bold text-ink leading-tight">{kit.name}</h3>
+                <div className="relative w-full h-44 rounded-xl overflow-hidden mb-3.5 bg-amber-50">
+                  <Image
+                    src={kit.imageUrl}
+                    alt={kit.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                  />
+                  <div className="absolute top-2.5 right-2.5">
+                    <span className="chip bg-gradient-to-r from-red-600 to-rose-600 text-white font-extrabold text-[10px] tracking-wider shadow-md">
+                      {kit.badge}
+                    </span>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-600 leading-relaxed mt-3">{kit.description}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{kit.emoji}</span>
+                  <h3 className="text-base font-bold text-ink leading-tight line-clamp-1">{kit.name}</h3>
+                </div>
 
-                <div className="mt-4 rounded-xl bg-amber-50/60 p-3 border border-amber-100/80">
+                <p className="text-xs text-slate-600 leading-relaxed mt-2 line-clamp-2">{kit.description}</p>
+
+                <div className="mt-3.5 rounded-xl bg-amber-50/70 p-3 border border-amber-100/90">
                   <p className="text-[11px] font-bold text-amber-950 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                     <UtensilsCrossed size={12} /> Included in Combo:
                   </p>
-                  <ul className="grid grid-cols-2 gap-1 text-[11px] text-slate-700">
+                  <ul className="grid grid-cols-1 gap-1 text-[11px] text-slate-700">
                     {kit.items.map((item) => (
                       <li key={item} className="flex items-center gap-1">
                         <CheckCircle2 size={12} className="text-emerald-600 shrink-0" />
@@ -144,7 +157,7 @@ export function ComboKitsSection() {
                 </div>
               </div>
 
-              <div className="mt-6 flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
+              <div className="mt-5 flex items-center justify-between gap-3 pt-3 border-t border-slate-100">
                 <div>
                   <span className="text-xl font-extrabold text-ink">{formatINR(kit.price)}</span>
                   <span className="text-xs text-muted line-through ml-1.5">{formatINR(kit.originalPrice)}</span>
@@ -157,7 +170,7 @@ export function ComboKitsSection() {
                   disabled={addingId === kit.id}
                   className="btn btn-primary btn-sm bg-emerald-800 text-white font-bold text-xs shadow-md hover:bg-emerald-900 border-none"
                 >
-                  <ShoppingBag size={14} /> Add Combo Kit
+                  <ShoppingBag size={14} /> Add Kit
                 </motion.button>
               </div>
             </motion.div>
