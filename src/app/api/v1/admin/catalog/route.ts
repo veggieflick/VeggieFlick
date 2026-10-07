@@ -10,7 +10,8 @@ import {
 } from "@/db/schema";
 import { ApiError, created, handle, ok, paginationMeta, parseBody, parseQuery } from "@/lib/api";
 import { requirePermission } from "@/lib/auth";
-import { slugify } from "@/lib/utils";
+import { ALL_PRODUCTS } from "@/lib/data/all-products";
+
 export const dynamic = "force-dynamic";
 
 const querySchema = z.object({
@@ -19,7 +20,7 @@ const querySchema = z.object({
   view: z.enum(["products", "inventory"]).default("products"),
 });
 
-const DEFAULT_DEMO_PRODUCTS = FALLBACK_PRODUCTS.map((p, idx) => ({
+const DEFAULT_DEMO_PRODUCTS = ALL_PRODUCTS.map((p, idx) => ({
   id: p.id,
   name: p.name,
   tamilName: p.tamilName ?? "",

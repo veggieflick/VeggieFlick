@@ -22,7 +22,7 @@ import {
 import { useApp } from "@/components/providers";
 import { formatDateIST, formatINR } from "@/lib/utils";
 import { StatusPill } from "@/components/ui/primitives";
-import { FALLBACK_PRODUCTS } from "@/lib/services/catalog";
+import { ALL_PRODUCTS } from "@/lib/data/all-products";
 
 type ProductRow = {
   id: string;
@@ -82,7 +82,7 @@ const PRESET_PRODUCE_IMAGES = [
   { name: "Fruit Salad", url: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" },
 ];
 
-const INITIAL_ALL_PRODUCTS: ProductRow[] = FALLBACK_PRODUCTS.map((p, idx) => ({
+const INITIAL_ALL_PRODUCTS: ProductRow[] = ALL_PRODUCTS.map((p, idx) => ({
   id: p.id,
   name: p.name,
   tamilName: p.tamilName ?? "",
