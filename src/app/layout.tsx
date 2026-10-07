@@ -92,15 +92,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="relative min-h-screen bg-white font-sans text-ink antialiased selection:bg-emerald-100 selection:text-emerald-950">
-        {/* Ambient Brand Theme Glows (Left Green / Right Orange overlay at ~50% opacity) */}
-        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        {/* Ambient Brand Theme Glows (Left Green / Right Orange overlay at 30% opacity) */}
+        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden opacity-60" aria-hidden="true">
           {/* Left Side Green Theme Glow */}
-          <div className="absolute -top-32 -left-32 h-[750px] w-[550px] rounded-full bg-emerald-500/30 blur-[130px] md:bg-emerald-500/35 md:blur-[160px]" />
-          <div className="absolute top-[40%] -left-40 h-[850px] w-[600px] rounded-full bg-emerald-600/25 blur-[140px] md:bg-emerald-600/30 md:blur-[180px]" />
+          <div className="absolute -top-32 -left-32 h-[750px] w-[550px] rounded-full bg-emerald-500/18 blur-[130px] md:bg-emerald-500/20 md:blur-[160px]" />
+          <div className="absolute top-[40%] -left-40 h-[850px] w-[600px] rounded-full bg-emerald-600/14 blur-[140px] md:bg-emerald-600/15 md:blur-[180px]" />
 
           {/* Right Side Orange Theme Glow */}
-          <div className="absolute top-[10%] -right-32 h-[750px] w-[550px] rounded-full bg-orange-500/30 blur-[130px] md:bg-orange-500/35 md:blur-[160px]" />
-          <div className="absolute top-[60%] -right-40 h-[850px] w-[600px] rounded-full bg-orange-600/25 blur-[140px] md:bg-orange-600/30 md:blur-[180px]" />
+          <div className="absolute top-[10%] -right-32 h-[750px] w-[550px] rounded-full bg-orange-500/18 blur-[130px] md:bg-orange-500/20 md:blur-[160px]" />
+          <div className="absolute top-[60%] -right-40 h-[850px] w-[600px] rounded-full bg-orange-600/14 blur-[140px] md:bg-orange-600/15 md:blur-[180px]" />
         </div>
 
         <a
