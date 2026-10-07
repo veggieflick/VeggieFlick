@@ -12,7 +12,8 @@ export const dynamic = "force-dynamic";
 type Params = Promise<{ slug: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-  const { slug } = await params;
+  const resolved = await Promise.resolve(params);
+  const slug = resolved.slug;
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product not found" };
 
@@ -29,7 +30,8 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 export default async function ProductPage({ params }: { params: Params }) {
-  const { slug } = await params;
+  const resolved = await Promise.resolve(params);
+  const slug = resolved.slug;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 

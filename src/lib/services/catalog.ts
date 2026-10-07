@@ -1120,12 +1120,17 @@ export async function listSubCategories(categorySlug?: string) {
 }
 
 export async function getCategoryBySlug(slug: string) {
-  const [row] = await db
-    .select()
-    .from(categories)
-    .where(and(eq(categories.slug, slug), eq(categories.status, "active")))
-    .limit(1);
-  return row ?? null;
+  try {
+    const [row] = await db
+      .select()
+      .from(categories)
+      .where(and(eq(categories.slug, slug), eq(categories.status, "active")))
+      .limit(1);
+    if (row) return row;
+  } catch (err) {
+    console.warn("getCategoryBySlug db error:", err);
+  }
+  return FALLBACK_CATEGORIES.find((c) => c.slug === slug) ?? null;
 }
 
 export async function getProductBySlug(slug: string) {
@@ -1302,53 +1307,63 @@ export async function getProductBySlug(slug: string) {
 export type ProductDetail = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>;
 
 export async function getRelatedProducts(categorySlug: string, excludeId: string, limit = 6) {
-  const rows = await db
-    .select(cardColumns)
-    .from(products)
-    .innerJoin(categories, eq(categories.id, products.categoryId))
-    .innerJoin(
-      productVariants,
-      and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
-    )
-    .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
-    .where(
-      and(eq(products.status, "active"), eq(categories.slug, categorySlug), ne(products.id, excludeId)),
-    )
-    .orderBy(desc(products.soldCount))
-    .limit(limit);
-  return rows.map(mapCard);
+  try {
+    const rows = await db
+      .select(cardColumns)
+      .from(products)
+      .innerJoin(categories, eq(categories.id, products.categoryId))
+      .innerJoin(
+        productVariants,
+        and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
+      )
+      .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
+      .where(
+        and(eq(products.status, "active"), eq(categories.slug, categorySlug), ne(products.id, excludeId)),
+      )
+      .orderBy(desc(products.soldCount))
+      .limit(limit);
+    if (rows.length > 0) return rows.map(mapCard);
+  } catch (err) {
+    console.warn("getRelatedProducts db error:", err);
+  }
+  return FALLBACK_PRODUCTS.filter((p) => p.id !== excludeId).slice(0, limit);
 }
 
 export async function searchSuggestions(term: string, limit = 8) {
   if (!term.trim()) return [];
   const like = `%${term.trim()}%`;
-  return db
-    .select({
-      name: products.name,
-      slug: products.slug,
-      emoji: products.emoji,
-      categoryName: categories.name,
-      price: productVariants.sellingPrice,
-    })
-    .from(products)
-    .innerJoin(categories, eq(categories.id, products.categoryId))
-    .innerJoin(
-      productVariants,
-      and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
-    )
-    .where(
-      and(
-        eq(products.status, "active"),
-        or(
-          ilike(products.name, like),
-          ilike(products.tamilName, like),
-          ilike(products.sku, like),
-          ilike(categories.name, like),
+  try {
+    return await db
+      .select({
+        name: products.name,
+        slug: products.slug,
+        emoji: products.emoji,
+        categoryName: categories.name,
+        price: productVariants.sellingPrice,
+      })
+      .from(products)
+      .innerJoin(categories, eq(categories.id, products.categoryId))
+      .innerJoin(
+        productVariants,
+        and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
+      )
+      .where(
+        and(
+          eq(products.status, "active"),
+          or(
+            ilike(products.name, like),
+            ilike(products.tamilName, like),
+            ilike(products.sku, like),
+            ilike(categories.name, like),
+          ),
         ),
-      ),
-    )
-    .orderBy(desc(products.soldCount))
-    .limit(limit);
+      )
+      .orderBy(desc(products.soldCount))
+      .limit(limit);
+  } catch (err) {
+    console.warn("searchSuggestions db error:", err);
+    return [];
+  }
 }
 
 export async function catalogCounts() {
