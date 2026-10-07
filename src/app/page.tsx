@@ -185,8 +185,8 @@ export default async function HomePage() {
           <div className="relative">
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border-4 border-white shadow-2xl">
               <Image
-                src="https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1000&q=80"
-                alt="Fresh farm produce"
+                src="/images/chopped-veggies-platter.jpg"
+                alt="Freshly chopped vegetables platter"
                 fill
                 priority
                 sizes="(max-width: 1024px) 100vw, 620px"
