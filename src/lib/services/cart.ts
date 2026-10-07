@@ -62,77 +62,89 @@ export const EMPTY_CART: CartSummary = {
 };
 
 async function findCartRow(create: boolean) {
-  const session = await getSession();
+  try {
+    const session = await getSession().catch(() => null);
 
-  if (session) {
+    if (session) {
+      const [existing] = await db
+        .select()
+        .from(carts)
+        .where(and(eq(carts.profileId, session.id), isNull(carts.deletedAt)))
+        .limit(1)
+        .catch(() => []);
+      if (existing) return existing;
+      if (!create) return null;
+      const [row] = await db.insert(carts).values({ profileId: session.id }).returning().catch(() => []);
+      return row ?? null;
+    }
+
+    const token = create ? await getOrCreateGuestToken().catch(() => null) : await readGuestToken().catch(() => null);
+    if (!token) return null;
+
     const [existing] = await db
       .select()
       .from(carts)
-      .where(and(eq(carts.profileId, session.id), isNull(carts.deletedAt)))
-      .limit(1);
+      .where(and(eq(carts.guestToken, token), isNull(carts.profileId)))
+      .limit(1)
+      .catch(() => []);
     if (existing) return existing;
     if (!create) return null;
-    const [row] = await db.insert(carts).values({ profileId: session.id }).returning();
-    return row;
+    const [row] = await db.insert(carts).values({ guestToken: token }).returning().catch(() => []);
+    return row ?? null;
+  } catch (err) {
+    console.warn("findCartRow warning:", err);
+    return null;
   }
-
-  const token = create ? await getOrCreateGuestToken() : await readGuestToken();
-  if (!token) return null;
-
-  const [existing] = await db
-    .select()
-    .from(carts)
-    .where(and(eq(carts.guestToken, token), isNull(carts.profileId)))
-    .limit(1);
-  if (existing) return existing;
-  if (!create) return null;
-  const [row] = await db.insert(carts).values({ guestToken: token }).returning();
-  return row;
 }
 
 export async function loadCartLines(cartId: string): Promise<CartLine[]> {
-  const rows = await db
-    .select({
-      id: cartItems.id,
-      productId: cartItems.productId,
-      variantId: cartItems.variantId,
-      quantity: cartItems.quantity,
-      name: products.name,
-      slug: products.slug,
-      emoji: products.emoji,
-      variantName: productVariants.variantName,
-      unit: productVariants.unit,
-      sellingPrice: productVariants.sellingPrice,
-      mrp: productVariants.mrp,
-      taxPercentage: productVariants.taxPercentage,
-      availableStock: inventory.availableStock,
-    })
-    .from(cartItems)
-    .innerJoin(products, eq(products.id, cartItems.productId))
-    .innerJoin(productVariants, eq(productVariants.id, cartItems.variantId))
-    .leftJoin(inventory, eq(inventory.variantId, cartItems.variantId))
-    .where(eq(cartItems.cartId, cartId))
-    .orderBy(cartItems.createdAt);
+  try {
+    const rows = await db
+      .select({
+        id: cartItems.id,
+        productId: cartItems.productId,
+        variantId: cartItems.variantId,
+        quantity: cartItems.quantity,
+        name: products.name,
+        slug: products.slug,
+        emoji: products.emoji,
+        variantName: productVariants.variantName,
+        unit: productVariants.unit,
+        sellingPrice: productVariants.sellingPrice,
+        mrp: productVariants.mrp,
+        taxPercentage: productVariants.taxPercentage,
+        availableStock: inventory.availableStock,
+      })
+      .from(cartItems)
+      .innerJoin(products, eq(products.id, cartItems.productId))
+      .innerJoin(productVariants, eq(productVariants.id, cartItems.variantId))
+      .leftJoin(inventory, eq(inventory.variantId, cartItems.variantId))
+      .where(eq(cartItems.cartId, cartId))
+      .orderBy(cartItems.createdAt);
 
-  return rows.map((row) => {
-    const unitPrice = toNumber(row.sellingPrice);
-    return {
-      id: row.id,
-      productId: row.productId,
-      variantId: row.variantId,
-      name: row.name,
-      slug: row.slug,
-      emoji: row.emoji,
-      variantName: row.variantName,
-      unit: row.unit,
-      quantity: row.quantity,
-      unitPrice,
-      mrp: toNumber(row.mrp),
-      taxPercentage: toNumber(row.taxPercentage),
-      totalPrice: round2(unitPrice * row.quantity),
-      availableStock: row.availableStock ?? 0,
-    };
-  });
+    return rows.map((row) => {
+      const unitPrice = toNumber(row.sellingPrice);
+      return {
+        id: row.id,
+        productId: row.productId,
+        variantId: row.variantId,
+        name: row.name,
+        slug: row.slug,
+        emoji: row.emoji,
+        variantName: row.variantName,
+        unit: row.unit,
+        quantity: row.quantity,
+        unitPrice,
+        mrp: toNumber(row.mrp),
+        taxPercentage: toNumber(row.taxPercentage),
+        totalPrice: round2(unitPrice * row.quantity),
+        availableStock: row.availableStock ?? 0,
+      };
+    });
+  } catch (err) {
+    console.warn("loadCartLines warning:", err);
+    return [];
+  }
 }
 
 export async function validateCoupon(code: string, subtotal: number) {
@@ -218,31 +230,37 @@ async function persistTotals(cartId: string, totals: CartTotals) {
 }
 
 export async function getCartSummary(create = false): Promise<CartSummary> {
-  const cart = await findCartRow(create);
-  if (!cart) return EMPTY_CART;
+  try {
+    const cart = await findCartRow(create);
+    if (!cart) return EMPTY_CART;
 
-  const items = await loadCartLines(cart.id);
-  let coupon = null;
-  if (cart.couponCode) {
-    const [row] = await db
-      .select()
-      .from(coupons)
-      .where(and(eq(coupons.couponCode, cart.couponCode), eq(coupons.status, "active")))
-      .limit(1);
-    coupon = row ?? null;
+    const items = await loadCartLines(cart.id);
+    let coupon = null;
+    if (cart.couponCode) {
+      const [row] = await db
+        .select()
+        .from(coupons)
+        .where(and(eq(coupons.couponCode, cart.couponCode), eq(coupons.status, "active")))
+        .limit(1)
+        .catch(() => []);
+      coupon = row ?? null;
+    }
+
+    const subtotalBefore = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+    const couponUsable = coupon && subtotalBefore >= toNumber(coupon.minimumOrderAmount) ? coupon : null;
+    const totals = computeTotals(items, couponUsable, couponUsable?.couponCode ?? null);
+    await persistTotals(cart.id, totals).catch(() => undefined);
+
+    return {
+      cartId: cart.id,
+      items,
+      totals,
+      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+    };
+  } catch (err) {
+    console.warn("getCartSummary warning:", err);
+    return EMPTY_CART;
   }
-
-  const subtotalBefore = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
-  const couponUsable = coupon && subtotalBefore >= toNumber(coupon.minimumOrderAmount) ? coupon : null;
-  const totals = computeTotals(items, couponUsable, couponUsable?.couponCode ?? null);
-  await persistTotals(cart.id, totals);
-
-  return {
-    cartId: cart.id,
-    items,
-    totals,
-    itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
-  };
 }
 
 import { FALLBACK_PRODUCTS } from "@/lib/services/catalog";
