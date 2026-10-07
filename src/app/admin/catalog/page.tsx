@@ -13,26 +13,37 @@ import {
   CheckCircle2,
   X,
   Sparkles,
+  Search,
+  Check,
+  Star,
+  Tag,
+  Boxes,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatDateIST, formatINR } from "@/lib/utils";
 import { StatusPill } from "@/components/ui/primitives";
+import { FALLBACK_PRODUCTS } from "@/lib/services/catalog";
 
 type ProductRow = {
   id: string;
   name: string;
+  tamilName?: string;
   slug: string;
   sku: string;
   emoji: string;
   status: string;
   categoryName: string;
   isOrganic: boolean;
+  isFeatured?: boolean;
+  isBestSeller?: boolean;
   price: string;
   mrp: string;
+  weight?: string;
+  unit?: string;
   stock: number | null;
   imageUrl?: string | null;
+  images?: string[];
   shortDescription?: string;
-  description?: string;
 };
 
 type InventoryRow = {
@@ -68,86 +79,34 @@ const PRESET_PRODUCE_IMAGES = [
   { name: "Carrot", url: "https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=400&q=80" },
   { name: "Greens", url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&q=80" },
   { name: "Sambar Mix", url: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-  { name: "Mango", url: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" },
+  { name: "Fruit Salad", url: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" },
 ];
 
-const INITIAL_FALLBACK_PRODUCTS: ProductRow[] = [
-  {
-    id: "prod-101",
-    name: "Country Tomato (Desi)",
-    slug: "country-tomato",
-    sku: "VF-0001",
-    emoji: "🍅",
-    status: "active",
-    categoryName: "Fresh Vegetables",
-    isOrganic: false,
-    price: "55.00",
-    mrp: "78.00",
-    stock: 140,
-    imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80",
-    shortDescription: "Juicy, tangy Ooty-belt tomatoes ideal for sambar and gravies.",
-  },
-  {
-    id: "prod-102",
-    name: "Bangalore Onion",
-    slug: "bangalore-onion",
-    sku: "VF-0002",
-    emoji: "🧅",
-    status: "active",
-    categoryName: "Fresh Vegetables",
-    isOrganic: false,
-    price: "38.00",
-    mrp: "52.00",
-    stock: 260,
-    imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
-    shortDescription: "Big sized onions with crisp layers and long shelf life.",
-  },
-  {
-    id: "prod-103",
-    name: "Fresh Arai Keerai Bunch",
-    slug: "arai-keerai",
-    sku: "VF-0003",
-    emoji: "🥬",
-    status: "active",
-    categoryName: "Leafy Vegetables",
-    isOrganic: true,
-    price: "25.00",
-    mrp: "35.00",
-    stock: 80,
-    imageUrl: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&q=80",
-    shortDescription: "Farm fresh Arai Keerai harvested this morning.",
-  },
-  {
-    id: "prod-104",
-    name: "Ooty Tender Carrot",
-    slug: "ooty-carrot",
-    sku: "VF-0004",
-    emoji: "🥕",
-    status: "active",
-    categoryName: "Fresh Vegetables",
-    isOrganic: true,
-    price: "55.00",
-    mrp: "75.00",
-    stock: 110,
-    imageUrl: "https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=400&q=80",
-    shortDescription: "Sweet Nilgiris carrots packed with vitamins.",
-  },
-  {
-    id: "prod-105",
-    name: "Cut Sambar Veggie Mix",
-    slug: "sambar-cut-mix",
-    sku: "VF-0005",
-    emoji: "🥦",
-    status: "active",
-    categoryName: "Cut Vegetables",
-    isOrganic: false,
-    price: "45.00",
-    mrp: "60.00",
-    stock: 95,
-    imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
-    shortDescription: "Pre-washed & chopped sambar veggies ready to cook.",
-  },
-];
+const INITIAL_ALL_PRODUCTS: ProductRow[] = FALLBACK_PRODUCTS.map((p, idx) => ({
+  id: p.id,
+  name: p.name,
+  tamilName: p.tamilName ?? "",
+  slug: p.slug,
+  sku: `VF-${String(idx + 1001).padStart(4, "0")}`,
+  emoji: p.emoji,
+  status: "active",
+  categoryName: p.categoryName,
+  isOrganic: p.isOrganic,
+  isFeatured: p.isFeatured,
+  isBestSeller: p.isBestSeller,
+  price: String(p.price.toFixed(2)),
+  mrp: String(p.mrp.toFixed(2)),
+  weight: p.variantName,
+  unit: p.unit,
+  stock: p.availableStock,
+  imageUrl: p.imageUrl ?? PRESET_PRODUCE_IMAGES[0].url,
+  images: [
+    p.imageUrl ?? PRESET_PRODUCE_IMAGES[0].url,
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
+    "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
+  ],
+  shortDescription: p.shortDescription ?? "",
+}));
 
 const TABS = ["products", "inventory", "coupons", "spoilage"] as const;
 
@@ -155,17 +114,22 @@ function CatalogWorkspace() {
   const params = useSearchParams();
   const { notify } = useApp();
   const [tab, setTab] = useState<(typeof TABS)[number]>(
-    (params.get("tab") as (typeof TABS)[number]) ?? "products",
+    (params.get("tab") as (typeof TABS)[number]) ?? "products"
   );
-  const [products, setProducts] = useState<ProductRow[]>(INITIAL_FALLBACK_PRODUCTS);
+
+  const [products, setProducts] = useState<ProductRow[]>(INITIAL_ALL_PRODUCTS);
+  const [search, setSearch] = useState("");
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("All");
+
   const [inventory, setInventory] = useState<InventoryRow[]>([]);
   const [coupons, setCoupons] = useState<CouponRow[]>([]);
-  const [categories, setCategories] = useState<Category[]>([
-    { id: "cat-1", name: "Fresh Vegetables" },
-    { id: "cat-2", name: "Leafy Vegetables" },
-    { id: "cat-3", name: "Cut Vegetables" },
-    { id: "cat-4", name: "Fresh Fruits" },
-    { id: "cat-5", name: "Organic Produce" },
+  const [categories] = useState<Category[]>([
+    { id: "cat-1", name: "Vegetables Shopping" },
+    { id: "cat-2", name: "Fruit Salads" },
+    { id: "cat-3", name: "Veg Salads" },
+    { id: "cat-4", name: "Fruits Cutting & Combo Pack" },
+    { id: "cat-5", name: "Fresh Vegetables" },
+    { id: "cat-6", name: "Leafy Vegetables" },
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -173,17 +137,16 @@ function CatalogWorkspace() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<ProductRow | null>(null);
 
-  // Image Upload preview state
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  // Multi-image list for product modal (supports 2-3 images)
+  const [modalImages, setModalImages] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [p, i, c, cat] = await Promise.all([
+      const [p, i, c] = await Promise.all([
         fetch("/api/v1/admin/catalog?view=products&limit=50").then((r) => r.json()),
         fetch("/api/v1/admin/catalog?view=inventory&limit=50").then((r) => r.json()),
         fetch("/api/v1/admin/coupons").then((r) => r.json()),
-        fetch("/api/v1/categories").then((r) => r.json()),
       ]);
       if (p?.success && Array.isArray(p.data) && p.data.length > 0) {
         setProducts(p.data as ProductRow[]);
@@ -192,7 +155,6 @@ function CatalogWorkspace() {
         setInventory(i.data as InventoryRow[]);
       }
       if (c?.success) setCoupons(c.data as CouponRow[]);
-      if (cat?.success && cat.data?.categories) setCategories(cat.data.categories as Category[]);
     } catch (err) {
       console.warn("Catalog load warning:", err);
     } finally {
@@ -205,47 +167,92 @@ function CatalogWorkspace() {
     return () => clearTimeout(timer);
   }, [load]);
 
-  // Handle direct file upload via FileReader
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        notify("Image uploaded successfully!");
-      };
-      reader.readAsDataURL(file);
+  // Filtered Products
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch =
+      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.tamilName && p.tamilName.includes(search)) ||
+      p.sku.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      selectedCategoryFilter === "All" || p.categoryName === selectedCategoryFilter;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Handle direct file upload via FileReader for multi-images
+  const handleImageFileAdd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result) {
+            setModalImages((prev) => [...prev, reader.result as string].slice(0, 5));
+            notify("Product image added!");
+          }
+        };
+        reader.readAsDataURL(file);
+      });
     }
+  };
+
+  const handleAddPresetImage = (url: string) => {
+    if (!modalImages.includes(url)) {
+      setModalImages((prev) => [...prev, url].slice(0, 5));
+      notify("Sample image added!");
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setModalImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSetPrimaryImage = (index: number) => {
+    setModalImages((prev) => {
+      const copy = [...prev];
+      const selected = copy.splice(index, 1)[0];
+      return [selected, ...copy];
+    });
+    notify("Primary product cover image set!");
   };
 
   const handleCreateProduct = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     const name = String(data.get("name"));
+    const tamilName = String(data.get("tamilName") || "");
     const price = Number(data.get("sellingPrice"));
     const mrp = Number(data.get("mrp"));
     const stock = Number(data.get("stock") || 50);
+    const weight = String(data.get("weight") || "250 g");
+
+    const finalImages = modalImages.length > 0 ? modalImages : [PRESET_PRODUCE_IMAGES[0].url];
 
     const newProd: ProductRow = {
       id: `prod-${Date.now()}`,
       name,
+      tamilName,
       slug: name.toLowerCase().replace(/\s+/g, "-"),
       sku: `VF-${Math.floor(1000 + Math.random() * 9000)}`,
       emoji: String(data.get("emoji") || "🥬"),
       status: "active",
-      categoryName: String(data.get("categoryName") || "Fresh Vegetables"),
+      categoryName: String(data.get("categoryName") || "Vegetables Shopping"),
       isOrganic: data.get("isOrganic") === "on",
+      isFeatured: data.get("isFeatured") === "on",
+      isBestSeller: data.get("isBestSeller") === "on",
       price: price.toFixed(2),
       mrp: mrp.toFixed(2),
+      weight,
+      unit: "g",
       stock,
-      imageUrl: imagePreview || String(data.get("imageUrl") || PRESET_PRODUCE_IMAGES[0].url),
+      imageUrl: finalImages[0],
+      images: finalImages,
       shortDescription: String(data.get("shortDescription") || ""),
     };
 
     setProducts([newProd, ...products]);
     setShowAddModal(false);
-    setImagePreview(null);
-    notify(`Product "${newProd.name}" added to catalog!`);
+    setModalImages([]);
+    notify(`Product "${newProd.name}" published to catalog!`);
   };
 
   const handleUpdateProduct = (e: React.FormEvent<HTMLFormElement>) => {
@@ -254,26 +261,36 @@ function CatalogWorkspace() {
 
     const data = new FormData(e.currentTarget);
     const name = String(data.get("name"));
+    const tamilName = String(data.get("tamilName") || "");
     const price = Number(data.get("sellingPrice"));
     const mrp = Number(data.get("mrp"));
     const stock = Number(data.get("stock"));
+    const weight = String(data.get("weight") || editingProduct.weight || "250 g");
+
+    const finalImages = modalImages.length > 0 ? modalImages : [editingProduct.imageUrl || PRESET_PRODUCE_IMAGES[0].url];
 
     const updated: ProductRow = {
       ...editingProduct,
       name,
+      tamilName,
       categoryName: String(data.get("categoryName")),
       emoji: String(data.get("emoji")),
       price: price.toFixed(2),
       mrp: mrp.toFixed(2),
+      weight,
       stock,
       isOrganic: data.get("isOrganic") === "on",
+      isFeatured: data.get("isFeatured") === "on",
+      isBestSeller: data.get("isBestSeller") === "on",
       status: String(data.get("status")),
-      imageUrl: imagePreview || String(data.get("imageUrl")) || editingProduct.imageUrl,
+      imageUrl: finalImages[0],
+      images: finalImages,
+      shortDescription: String(data.get("shortDescription")),
     };
 
     setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? updated : p)));
     setEditingProduct(null);
-    setImagePreview(null);
+    setModalImages([]);
     notify(`Product "${updated.name}" updated successfully!`);
   };
 
@@ -288,135 +305,196 @@ function CatalogWorkspace() {
     <div className="grid gap-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900">Catalogue & Product Manager</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
+            <Boxes className="text-brand-600" /> Catalogue & Product Inventory Manager ({products.length} Products)
+          </h1>
           <p className="text-sm text-slate-500">
-            Add new products, upload high-res produce photos, edit pricing, and track warehouse stock.
+            Edit product names, pricing (MRP/Selling), weights & grams (250g, 500g, 1kg), attach 2-3 product images, and manage category stocks.
           </p>
         </div>
         <button
           type="button"
           onClick={() => {
-            setImagePreview(null);
+            setModalImages([]);
             setShowAddModal(true);
           }}
           className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 transition"
         >
-          <Plus size={18} /> Add New Product
+          <Plus size={18} /> Add New Produce Item
         </button>
       </header>
 
-      {/* Tabs */}
-      <div className="flex gap-2 border-b border-slate-200 pb-2">
-        {TABS.map((item) => (
-          <button
-            key={item}
-            type="button"
-            onClick={() => setTab(item)}
-            className={`px-4 py-2 text-sm font-semibold rounded-xl capitalize transition ${
-              tab === item
-                ? "bg-brand-600 text-white shadow-sm"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-            }`}
-          >
-            {item}
-          </button>
-        ))}
+      {/* Workspace Tabs & Search/Filter Controls */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3">
+        <div className="flex gap-2">
+          {TABS.map((item) => (
+            <button
+              key={item}
+              type="button"
+              onClick={() => setTab(item)}
+              className={`px-4 py-2 text-xs font-bold rounded-xl capitalize transition ${
+                tab === item
+                  ? "bg-slate-900 text-white shadow-xs"
+                  : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200"
+              }`}
+            >
+              {item}
+            </button>
+          ))}
+        </div>
+
+        {tab === "products" && (
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative">
+              <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name, Tamil or SKU..."
+                className="rounded-xl border border-slate-200 pl-8 pr-3 py-1.5 text-xs text-slate-900 w-64 focus:border-emerald-600 focus:outline-none"
+              />
+            </div>
+
+            <select
+              value={selectedCategoryFilter}
+              onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+              className="rounded-xl border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-800 focus:border-emerald-600 focus:outline-none"
+            >
+              <option value="All">All Categories ({products.length})</option>
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {loading && (
         <div className="flex items-center justify-center gap-2 py-16 text-sm text-slate-500 bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="h-5 w-5 animate-spin text-brand-600" /> Loading catalogue items…
+          <Loader2 className="h-5 w-5 animate-spin text-brand-600" /> Loading all produce items…
         </div>
       )}
 
       {/* PRODUCTS TAB */}
       {!loading && tab === "products" && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-100">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-100">
                 <tr>
-                  <th className="px-6 py-3.5">Product Photo & Name</th>
-                  <th className="px-6 py-3.5">SKU</th>
+                  <th className="px-6 py-3.5">Produce Photos & Name</th>
+                  <th className="px-6 py-3.5">Weight / Unit</th>
                   <th className="px-6 py-3.5">Category</th>
                   <th className="px-6 py-3.5">Price / MRP</th>
                   <th className="px-6 py-3.5">Stock</th>
-                  <th className="px-6 py-3.5">Status</th>
+                  <th className="px-6 py-3.5">Flags & Status</th>
                   <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
-                {products.map((product) => (
+                {filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-slate-50/80 transition">
                     <td className="px-6 py-4 flex items-center gap-3">
-                      <div className="relative h-12 w-12 shrink-0 rounded-xl bg-slate-100 overflow-hidden border border-slate-200 flex items-center justify-center">
-                        {product.imageUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={product.imageUrl}
-                            alt={product.name}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <span className="text-2xl">{product.emoji || "🥦"}</span>
-                        )}
+                      {/* Photo Thumbnail Strip */}
+                      <div className="flex items-center -space-x-2">
+                        {(product.images && product.images.length > 0
+                          ? product.images.slice(0, 3)
+                          : [product.imageUrl || PRESET_PRODUCE_IMAGES[0].url]
+                        ).map((img, i) => (
+                          <div
+                            key={i}
+                            className="relative h-10 w-10 shrink-0 rounded-lg bg-slate-100 overflow-hidden border-2 border-white shadow-xs"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src={img} alt={product.name} className="h-full w-full object-cover" />
+                          </div>
+                        ))}
                       </div>
+
                       <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-slate-900">{product.name}</span>
-                          {product.isOrganic && (
-                            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700 border border-emerald-200">
-                              Organic
-                            </span>
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-bold text-slate-900 text-xs">{product.name}</span>
+                          {product.tamilName && (
+                            <span className="text-[11px] text-slate-400">({product.tamilName})</span>
                           )}
                         </div>
-                        {product.shortDescription && (
-                          <p className="text-xs text-slate-500 line-clamp-1">{product.shortDescription}</p>
-                        )}
+                        <p className="text-[10px] text-slate-400 font-mono">SKU: {product.sku}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-xs font-mono text-slate-500">{product.sku}</td>
-                    <td className="px-6 py-4 text-slate-700">{product.categoryName}</td>
-                    <td className="px-6 py-4">
-                      <span className="font-bold text-slate-900">{formatINR(product.price)}</span>{" "}
-                      <span className="text-xs text-slate-400 line-through">{formatINR(product.mrp)}</span>
+
+                    <td className="px-6 py-4 font-bold text-slate-800">
+                      <span className="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-md text-xs">
+                        {product.weight || "250 g"}
+                      </span>
                     </td>
+
+                    <td className="px-6 py-4 text-slate-700 font-semibold">{product.categoryName}</td>
+
+                    <td className="px-6 py-4">
+                      <span className="font-extrabold text-slate-900 text-xs">
+                        {formatINR(product.price)}
+                      </span>{" "}
+                      <span className="text-[10px] text-slate-400 line-through">
+                        {formatINR(product.mrp)}
+                      </span>
+                    </td>
+
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
+                        className={`inline-flex px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                           (product.stock ?? 0) > 20
-                            ? "bg-emerald-50 text-emerald-700"
+                            ? "bg-emerald-50 text-emerald-800"
                             : (product.stock ?? 0) > 0
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-red-50 text-red-700"
+                            ? "bg-amber-50 text-amber-800"
+                            : "bg-red-50 text-red-800"
                         }`}
                       >
                         {product.stock ?? 0} in stock
                       </span>
                     </td>
+
                     <td className="px-6 py-4">
-                      <StatusPill status={product.status} />
+                      <div className="flex flex-wrap gap-1">
+                        {product.isOrganic && (
+                          <span className="bg-emerald-100 text-emerald-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded">
+                            Organic
+                          </span>
+                        )}
+                        {product.isBestSeller && (
+                          <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-1.5 py-0.5 rounded">
+                            Best Seller
+                          </span>
+                        )}
+                      </div>
                     </td>
+
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
                           onClick={() => {
                             setEditingProduct(product);
-                            setImagePreview(product.imageUrl || null);
+                            setModalImages(
+                              product.images && product.images.length > 0
+                                ? product.images
+                                : [product.imageUrl || PRESET_PRODUCE_IMAGES[0].url]
+                            );
                           }}
-                          className="p-2 rounded-lg text-slate-600 hover:bg-slate-100 hover:text-brand-700 transition"
-                          title="Edit Product"
+                          className="p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-brand-700 transition"
+                          title="Edit Product Details & Images"
                         >
-                          <Pencil size={16} />
+                          <Pencil size={15} />
                         </button>
                         <button
                           type="button"
                           onClick={() => handleDeleteProduct(product.id, product.name)}
-                          className="p-2 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
+                          className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-red-600 transition"
                           title="Delete Product"
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={15} />
                         </button>
                       </div>
                     </td>
@@ -431,90 +509,108 @@ function CatalogWorkspace() {
       {/* MODAL: ADD PRODUCT */}
       {showAddModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl space-y-4 my-8">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl space-y-4 my-8 text-xs">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Plus className="text-brand-600" /> Add New Produce Item
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Plus className="text-brand-600" size={18} /> Add New Produce Item
               </h2>
-              <button
-                onClick={() => setShowAddModal(false)}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                <X size={20} />
+              <button onClick={() => setShowAddModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleCreateProduct} className="space-y-4 text-sm">
-              {/* Direct Image File Upload Section */}
-              <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50/40 p-4 text-center space-y-3">
-                <p className="font-bold text-slate-800 flex items-center justify-center gap-2">
-                  <Upload size={16} className="text-brand-600" /> Direct Image Upload
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  {imagePreview ? (
-                    <div className="relative h-24 w-24 rounded-xl overflow-hidden border-2 border-brand-500 shadow-md">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => setImagePreview(null)}
-                        className="absolute top-1 right-1 rounded-full bg-slate-900/80 p-1 text-white hover:bg-red-600"
-                      >
-                        <X size={12} />
-                      </button>
-                    </div>
-                  ) : (
-                    <div className="h-20 w-20 rounded-xl bg-slate-200 flex items-center justify-center text-slate-400">
-                      <ImageIcon size={32} />
-                    </div>
-                  )}
-
-                  <div className="space-y-2 text-left">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageFileChange}
-                      className="text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer"
-                    />
-                    <p className="text-[11px] text-slate-500">Supports PNG, JPG, WEBP from your local PC</p>
-                  </div>
+            <form onSubmit={handleCreateProduct} className="space-y-4">
+              {/* Multi-Image Upload Section (2-3 Images) */}
+              <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/40 p-4 text-center space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <Upload size={14} className="text-emerald-700" /> Multi-Image Upload (Attach 2-3 Photos)
+                  </p>
+                  <span className="text-[10px] text-slate-500 font-semibold">{modalImages.length} attached</span>
                 </div>
 
-                {/* Preset image quick buttons */}
-                <div className="pt-2">
-                  <p className="text-xs font-semibold text-slate-500 mb-1.5">Or choose high-res sample photo:</p>
-                  <div className="flex flex-wrap gap-2 justify-center">
+                {/* Thumbnails list */}
+                <div className="flex flex-wrap items-center justify-center gap-3 min-h-[5rem]">
+                  {modalImages.map((img, idx) => (
+                    <div key={idx} className="relative h-20 w-20 rounded-xl overflow-hidden border-2 border-emerald-600 shadow-sm bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={`Preview ${idx}`} className="h-full w-full object-cover" />
+                      {idx === 0 && (
+                        <span className="absolute top-1 left-1 bg-emerald-700 text-white text-[9px] font-black px-1 rounded">
+                          Cover
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="absolute top-1 right-1 rounded-full bg-slate-900/80 p-0.5 text-white hover:bg-rose-600"
+                      >
+                        <X size={10} />
+                      </button>
+                      {idx !== 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimaryImage(idx)}
+                          className="absolute bottom-1 left-1 right-1 bg-slate-900/90 text-white text-[8px] font-bold py-0.5 rounded text-center"
+                        >
+                          Make Cover
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  <label className="h-20 w-20 rounded-xl border-2 border-dashed border-emerald-400 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-50 text-emerald-800 font-bold">
+                    <Plus size={20} />
+                    <span className="text-[10px]">Add Photo</span>
+                    <input type="file" accept="image/*" multiple onChange={handleImageFileAdd} className="hidden" />
+                  </label>
+                </div>
+
+                {/* Quick preset images */}
+                <div className="pt-1">
+                  <p className="text-[11px] font-semibold text-slate-500 mb-1">Quick Add Sample Produce Photos:</p>
+                  <div className="flex flex-wrap gap-1.5 justify-center">
                     {PRESET_PRODUCE_IMAGES.map((preset) => (
                       <button
                         key={preset.name}
                         type="button"
-                        onClick={() => setImagePreview(preset.url)}
-                        className="text-xs bg-white px-2.5 py-1 rounded-lg border border-slate-200 hover:border-brand-500 font-medium text-slate-700"
+                        onClick={() => handleAddPresetImage(preset.url)}
+                        className="text-[11px] bg-white px-2 py-0.5 rounded-lg border border-slate-200 hover:border-emerald-600 font-semibold text-slate-700"
                       >
-                        {preset.name}
+                        + {preset.name}
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Product Info Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Product Name</label>
+                  <label className="block font-bold text-slate-700 mb-1">Product Name (English)</label>
                   <input
                     type="text"
                     name="name"
-                    placeholder="e.g. Fresh Red Capsicum"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    placeholder="e.g. Cut Green Beans"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-semibold"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Category</label>
-                  <select
-                    name="categoryName"
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
-                  >
+                  <label className="block font-bold text-slate-700 mb-1">Tamil Name (தமிழ்)</label>
+                  <input
+                    type="text"
+                    name="tamilName"
+                    placeholder="e.g. நறுக்கிய பீன்ஸ்"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Category</label>
+                  <select name="categoryName" className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-semibold">
                     {categories.map((c) => (
                       <option key={c.id} value={c.name}>
                         {c.name}
@@ -522,74 +618,88 @@ function CatalogWorkspace() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Weight / Grams (e.g. 250 g, 500 g, 1 kg)</label>
+                  <input
+                    type="text"
+                    name="weight"
+                    defaultValue="250 g"
+                    placeholder="e.g. 250 g, 500 g, 1 kg, 1 bunch"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-bold"
+                    required
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">MRP (₹)</label>
+                  <label className="block font-bold text-slate-700 mb-1">MRP (₹)</label>
                   <input
                     type="number"
                     name="mrp"
-                    defaultValue={60}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    defaultValue={45}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-bold text-slate-900"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Selling Price (₹)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Selling Price (₹)</label>
                   <input
                     type="number"
                     name="sellingPrice"
-                    defaultValue={45}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    defaultValue={34}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-bold text-slate-900 text-emerald-800"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Initial Stock</label>
+                  <label className="block font-bold text-slate-700 mb-1">Stock Count</label>
                   <input
                     type="number"
                     name="stock"
-                    defaultValue={60}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    defaultValue={100}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-bold text-slate-900"
                     required
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="isOrganic"
-                  id="organicCheck"
-                  className="h-4 w-4 rounded text-brand-600 focus:ring-brand-500 cursor-pointer"
-                />
-                <label htmlFor="organicCheck" className="font-semibold text-slate-700 cursor-pointer">
-                  Certified Organic Produce
+              <div className="flex flex-wrap items-center gap-4 pt-1">
+                <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+                  <input type="checkbox" name="isOrganic" className="h-4 w-4 rounded accent-emerald-600" />
+                  Certified Organic
+                </label>
+                <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+                  <input type="checkbox" name="isBestSeller" className="h-4 w-4 rounded accent-amber-600" />
+                  Best Seller
+                </label>
+                <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+                  <input type="checkbox" name="isFeatured" className="h-4 w-4 rounded accent-blue-600" />
+                  Featured Item
                 </label>
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Short Description</label>
+                <label className="block font-bold text-slate-700 mb-1">Short Description</label>
                 <input
                   type="text"
                   name="shortDescription"
-                  placeholder="Farm fresh harvest from Hosur belt."
+                  placeholder="Tender beans precision chopped, ready for poriyal or stir fry."
                   className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-3">
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100"
+                  className="rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-brand-600 px-5 py-2 font-semibold text-white hover:bg-brand-700"
+                  className="rounded-xl bg-brand-600 px-5 py-2 font-bold text-white hover:bg-brand-700 shadow-sm"
                 >
                   Save & Publish
                 </button>
@@ -602,64 +712,93 @@ function CatalogWorkspace() {
       {/* MODAL: EDIT PRODUCT */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl space-y-4 my-8">
+          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl space-y-4 my-8 text-xs">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                <Pencil className="text-brand-600" /> Edit Product: {editingProduct.name}
+              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                <Pencil className="text-brand-600" size={18} /> Edit Product: {editingProduct.name}
               </h2>
-              <button
-                onClick={() => setEditingProduct(null)}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                <X size={20} />
+              <button onClick={() => setEditingProduct(null)} className="text-slate-400 hover:text-slate-600">
+                <X size={18} />
               </button>
             </div>
 
-            <form onSubmit={handleUpdateProduct} className="space-y-4 text-sm">
-              {/* Image Upload section */}
-              <div className="rounded-2xl border-2 border-dashed border-brand-200 bg-brand-50/40 p-4 text-center space-y-3">
-                <p className="font-bold text-slate-800 flex items-center justify-center gap-2">
-                  <Upload size={16} className="text-brand-600" /> Replace Product Photo
-                </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <div className="relative h-24 w-24 rounded-xl overflow-hidden border-2 border-brand-500 shadow-md">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={imagePreview || editingProduct.imageUrl || PRESET_PRODUCE_IMAGES[0].url}
-                      alt="Preview"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
+            <form onSubmit={handleUpdateProduct} className="space-y-4">
+              {/* Multi-Image Upload Section */}
+              <div className="rounded-2xl border-2 border-dashed border-emerald-200 bg-emerald-50/40 p-4 text-center space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                    <Upload size={14} className="text-emerald-700" /> Multi-Image Upload (Attach 2-3 Photos)
+                  </p>
+                  <span className="text-[10px] text-slate-500 font-semibold">{modalImages.length} photos attached</span>
+                </div>
 
-                  <div className="space-y-2 text-left">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageFileChange}
-                      className="text-xs text-slate-600 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-600 file:text-white hover:file:bg-brand-700 cursor-pointer"
-                    />
-                    <p className="text-[11px] text-slate-500">Upload new image file from computer</p>
-                  </div>
+                <div className="flex flex-wrap items-center justify-center gap-3 min-h-[5rem]">
+                  {modalImages.map((img, idx) => (
+                    <div key={idx} className="relative h-20 w-20 rounded-xl overflow-hidden border-2 border-emerald-600 shadow-sm bg-slate-100">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={img} alt={`Preview ${idx}`} className="h-full w-full object-cover" />
+                      {idx === 0 && (
+                        <span className="absolute top-1 left-1 bg-emerald-700 text-white text-[9px] font-black px-1 rounded">
+                          Cover
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveImage(idx)}
+                        className="absolute top-1 right-1 rounded-full bg-slate-900/80 p-0.5 text-white hover:bg-rose-600"
+                      >
+                        <X size={10} />
+                      </button>
+                      {idx !== 0 && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetPrimaryImage(idx)}
+                          className="absolute bottom-1 left-1 right-1 bg-slate-900/90 text-white text-[8px] font-bold py-0.5 rounded text-center"
+                        >
+                          Make Cover
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  <label className="h-20 w-20 rounded-xl border-2 border-dashed border-emerald-400 bg-white flex flex-col items-center justify-center cursor-pointer hover:bg-emerald-50 text-emerald-800 font-bold">
+                    <Plus size={20} />
+                    <span className="text-[10px]">Add Photo</span>
+                    <input type="file" accept="image/*" multiple onChange={handleImageFileAdd} className="hidden" />
+                  </label>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Product Info Fields */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Product Name</label>
+                  <label className="block font-bold text-slate-700 mb-1">Product Name (English)</label>
                   <input
                     type="text"
                     name="name"
                     defaultValue={editingProduct.name}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-semibold"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Category</label>
+                  <label className="block font-bold text-slate-700 mb-1">Tamil Name (தமிழ்)</label>
+                  <input
+                    type="text"
+                    name="tamilName"
+                    defaultValue={editingProduct.tamilName || ""}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Category</label>
                   <select
                     name="categoryName"
                     defaultValue={editingProduct.categoryName}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-semibold"
                   >
                     {categories.map((c) => (
                       <option key={c.id} value={c.name}>
@@ -668,76 +807,97 @@ function CatalogWorkspace() {
                     ))}
                   </select>
                 </div>
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">Weight / Grams (e.g. 250 g, 500 g, 1 kg)</label>
+                  <input
+                    type="text"
+                    name="weight"
+                    defaultValue={editingProduct.weight || "250 g"}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-bold"
+                    required
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">MRP (₹)</label>
+                  <label className="block font-bold text-slate-700 mb-1">MRP (₹)</label>
                   <input
                     type="number"
                     name="mrp"
                     defaultValue={Number(editingProduct.mrp)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-bold text-slate-900"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Selling Price (₹)</label>
+                  <label className="block font-bold text-slate-700 mb-1">Selling Price (₹)</label>
                   <input
                     type="number"
                     name="sellingPrice"
                     defaultValue={Number(editingProduct.price)}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-bold text-slate-900 text-emerald-800"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Stock Count</label>
+                  <label className="block font-bold text-slate-700 mb-1">Stock Count</label>
                   <input
                     type="number"
                     name="stock"
                     defaultValue={editingProduct.stock ?? 0}
-                    className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-bold text-slate-900"
                     required
                   />
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
-                <label className="flex items-center gap-2 font-semibold text-slate-700 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="isOrganic"
-                    defaultChecked={editingProduct.isOrganic}
-                    className="h-4 w-4 rounded text-brand-600 focus:ring-brand-500 cursor-pointer"
-                  />
-                  Organic Produce
-                </label>
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <div className="flex items-center gap-3">
+                  <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="isOrganic" defaultChecked={editingProduct.isOrganic} className="h-4 w-4 rounded accent-emerald-600" />
+                    Organic
+                  </label>
+                  <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="isBestSeller" defaultChecked={editingProduct.isBestSeller} className="h-4 w-4 rounded accent-amber-600" />
+                    Best Seller
+                  </label>
+                  <label className="flex items-center gap-1.5 font-bold text-slate-700 cursor-pointer">
+                    <input type="checkbox" name="isFeatured" defaultChecked={editingProduct.isFeatured} className="h-4 w-4 rounded accent-blue-600" />
+                    Featured
+                  </label>
+                </div>
 
                 <div>
-                  <label className="font-semibold text-slate-700 mr-2">Status:</label>
-                  <select
-                    name="status"
-                    defaultValue={editingProduct.status}
-                    className="rounded-xl border border-slate-200 px-3 py-1 text-slate-900"
-                  >
+                  <label className="font-bold text-slate-700 mr-2">Status:</label>
+                  <select name="status" defaultValue={editingProduct.status} className="rounded-xl border border-slate-200 px-3 py-1 font-bold text-slate-900">
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-3">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">Short Description</label>
+                <input
+                  type="text"
+                  name="shortDescription"
+                  defaultValue={editingProduct.shortDescription || ""}
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setEditingProduct(null)}
-                  className="rounded-xl border border-slate-200 px-4 py-2 font-semibold text-slate-600 hover:bg-slate-100"
+                  className="rounded-xl border border-slate-200 px-4 py-2 font-bold text-slate-600 hover:bg-slate-100"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="rounded-xl bg-brand-600 px-5 py-2 font-semibold text-white hover:bg-brand-700"
+                  className="rounded-xl bg-brand-600 px-5 py-2 font-bold text-white hover:bg-brand-700 shadow-sm"
                 >
                   Save Changes
                 </button>
@@ -749,34 +909,34 @@ function CatalogWorkspace() {
 
       {/* INVENTORY TAB */}
       {!loading && tab === "inventory" && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-100">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-[11px] uppercase font-bold text-slate-500 border-b border-slate-100">
                 <tr>
-                  <th className="px-6 py-3.5">Item</th>
-                  <th className="px-6 py-3.5">Warehouse</th>
+                  <th className="px-6 py-3.5">Produce Item</th>
+                  <th className="px-6 py-3.5">Warehouse Hub</th>
                   <th className="px-6 py-3.5">Reserved</th>
-                  <th className="px-6 py-3.5">Reorder Level</th>
-                  <th className="px-6 py-3.5">Available</th>
-                  <th className="px-6 py-3.5 text-right">Action</th>
+                  <th className="px-6 py-3.5">Reorder Threshold</th>
+                  <th className="px-6 py-3.5">Available Stock</th>
+                  <th className="px-6 py-3.5 text-right">Quick Stock Update</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
                 {products.map((row) => (
                   <tr key={row.id} className="hover:bg-slate-50/80 transition">
                     <td className="px-6 py-4 font-bold text-slate-900">{row.name}</td>
-                    <td className="px-6 py-4 text-xs text-slate-500">Chennai Central Hub</td>
-                    <td className="px-6 py-4 text-slate-600">8</td>
-                    <td className="px-6 py-4 text-slate-600">20</td>
+                    <td className="px-6 py-4 text-xs text-slate-500">Chennai Central Hub (KK Nagar)</td>
+                    <td className="px-6 py-4 text-slate-600 font-bold">8 units</td>
+                    <td className="px-6 py-4 text-slate-600 font-bold">20 units</td>
                     <td className="px-6 py-4">
                       <span
-                        className={`inline-flex px-2.5 py-1 rounded-full text-xs font-bold ${
+                        className={`inline-flex px-2.5 py-0.5 rounded-full text-xs font-bold ${
                           (row.stock ?? 0) === 0
-                            ? "bg-red-50 text-red-700"
+                            ? "bg-red-100 text-red-800"
                             : (row.stock ?? 0) <= 20
-                            ? "bg-amber-50 text-amber-700"
-                            : "bg-emerald-50 text-emerald-700"
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-emerald-100 text-emerald-800"
                         }`}
                       >
                         {row.stock ?? 0} units
@@ -786,11 +946,11 @@ function CatalogWorkspace() {
                       <button
                         onClick={() => {
                           setEditingProduct(row);
-                          setImagePreview(row.imageUrl || null);
+                          setModalImages([row.imageUrl || PRESET_PRODUCE_IMAGES[0].url]);
                         }}
                         className="text-xs font-bold text-brand-700 hover:underline"
                       >
-                        Edit Stock
+                        Adjust Stock
                       </button>
                     </td>
                   </tr>
@@ -800,45 +960,13 @@ function CatalogWorkspace() {
           </div>
         </div>
       )}
-
-      {/* SPOILAGE TAB */}
-      {!loading && tab === "spoilage" && (
-        <div className="grid gap-5">
-          <div className="rounded-2xl border border-amber-200 bg-amber-50/60 p-5">
-            <h2 className="text-lg font-bold text-amber-950 flex items-center gap-2">
-              🥦 Koyambedu Hub Spoilage & Procurement Assistant
-            </h2>
-            <p className="text-xs text-slate-700 mt-1">
-              Real-time fresh produce shelf life monitoring. Sourced produce harvested over 14 hours ago is flagged for automated flash sale clearance.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-xs font-bold text-slate-400 uppercase">Today&apos;s Hub Arrival</p>
-              <p className="text-2xl font-extrabold text-slate-900 mt-1">450 Crates</p>
-              <p className="text-xs text-emerald-600 font-semibold mt-1">Sourced 4:00 AM Koyambedu Market</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-xs font-bold text-slate-400 uppercase">At Spoilage Risk (&gt;14h)</p>
-              <p className="text-2xl font-extrabold text-amber-600 mt-1">18 Items</p>
-              <p className="text-xs text-amber-700 font-semibold mt-1">Keerai Greens & Tender Herbs</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p className="text-xs font-bold text-slate-400 uppercase">Tomorrow&apos;s Forecasted Need</p>
-              <p className="text-2xl font-extrabold text-brand-600 mt-1">520 Crates</p>
-              <p className="text-xs text-brand-700 font-semibold mt-1">Based on Sunday order velocity</p>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
 
 export default function AdminCatalogPage() {
   return (
-    <Suspense fallback={<div className="py-20 text-center text-sm text-slate-500">Loading…</div>}>
+    <Suspense fallback={<div className="py-20 text-center text-sm text-slate-500">Loading produce catalogue…</div>}>
       <CatalogWorkspace />
     </Suspense>
   );

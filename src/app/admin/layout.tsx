@@ -1,9 +1,11 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import {
+  AppWindow,
   BarChart3,
   Boxes,
   Carrot,
+  Image as ImageIcon,
   LayoutDashboard,
   Megaphone,
   Settings,
@@ -21,6 +23,8 @@ const NAV = [
   { href: "/admin/orders", label: "Orders", Icon: ShoppingCart },
   { href: "/admin/catalog", label: "Products & Stock", Icon: Boxes },
   { href: "/admin/customers", label: "Customers CRM", Icon: Users },
+  { href: "/admin/banners", label: "Storefront Banners", Icon: ImageIcon },
+  { href: "/admin/apps", label: "App Store & Channels", Icon: AppWindow },
   { href: "/admin/marketing", label: "Marketing & Promos", Icon: Megaphone },
   { href: "/admin/delivery-settings", label: "Delivery Hub", Icon: Truck },
   { href: "/admin/settings", label: "Store Settings", Icon: Settings },

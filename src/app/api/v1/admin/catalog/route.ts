@@ -11,8 +11,6 @@ import {
 import { ApiError, created, handle, ok, paginationMeta, parseBody, parseQuery } from "@/lib/api";
 import { requirePermission } from "@/lib/auth";
 import { slugify } from "@/lib/utils";
-import { inventoryUpdateSchema, productCreateSchema } from "@/lib/validation";
-
 export const dynamic = "force-dynamic";
 
 const querySchema = z.object({
@@ -21,98 +19,31 @@ const querySchema = z.object({
   view: z.enum(["products", "inventory"]).default("products"),
 });
 
-const DEFAULT_DEMO_PRODUCTS = [
-  {
-    id: "prod-101",
-    name: "Country Tomato (Desi)",
-    slug: "country-tomato",
-    sku: "VF-0001",
-    emoji: "🍅",
-    status: "active",
-    categoryName: "Fresh Vegetables",
-    isOrganic: false,
-    isFeatured: true,
-    price: "55.00",
-    mrp: "78.00",
-    stock: 140,
-    imageUrl: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80",
-  },
-  {
-    id: "prod-102",
-    name: "Bangalore Onion",
-    slug: "bangalore-onion",
-    sku: "VF-0002",
-    emoji: "🧅",
-    status: "active",
-    categoryName: "Fresh Vegetables",
-    isOrganic: false,
-    isFeatured: true,
-    price: "38.00",
-    mrp: "52.00",
-    stock: 260,
-    imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
-  },
-  {
-    id: "prod-103",
-    name: "Fresh Arai Keerai Bunch",
-    slug: "arai-keerai",
-    sku: "VF-0003",
-    emoji: "🥬",
-    status: "active",
-    categoryName: "Leafy Vegetables",
-    isOrganic: true,
-    isFeatured: false,
-    price: "25.00",
-    mrp: "35.00",
-    stock: 80,
-    imageUrl: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&q=80",
-  },
-  {
-    id: "prod-104",
-    name: "Ooty Tender Carrot",
-    slug: "ooty-carrot",
-    sku: "VF-0004",
-    emoji: "🥕",
-    status: "active",
-    categoryName: "Fresh Vegetables",
-    isOrganic: true,
-    isFeatured: true,
-    price: "55.00",
-    mrp: "75.00",
-    stock: 110,
-    imageUrl: "https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=400&q=80",
-  },
-  {
-    id: "prod-105",
-    name: "Cut Sambar Veggie Mix",
-    slug: "sambar-cut-mix",
-    sku: "VF-0005",
-    emoji: "🥦",
-    status: "active",
-    categoryName: "Cut Vegetables",
-    isOrganic: false,
-    isFeatured: true,
-    price: "45.00",
-    mrp: "60.00",
-    stock: 95,
-    imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
-  },
-  {
-    id: "prod-106",
-    name: "Organic Curry Leaves",
-    slug: "curry-leaves",
-    sku: "VF-0006",
-    emoji: "🌿",
-    status: "active",
-    categoryName: "Leafy Vegetables",
-    isOrganic: true,
-    isFeatured: false,
-    price: "15.00",
-    mrp: "20.00",
-    stock: 4,
-    imageUrl: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?w=400&q=80",
-  },
-];
+const DEFAULT_DEMO_PRODUCTS = FALLBACK_PRODUCTS.map((p, idx) => ({
+  id: p.id,
+  name: p.name,
+  tamilName: p.tamilName ?? "",
+  slug: p.slug,
+  sku: `VF-00${idx + 101}`,
+  emoji: p.emoji,
+  status: "active",
+  categoryName: p.categoryName,
+  isOrganic: p.isOrganic,
+  isFeatured: p.isFeatured,
+  isBestSeller: p.isBestSeller,
+  price: String(p.price.toFixed(2)),
+  mrp: String(p.mrp.toFixed(2)),
+  weight: p.variantName,
+  unit: p.unit,
+  stock: p.availableStock,
+  imageUrl: p.imageUrl ?? "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80",
+  images: [
+    p.imageUrl ?? "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80",
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
+    "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
+  ],
+  shortDescription: p.shortDescription ?? "",
+}));
 
 const DEFAULT_DEMO_INVENTORY = [
   {
