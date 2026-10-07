@@ -161,7 +161,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
     }
 
     const { discount, freeDelivery } = computeDiscount(couponRow, subtotal);
-    const deliveryCharge = freeDelivery ? 0 : deliveryChargeForDistance(distanceKm, subtotal);
+    const deliveryCharge = freeDelivery ? 0 : deliveryChargeForDistance(distanceKm);
     const grandTotal = round2(Math.max(0, subtotal - discount + deliveryCharge + taxAmount));
 
     const isPrepaid = input.paymentMethod !== "cod";

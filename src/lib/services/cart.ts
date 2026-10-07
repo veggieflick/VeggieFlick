@@ -4,7 +4,7 @@ import { cartItems, carts, coupons, inventory, productVariants, products } from 
 import { ApiError } from "@/lib/api";
 import { getOrCreateGuestToken, getSession, readGuestToken } from "@/lib/auth";
 import { round2, toNumber } from "@/lib/utils";
-import { FREE_DELIVERY_MIN_ORDER, deliveryChargeForDistance } from "@/lib/services/delivery";
+import { deliveryChargeForDistance } from "@/lib/services/delivery";
 
 export type CartLine = {
   id: string;
@@ -50,8 +50,8 @@ const EMPTY_TOTALS: CartTotals = {
   taxAmount: 0,
   grandTotal: 0,
   couponCode: null,
-  freeDeliveryThreshold: FREE_DELIVERY_MIN_ORDER,
-  amountToFreeDelivery: FREE_DELIVERY_MIN_ORDER,
+  freeDeliveryThreshold: 0,
+  amountToFreeDelivery: 0,
 };
 
 export const EMPTY_CART: CartSummary = {
