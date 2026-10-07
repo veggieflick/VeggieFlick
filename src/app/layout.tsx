@@ -91,7 +91,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-[var(--color-canvas)] font-sans text-ink antialiased selection:bg-emerald-100 selection:text-emerald-950">
+      <body className="relative min-h-screen bg-white font-sans text-ink antialiased selection:bg-emerald-100 selection:text-emerald-950">
+        {/* Ambient Brand Theme Glows (Left Green / Right Orange overlay at ~50% opacity) */}
+        <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+          {/* Left Side Green Theme Glow */}
+          <div className="absolute -top-32 -left-32 h-[750px] w-[550px] rounded-full bg-emerald-500/30 blur-[130px] md:bg-emerald-500/35 md:blur-[160px]" />
+          <div className="absolute top-[40%] -left-40 h-[850px] w-[600px] rounded-full bg-emerald-600/25 blur-[140px] md:bg-emerald-600/30 md:blur-[180px]" />
+
+          {/* Right Side Orange Theme Glow */}
+          <div className="absolute top-[10%] -right-32 h-[750px] w-[550px] rounded-full bg-orange-500/30 blur-[130px] md:bg-orange-500/35 md:blur-[160px]" />
+          <div className="absolute top-[60%] -right-40 h-[850px] w-[600px] rounded-full bg-orange-600/25 blur-[140px] md:bg-orange-600/30 md:blur-[180px]" />
+        </div>
+
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:rounded-lg focus:bg-brand-600 focus:px-4 focus:py-2 focus:text-white"
@@ -99,17 +110,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to main content
         </a>
         <AppProviders>
-          <SiteHeader />
-          <main id="main" className="min-h-[60vh] pb-20 md:pb-0">
-            {children}
-          </main>
-          <HideOnAdmin>
-            <SiteFooter />
-          </HideOnAdmin>
-          <CartDrawer />
-          <MobileBottomNav />
-          <FloatingActions />
-          <OrderStatusToast />
+          <div className="relative z-10">
+            <SiteHeader />
+            <main id="main" className="min-h-[60vh] pb-20 md:pb-0">
+              {children}
+            </main>
+            <HideOnAdmin>
+              <SiteFooter />
+            </HideOnAdmin>
+            <CartDrawer />
+            <MobileBottomNav />
+            <FloatingActions />
+            <OrderStatusToast />
+          </div>
         </AppProviders>
       </body>
     </html>
