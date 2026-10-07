@@ -8,7 +8,7 @@ import { reviewSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
-const querySchema = z.object({ productId: z.string().uuid() });
+const querySchema = z.object({ productId: z.string().trim().min(1) });
 
 export async function GET(request: Request) {
   return handle(async () => {

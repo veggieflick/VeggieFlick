@@ -83,7 +83,7 @@ export async function GET(request: Request) {
   });
 }
 
-const patchSchema = adminOrderUpdateSchema.extend({ orderId: z.string().uuid() });
+const patchSchema = adminOrderUpdateSchema.extend({ orderId: z.string().trim().min(1) });
 
 export async function PATCH(request: Request) {
   return handle(async () => {
@@ -108,7 +108,7 @@ export async function PATCH(request: Request) {
   });
 }
 
-const assignSchema = z.object({ orderId: z.string().uuid() });
+const assignSchema = z.object({ orderId: z.string().trim().min(1) });
 
 export async function POST(request: Request) {
   return handle(async () => {

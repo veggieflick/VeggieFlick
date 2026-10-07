@@ -9,7 +9,7 @@ import { toNumber } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-const createSchema = z.object({ orderId: z.string().uuid() });
+const createSchema = z.object({ orderId: z.string().trim().min(1) });
 
 /** POST /api/v1/payments — create a Razorpay order for an existing VeggieFlick order. */
 export async function POST(request: Request) {
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 }
 
 const verifySchema = z.object({
-  orderId: z.string().uuid(),
+  orderId: z.string().trim().min(1),
   razorpayOrderId: z.string().min(4),
   razorpayPaymentId: z.string().min(4),
   razorpaySignature: z.string().min(4).optional(),

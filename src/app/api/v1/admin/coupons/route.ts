@@ -54,7 +54,7 @@ export async function POST(request: Request) {
   });
 }
 
-const toggleSchema = z.object({ id: z.string().uuid(), status: z.enum(["active", "inactive"]) });
+const toggleSchema = z.object({ id: z.string().trim().min(1), status: z.enum(["active", "inactive"]) });
 
 export async function PATCH(request: Request) {
   return handle(async () => {
