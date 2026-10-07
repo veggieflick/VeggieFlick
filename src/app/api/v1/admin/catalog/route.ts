@@ -10,6 +10,7 @@ import {
 } from "@/db/schema";
 import { ApiError, created, handle, ok, paginationMeta, parseBody, parseQuery } from "@/lib/api";
 import { requirePermission } from "@/lib/auth";
+import { slugify } from "@/lib/utils";
 import { ALL_PRODUCTS } from "@/lib/data/all-products";
 
 export const dynamic = "force-dynamic";
