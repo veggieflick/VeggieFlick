@@ -17,6 +17,7 @@ import {
   X,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
+import { useStoreStatus } from "@/components/store-status-context";
 import { useLanguage } from "@/components/language-context";
 import { formatINR } from "@/lib/utils";
 import { CategoryIconTile } from "@/components/ui/primitives";
@@ -50,6 +51,7 @@ export function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const { cart, user, logout, setDrawerOpen } = useApp();
+  const { isStoreOpen, toggleStoreStatus } = useStoreStatus();
   const { lang, setLang, t } = useLanguage();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -60,7 +62,6 @@ export function SiteHeader() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [area, setArea] = useState(DELIVERY_AREAS[0]);
   const [unread, setUnread] = useState(0);
-  const [storeOpen, setStoreOpen] = useState(true);
 
   const searchRef = useRef<HTMLDivElement>(null);
 
@@ -121,6 +122,14 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-line bg-white/95 backdrop-blur-xl">
+      {/* Store Offline Alert Banner */}
+      {!isStoreOpen && (
+        <div className="bg-rose-600 text-white font-extrabold text-xs py-2 px-4 text-center border-b border-rose-700 shadow-md flex items-center justify-center gap-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-white animate-ping" />
+          <span>🔴 STORE OFFLINE (கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது) — Browsing mode active. All ordering disabled.</span>
+        </div>
+      )}
+
       {/* Top Bar with Timings, Status, Per-Order Delivery Fee Notice, Partners & WhatsApp */}
       <div className="border-b border-line/60 bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white">
         <div className="container-page flex h-10 items-center justify-between gap-3 text-xs overflow-x-auto scrollbar-hide">
@@ -128,16 +137,16 @@ export function SiteHeader() {
             {/* Operational Hours & Store Status */}
             <button
               type="button"
-              onClick={() => setStoreOpen((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow-xs ${
-                storeOpen
-                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30"
-                  : "bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30"
+              onClick={toggleStoreStatus}
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold transition-all shadow-md ${
+                isStoreOpen
+                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/40"
+                  : "bg-rose-500/30 text-rose-200 border border-rose-400 hover:bg-rose-500/40 animate-pulse"
               }`}
-              title="Operational Hours: 6:00 AM – 9:00 PM Daily"
+              title="Click to toggle Store Live / Store Offline mode"
             >
-              <span className={`h-2 w-2 rounded-full ${storeOpen ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
-              {storeOpen ? "STORE OPEN (6 AM - 9 PM) • KK Nagar Hub" : "STORE CLOSED (6 AM - 9 PM) • Pre-orders Only"}
+              <span className={`h-2.5 w-2.5 rounded-full ${isStoreOpen ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
+              {isStoreOpen ? "🟢 STORE LIVE (CLICK TO TURN OFF)" : "🔴 STORE OFFLINE (CLICK TO TURN ON)"}
             </button>
 
             {/* Per-Order Delivery Charge Notice */}

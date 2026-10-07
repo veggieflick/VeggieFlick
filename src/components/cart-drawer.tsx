@@ -4,11 +4,13 @@ import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import { Gift, Minus, Plus, ShoppingBag, Tag, Trash2, X } from "lucide-react";
 import { useApp } from "@/components/providers";
+import { useStoreStatus } from "@/components/store-status-context";
 import { formatINR } from "@/lib/utils";
 import { CategoryIconTile } from "@/components/ui/primitives";
 
 export function CartDrawer() {
   const { cart, drawerOpen, setDrawerOpen, setQuantity, removeItem } = useApp();
+  const { isStoreOpen } = useStoreStatus();
   const progress = Math.min(100, (cart.totals.subtotal / cart.totals.freeDeliveryThreshold) * 100);
 
   return (
@@ -166,16 +168,34 @@ export function CartDrawer() {
                     <dd className="text-emerald-800">{formatINR(cart.totals.grandTotal > 0 ? cart.totals.grandTotal : cart.totals.subtotal + 30 - cart.totals.discount, true)}</dd>
                   </div>
                 </dl>
-                <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/90 p-2.5 text-[11px] font-semibold text-amber-950">
-                  ⚡ <strong>Subscribed Customers:</strong> Special offers, coupons and slot updates will be notified directly to subscribed customers.
-                </div>
-                <Link
-                  href="/checkout"
-                  onClick={() => setDrawerOpen(false)}
-                  className="btn btn-primary w-full font-extrabold text-sm py-3 shadow-md"
-                >
-                  Proceed to Checkout →
-                </Link>
+                {!isStoreOpen ? (
+                  <div className="mb-3 rounded-xl border border-rose-300 bg-rose-50 p-2.5 text-[11px] font-bold text-rose-900 flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse shrink-0" />
+                    <span>🔴 <strong>Store Offline:</strong> Ordering is currently paused. Browsing mode active.</span>
+                  </div>
+                ) : (
+                  <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/90 p-2.5 text-[11px] font-semibold text-amber-950">
+                    ⚡ <strong>Subscribed Customers:</strong> Special offers, coupons and slot updates will be notified directly to subscribed customers.
+                  </div>
+                )}
+                
+                {isStoreOpen ? (
+                  <Link
+                    href="/checkout"
+                    onClick={() => setDrawerOpen(false)}
+                    className="btn btn-primary w-full font-extrabold text-sm py-3 shadow-md"
+                  >
+                    Proceed to Checkout →
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    disabled
+                    className="btn bg-slate-200 text-slate-500 w-full font-extrabold text-sm py-3 cursor-not-allowed border border-slate-300"
+                  >
+                    Store Offline — Checkout Paused
+                  </button>
+                )}
                 <Link
                   href="/cart"
                   onClick={() => setDrawerOpen(false)}

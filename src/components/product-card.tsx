@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useApp } from "@/components/providers";
+import { useStoreStatus } from "@/components/store-status-context";
 import { formatINR } from "@/lib/utils";
 import { Badge, Rating } from "@/components/ui/primitives";
 import { DynamicIcon } from "@/lib/icons";
@@ -44,6 +45,7 @@ const CATEGORY_HERO: Record<string, string> = {
 
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const { cart, addItem, setQuantity, user, notify } = useApp();
+  const { isStoreOpen } = useStoreStatus();
   const [cutModalOpen, setCutModalOpen] = useState(false);
   const line = cart.items.find((item) => item.variantId === product.variantId);
   const outOfStock = product.availableStock <= 0;
@@ -51,6 +53,10 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const discountPct = Math.round(product.discountPercentage);
 
   const handleAddClick = () => {
+    if (!isStoreOpen) {
+      notify("🔴 கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது (Store is Offline)", "error");
+      return;
+    }
     if (product.categorySlug === "vegetables-shopping" && !product.isCutVegetable) {
       setCutModalOpen(true);
     } else {
@@ -181,6 +187,15 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
             {outOfStock ? (
               <span className="chip chip-muted">Out of stock</span>
+            ) : !isStoreOpen ? (
+              <button
+                type="button"
+                disabled
+                onClick={handleAddClick}
+                className="btn btn-sm bg-slate-200 text-slate-600 font-bold border border-slate-300 opacity-90 cursor-not-allowed text-[11px]"
+              >
+                Store Offline
+              </button>
             ) : line ? (
               <div className="flex items-center gap-0.5 rounded-full border border-emerald-800 bg-emerald-800 text-white shadow-sm">
                 <button

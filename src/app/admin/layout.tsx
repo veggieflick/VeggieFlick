@@ -15,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import { getSession, BACK_OFFICE_ROLES } from "@/lib/auth";
+import { AdminStoreStatusToggle } from "@/components/admin-store-status-toggle";
 
 export const dynamic = "force-dynamic";
 
@@ -88,7 +89,8 @@ export default async function AdminLayout({ children }: { children: ReactNode })
                 </Link>
               ))}
             </nav>
-            <div className="flex items-center gap-2 text-xs">
+            <div className="flex items-center gap-3 text-xs">
+              <AdminStoreStatusToggle />
               <span className="hidden rounded-full bg-brand-50 px-3 py-1.5 font-semibold text-brand-700 sm:inline">
                 Chennai Central Hub
               </span>

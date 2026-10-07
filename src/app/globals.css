@@ -387,3 +387,20 @@ h1, h2, h3, h4, .font-display {
     scroll-behavior: auto !important;
   }
 }
+
+/* Store Offline (Store Closed) Global Black & White Filter */
+body.store-offline img,
+body.store-offline .product-tile,
+body.store-offline .card,
+body.store-offline [data-product-card],
+body.store-offline .product-card-image {
+  filter: grayscale(100%) !important;
+  opacity: 0.85 !important;
+  transition: filter 300ms ease, opacity 300ms ease;
+}
+
+body.store-offline .store-off-disabled {
+  opacity: 0.5 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+}
