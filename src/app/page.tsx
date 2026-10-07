@@ -458,6 +458,8 @@ export default async function HomePage() {
                 </figcaption>
               </figure>
             ))}
+          </div>
+        </div>
       </AnimatedSection>
 
       {/* FEEDBACK & RATINGS SECTION */}
