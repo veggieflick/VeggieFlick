@@ -247,10 +247,12 @@ export async function getCartSummary(create = false): Promise<CartSummary> {
 
 import { FALLBACK_PRODUCTS } from "@/lib/services/catalog";
 
+const isUuid = (val: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
+
 export async function addToCart(input: { productId: string; variantId: string; quantity: number }) {
   try {
     const cart = await findCartRow(true);
-    if (cart) {
+    if (cart && isUuid(input.variantId) && isUuid(input.productId)) {
       const [variant] = await db
         .select({
           id: productVariants.id,

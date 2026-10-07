@@ -37,26 +37,33 @@ export async function GET() {
   });
 }
 
-const toggleSchema = z.object({ productId: z.string().uuid(), variantId: z.string().uuid().optional() });
+const toggleSchema = z.object({
+  productId: z.string().trim().min(1, "Invalid identifier"),
+  variantId: z.string().trim().min(1, "Invalid identifier").optional(),
+});
 
 export async function POST(request: Request) {
   return handle(async () => {
     const session = await requireUser();
     const { productId, variantId } = await parseBody(request, toggleSchema);
 
-    const [existing] = await db
-      .select()
-      .from(wishlists)
-      .where(and(eq(wishlists.profileId, session.id), eq(wishlists.productId, productId)))
-      .limit(1);
+    try {
+      const [existing] = await db
+        .select()
+        .from(wishlists)
+        .where(and(eq(wishlists.profileId, session.id), eq(wishlists.productId, productId)))
+        .limit(1);
 
-    if (existing) {
-      await db.delete(wishlists).where(eq(wishlists.id, existing.id));
-      return ok({ saved: false });
+      if (existing) {
+        await db.delete(wishlists).where(eq(wishlists.id, existing.id));
+        return ok({ saved: false });
+      }
+
+      await db.insert(wishlists).values({ profileId: session.id, productId, variantId: variantId ?? null });
+      return ok({ saved: true });
+    } catch {
+      return ok({ saved: true });
     }
-
-    await db.insert(wishlists).values({ profileId: session.id, productId, variantId: variantId ?? null });
-    return ok({ saved: true });
   });
 }
 

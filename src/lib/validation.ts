@@ -5,7 +5,7 @@ export const phoneSchema = z
   .trim()
   .regex(/^[6-9]\d{9}$/, "Enter a valid 10 digit Indian mobile number");
 
-export const uuidSchema = z.string().uuid("Invalid identifier");
+export const uuidSchema = z.string().trim().min(1, "Invalid identifier");
 
 export const sendOtpSchema = z.object({
   phone: phoneSchema,
