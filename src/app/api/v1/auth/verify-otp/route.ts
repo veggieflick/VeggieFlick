@@ -17,40 +17,41 @@ export async function POST(request: Request) {
     let profile: any = null;
     let isNewCustomer = false;
 
-    try {
-      const [record] = await db
-        .select()
-        .from(otpCodes)
-        .where(and(eq(otpCodes.phone, phone), eq(otpCodes.consumed, false)))
-        .orderBy(desc(otpCodes.createdAt))
-        .limit(1);
+    const [record] = await db
+      .select()
+      .from(otpCodes)
+      .where(and(eq(otpCodes.phone, phone), eq(otpCodes.consumed, false)))
+      .orderBy(desc(otpCodes.createdAt))
+      .limit(1)
+      .catch(() => []);
 
-      if (record) {
-        if (record.codeHash !== hashOtp(phone, code) || record.expiresAt < new Date()) {
-          throw new ApiError("Invalid or expired OTP code", 400, "INVALID_OTP");
-        }
-        await db.update(otpCodes).set({ consumed: true }).where(eq(otpCodes.id, record.id));
-      }
+    if (!record) {
+      throw new ApiError("No active OTP requested for this phone number or OTP expired", 400, "INVALID_OTP");
+    }
 
-      const [existingProfile] = await db.select().from(profiles).where(eq(profiles.phone, phone)).limit(1);
-      if (existingProfile) {
-        profile = existingProfile;
-      } else {
-        isNewCustomer = true;
-        const [newProfile] = await db
-          .insert(profiles)
-          .values({
-            fullName: fullName?.trim() || `Customer ${phone.slice(-4)}`,
-            phone,
-            role: "customer",
-            referralCode: `VF${phone.slice(-4)}${Math.floor(10 + Math.random() * 89)}`,
-            lastLoginAt: new Date(),
-          })
-          .returning();
-        profile = newProfile;
-      }
-    } catch (err) {
-      console.warn("verifyOtp db warning:", err);
+    if (record.codeHash !== hashOtp(phone, code) || record.expiresAt < new Date()) {
+      throw new ApiError("Invalid or expired OTP code", 400, "INVALID_OTP");
+    }
+
+    await db.update(otpCodes).set({ consumed: true }).where(eq(otpCodes.id, record.id)).catch(() => undefined);
+
+    const [existingProfile] = await db.select().from(profiles).where(eq(profiles.phone, phone)).limit(1).catch(() => []);
+    if (existingProfile) {
+      profile = existingProfile;
+    } else {
+      isNewCustomer = true;
+      const [newProfile] = await db
+        .insert(profiles)
+        .values({
+          fullName: fullName?.trim() || `Customer ${phone.slice(-4)}`,
+          phone,
+          role: "customer",
+          referralCode: `VF${phone.slice(-4)}${Math.floor(10 + Math.random() * 89)}`,
+          lastLoginAt: new Date(),
+        })
+        .returning()
+        .catch(() => []);
+      profile = newProfile;
     }
 
     const sessionUser = {

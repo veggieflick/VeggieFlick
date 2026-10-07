@@ -250,9 +250,10 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       .set({ bookedOrders: sql`${deliverySlots.bookedOrders} + 1` })
       .where(eq(deliverySlots.id, slot.id));
 
+    const earnedPoints = Math.floor(grandTotal / 100);
     await tx
       .update(profiles)
-      .set({ loyaltyPoints: sql`${profiles.loyaltyPoints} + ${Math.floor(grandTotal / 100)}` })
+      .set({ loyaltyPoints: sql`${profiles.loyaltyPoints} + ${earnedPoints}` })
       .where(eq(profiles.id, profileId));
 
     await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
@@ -459,7 +460,7 @@ export async function updateOrderStatus(
     if (!order) throw new ApiError("Order not found", 404, "ORDER_NOT_FOUND");
     if (order.orderStatus === status) return order;
 
-    if (status === "cancelled" || status === "returned") {
+    if ((status === "cancelled" || status === "returned") && order.orderStatus !== "cancelled" && order.orderStatus !== "returned") {
       await restoreStock(tx, orderId);
     }
 

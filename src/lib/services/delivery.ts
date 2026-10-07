@@ -15,8 +15,7 @@ const CHARGE_SLABS = [
   { upto: 25, charge: 100 },
 ];
 
-export function deliveryChargeForDistance(distanceKm: number, subtotal: number): number {
-  if (subtotal >= FREE_DELIVERY_MIN_ORDER) return 0;
+export function deliveryChargeForDistance(distanceKm: number): number {
   const slab = CHARGE_SLABS.find((s) => distanceKm <= s.upto);
   return slab ? slab.charge : 100;
 }

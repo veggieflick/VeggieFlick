@@ -28,7 +28,7 @@ const HELP_LINKS = [
   { label: "Terms & Conditions", href: "/legal/terms" },
 ];
 
-const PARTNERS = ["Swiggy", "Zomato", "Instamart", "Blinkit", "BigBasket", "Zepto"];
+const PARTNERS = ["Uber Direct", "Swiggy", "Zomato", "Instamart", "Blinkit", "BigBasket", "Zepto", "Porter"];
 
 export function SiteFooter() {
   return (
@@ -54,22 +54,25 @@ export function SiteFooter() {
             <p className="flex items-center gap-2">
               <Mail size={14} strokeWidth={1.6} className="text-emerald-700 shrink-0" /> hello@veggieflick.in
             </p>
+            <p className="flex items-center gap-2 text-emerald-800 font-bold">
+              ⏰ <strong>Operational Hours:</strong> 6:00 AM – 9:00 PM Daily
+            </p>
           </div>
 
           {/* Social Icons & WhatsApp Quick Link */}
           <div className="mt-5 flex items-center gap-3">
             <a
-              href="https://wa.me/919840012345"
+              href="https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20want%20to%20place%20an%20order."
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-white transition-transform hover:scale-110 shadow-xs"
+              className="flex h-9 items-center gap-2 rounded-full bg-emerald-600 px-3.5 text-white font-bold text-xs transition-transform hover:scale-105 shadow-xs"
               title="Chat on WhatsApp"
             >
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.758.459 3.474 1.33 4.982l-1.413 5.163 5.285-1.386c1.455.794 3.09 1.213 4.784 1.214h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.924-7.062-1.887-1.886-4.395-2.924-7.065-2.924zm0 18.232h-.003c-1.493 0-2.957-.401-4.233-1.157l-.304-.18-3.147.825.84-3.067-.197-.314c-.832-1.325-1.272-2.862-1.272-4.437 0-4.509 3.67-8.178 8.18-8.178 2.184 0 4.238.85 5.783 2.396 1.545 1.545 2.395 3.6 2.394 5.784 0 4.51-3.669 8.18-8.177 8.18z"/>
               </svg>
+              WhatsApp Support
             </a>
-            <span className="text-[12px] font-bold text-slate-700">Follow VeggieFlick</span>
           </div>
         </div>
 
@@ -119,7 +122,6 @@ export function SiteFooter() {
           <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-3.5 text-center">
             <p className="text-[11px] font-extrabold text-emerald-950 uppercase tracking-wider">Instant UPI QR Pay</p>
             <div className="my-2 mx-auto flex h-24 w-24 items-center justify-center rounded-xl bg-white p-2 border border-emerald-300 shadow-xs">
-              {/* QR Code SVG */}
               <svg className="h-full w-full" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
                 <path d="M3 3h6v6H3V3zm12 0h6v6h-6V3zM3 15h6v6H3v-6zm12 6v-3h3v3h-3zm3-6h3v3h-3v-3zm-3-3h3v3h-3v-3zm3 0h3v3h-3v-3zm-6 3h3v3h-3v-3zm0-6h3v3h-3V9zm-3 3h3v3h-3v-3zm0 3h3v3h-3v-3z" fill="#064e3b" />
               </svg>
@@ -129,11 +131,23 @@ export function SiteFooter() {
         </div>
       </div>
 
+      {/* Subscribed Customer Offers Notice Banner */}
+      <div className="border-t border-line bg-gradient-to-r from-emerald-900 via-slate-900 to-teal-950 py-2.5 text-white">
+        <div className="container-page flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
+          <span className="text-emerald-300">
+            ✨ <strong>Subscription Notice:</strong> Offers and promotions will be notified to subscribed customers via WhatsApp & SMS.
+          </span>
+          <Link href="/subscriptions" className="underline hover:text-emerald-200 text-[11px] font-bold">
+            Subscribe Now →
+          </Link>
+        </div>
+      </div>
+
       {/* Delivery Partners Strip */}
       <div className="border-t border-line bg-slate-900 py-3 text-white">
         <div className="container-page flex flex-wrap items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-amber-400">Hyperlocal Delivery Partners:</span>
+            <span className="font-bold text-amber-400">Delivery Partners:</span>
             <div className="flex flex-wrap items-center gap-1.5">
               {PARTNERS.map((p) => (
                 <span key={p} className="rounded-lg bg-white/10 px-2 py-0.5 text-[11px] font-extrabold text-slate-200">
@@ -143,7 +157,7 @@ export function SiteFooter() {
             </div>
           </div>
           <span className="text-[11px] font-bold text-emerald-400">
-            📍 K K Nagar 10 KM Radius Express Slots
+            📍 Per-Order Delivery Fee: ₹30 – ₹100 based on distance (No Free Delivery)
           </span>
         </div>
       </div>

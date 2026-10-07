@@ -52,7 +52,9 @@ export async function handle<T>(fn: () => Promise<T>) {
     if (error instanceof ZodError) {
       return fail("Validation failed", 422, "VALIDATION_ERROR", error.issues);
     }
-    const message = error instanceof Error ? error.message : "Unexpected server error";
+    const isDev = process.env.NODE_ENV === "development";
+    const rawMessage = error instanceof Error ? error.message : "Unexpected server error";
+    const message = isDev ? rawMessage : "An unexpected internal server error occurred. Please try again later.";
     return fail(message, 500, "INTERNAL_ERROR");
   }
 }

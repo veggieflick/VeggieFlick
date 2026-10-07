@@ -89,7 +89,13 @@ export async function PUT(request: Request) {
     if (!order || order.profileId !== session.id) throw new ApiError("Order not found", 404, "ORDER_NOT_FOUND");
 
     const secret = process.env.RAZORPAY_SECRET;
-    if (secret) {
+    if (secret || payload.razorpaySignature) {
+      if (!secret) {
+        throw new ApiError("Payment gateway secret configuration missing", 500, "CONFIG_ERROR");
+      }
+      if (!payload.razorpaySignature) {
+        throw new ApiError("Payment signature missing", 400, "SIGNATURE_REQUIRED");
+      }
       const expected = createHmac("sha256", secret)
         .update(`${payload.razorpayOrderId}|${payload.razorpayPaymentId}`)
         .digest("hex");

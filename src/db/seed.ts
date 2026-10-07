@@ -6,9 +6,9 @@ import { randomBytes, scryptSync } from "node:crypto";
 import * as schema from "./schema";
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:5432/app_db",
+  connectionString: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@127.0.0.1:5432/veggieflick",
 });
-const db = drizzle(pool);
+const db = drizzle(pool, { schema });
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16).toString("hex");

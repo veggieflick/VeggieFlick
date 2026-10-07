@@ -47,15 +47,32 @@ export default function SubscriptionsPage() {
       <Breadcrumb items={[{ label: "Home", href: "/" }, { label: "Subscriptions" }]} />
 
       <div className="mb-8">
-        <span className="chip bg-emerald-100 text-emerald-900 border border-emerald-200 font-bold mb-2 inline-flex items-center gap-1">
+        <span className="chip bg-emerald-100 text-emerald-950 border border-emerald-300 font-extrabold mb-2 inline-flex items-center gap-1">
           <Sparkles size={12} /> Daily & Weekly Fresh Subscriptions
         </span>
-        <h1 className="text-balance text-3xl font-bold tracking-[-0.02em] md:text-4xl">
-          Auto-Deliveries to Your Doorstep
+        <h1 className="text-balance text-3xl font-black tracking-tight md:text-4xl text-ink font-display">
+          Auto-Deliveries & Subscribed Customer Offers
         </h1>
         <p className="mt-2 text-slate-600 max-w-2xl text-sm">
-          Never run out of morning milk, fresh keerai, or daily thakkali. Flexible auto-debit from your VeggieFlick Wallet. Pause or cancel anytime!
+          Subscribe to your daily kitchen staples. Subscribed customers receive exclusive promotion codes, early delivery slot access, and seasonal discount notifications.
         </p>
+
+        {/* Subscribed Customer Offers Banner */}
+        <div className="mt-4 rounded-2xl border-2 border-emerald-500/40 bg-gradient-to-r from-emerald-900 via-slate-900 to-teal-950 p-4 text-white shadow-md">
+          <div className="flex items-center gap-3">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-400/40">
+              <Sparkles size={20} />
+            </span>
+            <div>
+              <h3 className="text-sm font-extrabold text-emerald-300 font-display">
+                Offers & Promotions Notice
+              </h3>
+              <p className="text-xs text-slate-200 mt-0.5 font-medium">
+                <strong>Offers and promotions will be notified directly to subscribed customers via WhatsApp & SMS.</strong> Subscribe below to never miss fresh daily discounts.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[1fr_22rem]">

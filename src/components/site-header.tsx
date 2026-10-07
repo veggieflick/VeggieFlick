@@ -37,6 +37,7 @@ const DELIVERY_AREAS = [
 ];
 
 const DELIVERY_PARTNERS = [
+  { name: "Uber Direct", color: "bg-slate-900" },
   { name: "Swiggy", color: "bg-orange-500" },
   { name: "Zomato", color: "bg-red-500" },
   { name: "Instamart", color: "bg-amber-500" },
@@ -120,55 +121,55 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-line bg-white/95 backdrop-blur-xl">
-      {/* Top Bar with Store Status Toggle, Location & Partners */}
+      {/* Top Bar with Timings, Status, Per-Order Delivery Fee Notice, Partners & WhatsApp */}
       <div className="border-b border-line/60 bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white">
-        <div className="container-page flex h-9 items-center justify-between gap-3 text-xs overflow-x-auto scrollbar-hide">
+        <div className="container-page flex h-10 items-center justify-between gap-3 text-xs overflow-x-auto scrollbar-hide">
           <div className="flex items-center gap-3 shrink-0">
-            {/* Store Operational Status Toggle Button */}
+            {/* Operational Hours & Store Status */}
             <button
               type="button"
               onClick={() => setStoreOpen((prev) => !prev)}
-              className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all shadow-xs ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold transition-all shadow-xs ${
                 storeOpen
                   ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30"
                   : "bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30"
               }`}
-              title="Click to toggle store operational hours"
+              title="Operational Hours: 6:00 AM – 9:00 PM Daily"
             >
               <span className={`h-2 w-2 rounded-full ${storeOpen ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
-              {storeOpen ? "STORE OPEN • Accepting KK Nagar Orders" : "STORE CLOSED • Pre-orders Only"}
+              {storeOpen ? "STORE OPEN (6 AM - 9 PM) • KK Nagar Hub" : "STORE CLOSED (6 AM - 9 PM) • Pre-orders Only"}
             </button>
 
-            {/* Location Pill */}
-            <div className="flex items-center gap-1 bg-white/10 px-2.5 py-0.5 rounded-full text-[11px] font-semibold text-emerald-200">
-              <MapPin size={12} className="text-emerald-400" />
-              <span>K K Nagar Hub (10 km Radius)</span>
+            {/* Per-Order Delivery Charge Notice */}
+            <div className="hidden sm:flex items-center gap-1 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-amber-200">
+              <Bike size={12} className="text-amber-400" />
+              <span>Per-Order Delivery: ₹30 – ₹100 by distance (No Free Delivery)</span>
             </div>
           </div>
 
           {/* Delivery Partners Badge Strip */}
           <div className="hidden lg:flex items-center gap-2 shrink-0 text-[11px] text-slate-300">
-            <span className="font-semibold text-slate-400">Delivery via:</span>
-            <div className="flex items-center gap-1.5">
+            <span className="font-semibold text-slate-400">Partners:</span>
+            <div className="flex items-center gap-1">
               {DELIVERY_PARTNERS.map((partner) => (
-                <span key={partner.name} className="px-1.5 py-0.5 rounded-md bg-white/10 text-white font-extrabold text-[10px] tracking-tight">
+                <span key={partner.name} className="px-1.5 py-0.5 rounded bg-white/10 text-white font-extrabold text-[10px] tracking-tight">
                   {partner.name}
                 </span>
               ))}
             </div>
           </div>
 
-          {/* WhatsApp Direct Order Button */}
+          {/* WhatsApp Direct Contact */}
           <a
-            href="https://wa.me/919840012345?text=Hi%20VeggieFlick%20KK%20Nagar!%20I%20want%20to%20place%20an%20order."
+            href="https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20have%20a%20query%20about%20orders%20and%20deliveries."
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 px-2.5 py-0.5 rounded-full font-bold text-white text-[11px] shadow-xs transition-colors shrink-0"
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded-full font-bold text-white text-[11px] shadow-xs transition-colors shrink-0"
           >
             <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
               <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.758.459 3.474 1.33 4.982l-1.413 5.163 5.285-1.386c1.455.794 3.09 1.213 4.784 1.214h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.924-7.062-1.887-1.886-4.395-2.924-7.065-2.924zm0 18.232h-.003c-1.493 0-2.957-.401-4.233-1.157l-.304-.18-3.147.825.84-3.067-.197-.314c-.832-1.325-1.272-2.862-1.272-4.437 0-4.509 3.67-8.178 8.18-8.178 2.184 0 4.238.85 5.783 2.396 1.545 1.545 2.395 3.6 2.394 5.784 0 4.51-3.669 8.18-8.177 8.18z"/>
             </svg>
-            WhatsApp Order
+            WhatsApp Support
           </a>
         </div>
       </div>

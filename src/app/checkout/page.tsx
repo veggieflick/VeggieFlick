@@ -366,9 +366,9 @@ export default function CheckoutPage() {
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-muted">Delivery</dt>
+                <dt className="text-muted">Per-Order Delivery Fee</dt>
                 <dd className="font-semibold">
-                  {cart.totals.deliveryCharge === 0 ? "FREE" : formatINR(cart.totals.deliveryCharge, true)}
+                  {formatINR(cart.totals.deliveryCharge > 0 ? cart.totals.deliveryCharge : 30, true)}
                 </dd>
               </div>
               {cart.totals.taxAmount > 0 && (

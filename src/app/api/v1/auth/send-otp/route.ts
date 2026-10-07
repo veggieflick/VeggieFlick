@@ -16,23 +16,28 @@ export async function POST(request: Request) {
     const { phone } = await parseBody(request, sendOtpSchema);
     const code = generateOtp(6);
 
-    try {
-      const windowStart = new Date(Date.now() - 15 * 60 * 1000);
-      const [{ value: recentCount }] = await db
-        .select({ value: count() })
-        .from(otpCodes)
-        .where(and(eq(otpCodes.phone, phone), gt(otpCodes.createdAt, windowStart)));
+    const windowStart = new Date(Date.now() - 15 * 60 * 1000);
+    const recentRecords = await db
+      .select({ value: count() })
+      .from(otpCodes)
+      .where(and(eq(otpCodes.phone, phone), gt(otpCodes.createdAt, windowStart)))
+      .catch(() => [{ value: 0 }]);
 
-      if (Number(recentCount) < MAX_PER_WINDOW) {
-        await db.insert(otpCodes).values({
-          phone,
-          codeHash: hashOtp(phone, code),
-          expiresAt: new Date(Date.now() + OTP_TTL_SECONDS * 1000),
-        });
-      }
-    } catch (err) {
-      console.warn("sendOtp db warning:", err);
+    const recentCount = Number(recentRecords[0]?.value ?? 0);
+    if (recentCount >= MAX_PER_WINDOW) {
+      throw new ApiError("Too many OTP requests. Please try again in a few minutes.", 429, "RATE_LIMIT_EXCEEDED");
     }
+
+    await db
+      .insert(otpCodes)
+      .values({
+        phone,
+        codeHash: hashOtp(phone, code),
+        expiresAt: new Date(Date.now() + OTP_TTL_SECONDS * 1000),
+      })
+      .catch((err) => {
+        console.warn("sendOtp db insertion warning:", err);
+      });
 
     const smsConfigured = Boolean(process.env.MSG91_API_KEY);
     if (smsConfigured) {

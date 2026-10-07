@@ -50,12 +50,16 @@ export function NewsletterForm({ variant = "compact" }: { variant?: "compact" | 
           <Send className="h-4 w-4" aria-hidden />
         </button>
       </div>
-      {message && (
+      {message ? (
         <p
           role="status"
-          className={`mt-2 text-xs font-medium ${status === "error" ? "text-red-600" : "text-brand-700"}`}
+          className={`mt-2 text-xs font-semibold ${status === "error" ? "text-red-600" : "text-emerald-800 font-bold"}`}
         >
           {message}
+        </p>
+      ) : (
+        <p className="mt-2 text-[11px] font-semibold text-emerald-800/90 flex items-center gap-1">
+          ✨ <strong>Subscription Notice:</strong> Exclusive offers and promotions will be notified to subscribed customers.
         </p>
       )}
     </form>

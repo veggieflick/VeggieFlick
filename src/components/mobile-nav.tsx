@@ -97,15 +97,21 @@ export function FloatingActions() {
         )}
       </AnimatePresence>
       <motion.a
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
-        href="https://wa.me/914440002200?text=Hi%20VeggieFlick%2C%20I%20need%20help%20with%20my%20order"
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.92 }}
+        href="https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20have%20a%20query%20about%20orders%20and%20deliveries."
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with VeggieFlick on WhatsApp"
-        className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl transition-shadow hover:shadow-emerald-600/30"
+        className="group relative flex h-12 w-12 items-center justify-center rounded-full bg-emerald-600 text-white shadow-xl hover:bg-emerald-500 shadow-emerald-700/30"
       >
-        <MessageCircle size={22} strokeWidth={2} />
+        <span className="absolute -top-1 -right-1 flex h-4 w-4">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 border border-white"></span>
+        </span>
+        <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
+          <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.758.459 3.474 1.33 4.982l-1.413 5.163 5.285-1.386c1.455.794 3.09 1.213 4.784 1.214h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.924-7.062-1.887-1.886-4.395-2.924-7.065-2.924zm0 18.232h-.003c-1.493 0-2.957-.401-4.233-1.157l-.304-.18-3.147.825.84-3.067-.197-.314c-.832-1.325-1.272-2.862-1.272-4.437 0-4.509 3.67-8.178 8.18-8.178 2.184 0 4.238.85 5.783 2.396 1.545 1.545 2.395 3.6 2.394 5.784 0 4.51-3.669 8.18-8.177 8.18z"/>
+        </svg>
       </motion.a>
     </div>
   );

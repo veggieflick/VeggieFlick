@@ -248,13 +248,25 @@ export function ProductPurchasePanel({
         </div>
 
         <ul className="mt-5 grid gap-2 text-[12px] text-muted">
-          <li className="flex items-center gap-2">
-            <Truck size={14} className="text-brand-700" /> Free delivery on orders above ₹499
+          <li className="flex items-center gap-2 font-semibold text-amber-900">
+            <Truck size={14} className="text-amber-700" /> Per-order delivery charge applies (₹30–₹100 by distance · No free delivery)
           </li>
-          <li className="flex items-center gap-2">
-            <ShieldCheck size={14} className="text-brand-700" /> Same-day refund if quality is not met
+          <li className="flex items-center gap-2 font-semibold text-emerald-900">
+            <ShieldCheck size={14} className="text-emerald-700" /> Freshness guaranteed · Ozonated triple water washed
           </li>
         </ul>
+
+        <a
+          href={`https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20want%20to%20order%20${encodeURIComponent(product.name)}.`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="btn btn-outline border-emerald-600 text-emerald-800 font-bold text-xs mt-4 w-full flex items-center justify-center gap-2 hover:bg-emerald-50"
+        >
+          <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+            <path d="M12.012 2c-5.506 0-9.989 4.478-9.99 9.984 0 1.758.459 3.474 1.33 4.982l-1.413 5.163 5.285-1.386c1.455.794 3.09 1.213 4.784 1.214h.004c5.505 0 9.988-4.478 9.989-9.985 0-2.668-1.038-5.176-2.924-7.062-1.887-1.886-4.395-2.924-7.065-2.924zm0 18.232h-.003c-1.493 0-2.957-.401-4.233-1.157l-.304-.18-3.147.825.84-3.067-.197-.314c-.832-1.325-1.272-2.862-1.272-4.437 0-4.509 3.67-8.178 8.18-8.178 2.184 0 4.238.85 5.783 2.396 1.545 1.545 2.395 3.6 2.394 5.784 0 4.51-3.669 8.18-8.177 8.18z"/>
+          </svg>
+          Order & Inquire via WhatsApp
+        </a>
       </div>
     </div>
   );

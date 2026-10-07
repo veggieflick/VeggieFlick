@@ -152,26 +152,27 @@ export function CartDrawer() {
             {cart.items.length > 0 && (
               <div className="border-t border-line bg-slate-50 px-5 py-4">
                 <dl className="mb-3 grid gap-1.5 text-[12px]">
-                  <Row label="Vegetables (Market Price)" value={formatINR(cart.totals.subtotal, true)} />
-                  <Row label="Cutting & Shredding Fee" value="₹15.00" />
-                  <Row label="Hygienic Sealed Packing" value="₹10.00" />
-                  <Row label="KK Nagar 10km Delivery" value="₹29.00" />
+                  <Row label="Item Subtotal" value={formatINR(cart.totals.subtotal, true)} />
+                  <Row label="Per-Order Delivery Charge" value={cart.totals.deliveryCharge > 0 ? formatINR(cart.totals.deliveryCharge, true) : "₹30.00"} />
                   {cart.totals.discount > 0 && (
                     <Row
-                      label={`Coupon Discount`}
+                      label="Coupon Discount"
                       value={`−${formatINR(cart.totals.discount, true)}`}
                       tone="brand"
                     />
                   )}
                   <div className="mt-2 flex justify-between border-t border-line pt-2 text-[15px] font-black">
                     <dt className="text-slate-900">Total Payable</dt>
-                    <dd className="text-emerald-800">{formatINR(cart.totals.subtotal + 15 + 10 + 29 - cart.totals.discount, true)}</dd>
+                    <dd className="text-emerald-800">{formatINR(cart.totals.grandTotal > 0 ? cart.totals.grandTotal : cart.totals.subtotal + 30 - cart.totals.discount, true)}</dd>
                   </div>
                 </dl>
+                <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/90 p-2.5 text-[11px] font-semibold text-amber-950">
+                  ⚡ <strong>Subscribed Customers:</strong> Special offers, coupons and slot updates will be notified directly to subscribed customers.
+                </div>
                 <Link
                   href="/checkout"
                   onClick={() => setDrawerOpen(false)}
-                  className="btn btn-primary w-full font-extrabold text-sm py-3"
+                  className="btn btn-primary w-full font-extrabold text-sm py-3 shadow-md"
                 >
                   Proceed to Checkout →
                 </Link>

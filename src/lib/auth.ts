@@ -65,16 +65,23 @@ export function hasPermission(role: AppRole, permission: string): boolean {
   return granted.some((entry) => {
     if (entry === "*") return true;
     if (entry === permission) return true;
-    if (entry.endsWith(".*")) return permission.startsWith(entry.slice(0, -1));
+    if (entry.endsWith(".*")) {
+      const base = entry.slice(0, -2);
+      const prefix = entry.slice(0, -1);
+      return permission === base || permission.startsWith(prefix);
+    }
     return false;
   });
 }
 
 function secretKey(): Uint8Array {
-  const secret =
-    process.env.SESSION_SECRET ??
-    process.env.SUPABASE_SERVICE_ROLE_KEY ??
-    "veggieflick-local-development-session-secret-key";
+  let secret = process.env.SESSION_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error("SESSION_SECRET environment variable is required in production");
+    }
+    secret = "veggieflick-local-development-session-secret-key";
+  }
   return new TextEncoder().encode(secret.padEnd(32, "0"));
 }
 

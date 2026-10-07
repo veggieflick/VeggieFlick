@@ -185,7 +185,7 @@ export function computeTotals(
   const taxAmount = round2(
     items.reduce((sum, item) => sum + (item.unitPrice * item.quantity * item.taxPercentage) / 100, 0),
   );
-  const baseDelivery = items.length === 0 ? 0 : deliveryChargeForDistance(distanceKm, subtotal);
+  const baseDelivery = items.length === 0 ? 0 : deliveryChargeForDistance(distanceKm);
   const deliveryCharge = freeDelivery ? 0 : baseDelivery;
   const grandTotal = round2(Math.max(0, subtotal - discount + deliveryCharge + taxAmount));
 
@@ -197,8 +197,8 @@ export function computeTotals(
     taxAmount,
     grandTotal,
     couponCode,
-    freeDeliveryThreshold: FREE_DELIVERY_MIN_ORDER,
-    amountToFreeDelivery: Math.max(0, round2(FREE_DELIVERY_MIN_ORDER - subtotal)),
+    freeDeliveryThreshold: 0,
+    amountToFreeDelivery: 0,
   };
 }
 

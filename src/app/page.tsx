@@ -8,6 +8,7 @@ import { AnimatedSection } from "@/components/ui/animated-section";
 import { ComboKitsSection } from "@/components/combo-kits-section";
 import { HeroDialogueHeading } from "@/components/hero-dialogue-heading";
 import { ChefDialogueSlider } from "@/components/chef-dialogue-slider";
+import { FeedbackRatingSection } from "@/components/feedback-rating-section";
 
 export const dynamic = "force-dynamic";
 
@@ -457,9 +458,10 @@ export default async function HomePage() {
                 </figcaption>
               </figure>
             ))}
-          </div>
-        </div>
       </AnimatedSection>
+
+      {/* FEEDBACK & RATINGS SECTION */}
+      <FeedbackRatingSection />
 
       {/* WHATSAPP CONTACT & CTA BANNER */}
       <AnimatedSection className="container-page pb-14 pt-8">

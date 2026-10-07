@@ -83,6 +83,7 @@ export async function POST(request: Request) {
         }
       }
     } catch (dbErr) {
+      if (dbErr instanceof ApiError) throw dbErr;
       console.warn("DB login error, falling back to static staff credentials check:", dbErr);
     }
 

@@ -123,22 +123,27 @@ export const inventoryUpdateSchema = z.object({
   reorderLevel: z.coerce.number().int().min(0).max(10000).optional(),
 });
 
-export const productCreateSchema = z.object({
-  name: z.string().trim().min(2).max(180),
-  categoryId: uuidSchema,
-  emoji: z.string().trim().min(1).max(32).default("vegetables"),
+export const productCreateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(180),
+    categoryId: uuidSchema,
+    emoji: z.string().trim().min(1).max(32).default("vegetables"),
     shortDescription: z.string().trim().min(5).max(300),
-  description: z.string().trim().min(10).max(4000),
-  origin: z.string().trim().max(120).optional(),
-  isOrganic: z.boolean().optional().default(false),
-  isFeatured: z.boolean().optional().default(false),
-  variantName: z.string().trim().min(1).max(80).default("500 g"),
-  weight: z.coerce.number().min(0.01).max(100),
-  unit: z.enum(["g", "kg", "pc", "bunch", "pack", "ml", "l"]).default("g"),
-  mrp: z.coerce.number().min(1).max(100000),
-  sellingPrice: z.coerce.number().min(1).max(100000),
-  availableStock: z.coerce.number().int().min(0).max(100000).default(50),
-});
+    description: z.string().trim().min(10).max(4000),
+    origin: z.string().trim().max(120).optional(),
+    isOrganic: z.boolean().optional().default(false),
+    isFeatured: z.boolean().optional().default(false),
+    variantName: z.string().trim().min(1).max(80).default("500 g"),
+    weight: z.coerce.number().min(0.01).max(100),
+    unit: z.enum(["g", "kg", "pc", "bunch", "pack", "ml", "l"]).default("g"),
+    mrp: z.coerce.number().min(1).max(100000),
+    sellingPrice: z.coerce.number().min(1).max(100000),
+    availableStock: z.coerce.number().int().min(0).max(100000).default(50),
+  })
+  .refine((data) => data.sellingPrice <= data.mrp, {
+    message: "Selling price cannot exceed MRP",
+    path: ["sellingPrice"],
+  });
 
 export const couponCreateSchema = z.object({
   couponCode: z.string().trim().min(3).max(40).toUpperCase(),

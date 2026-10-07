@@ -345,7 +345,8 @@ export async function PATCH(request: Request) {
 export async function DELETE(request: Request) {
   return handle(async () => {
     const session = await requirePermission("products.*");
-    const id = new URL(request.url).searchParams.get("id") ?? "";
+    const id = new URL(request.url).searchParams.get("id");
+    if (!id) throw new ApiError("Product ID is required", 400, "MISSING_ID");
     try {
       await db
         .update(products)
