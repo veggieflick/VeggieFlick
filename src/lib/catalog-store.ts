@@ -84,11 +84,63 @@ export function deleteStoredProduct(productId: string): void {
 }
 
 /** Merge base/fallback products with localStorage admin overrides.
- * If user has stored products in localStorage, user's saved list is the master truth. */
+ * Preserves all base products, applying user's stored edits/overrides when matching by id, slug, or sku.
+ * Newly created admin products are appended to the list. Deleted products are omitted.
+ */
 export function getMergedCatalogProducts(baseProducts: AdminProductItem[]): AdminProductItem[] {
   const stored = getStoredCatalogProducts();
-  if (stored && stored.length > 0) {
-    return stored;
+  if (!stored || stored.length === 0) {
+    return baseProducts;
   }
-  return baseProducts;
+
+  // Build lookup maps for stored products by id, slug, sku
+  const storedById = new Map<string, AdminProductItem>();
+  const storedBySlug = new Map<string, AdminProductItem>();
+  const storedBySku = new Map<string, AdminProductItem>();
+  const usedStoredKeys = new Set<string>();
+
+  for (const item of stored) {
+    if (item.id) storedById.set(item.id, item);
+    if (item.slug) storedBySlug.set(item.slug, item);
+    if (item.sku) storedBySku.set(item.sku, item);
+  }
+
+  const merged: AdminProductItem[] = [];
+
+  for (const base of baseProducts) {
+    const matched =
+      (base.id && storedById.get(base.id)) ||
+      (base.slug && storedBySlug.get(base.slug)) ||
+      (base.sku && storedBySku.get(base.sku));
+
+    if (matched) {
+      if (matched.id) usedStoredKeys.add(matched.id);
+      if (matched.slug) usedStoredKeys.add(matched.slug);
+      if (matched.sku) usedStoredKeys.add(matched.sku);
+
+      // Only include if not explicitly marked deleted
+      if (matched.status !== "deleted") {
+        merged.push(matched);
+      }
+    } else {
+      merged.push(base);
+    }
+  }
+
+  // Append newly added admin products that are not in baseProducts
+  for (const item of stored) {
+    const isUsed =
+      (item.id && usedStoredKeys.has(item.id)) ||
+      (item.slug && usedStoredKeys.has(item.slug)) ||
+      (item.sku && usedStoredKeys.has(item.sku));
+
+    if (!isUsed && item.status !== "deleted") {
+      merged.push(item);
+      if (item.id) usedStoredKeys.add(item.id);
+      if (item.slug) usedStoredKeys.add(item.slug);
+      if (item.sku) usedStoredKeys.add(item.sku);
+    }
+  }
+
+  return merged;
 }

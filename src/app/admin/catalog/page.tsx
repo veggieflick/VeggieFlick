@@ -138,13 +138,6 @@ function CatalogWorkspace() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const stored = getStoredCatalogProducts();
-      if (stored && stored.length > 0) {
-        setProducts(stored);
-        setLoading(false);
-        return;
-      }
-
       const [p, i, c] = await Promise.all([
         fetch("/api/v1/admin/catalog?view=products&limit=50").then((r) => r.json()),
         fetch("/api/v1/admin/catalog?view=inventory&limit=50").then((r) => r.json()),
@@ -170,8 +163,7 @@ function CatalogWorkspace() {
   useEffect(() => {
     const timer = setTimeout(() => void load(), 0);
     const handleUpdatedEvent = () => {
-      const stored = getStoredCatalogProducts();
-      if (stored && stored.length > 0) setProducts(stored);
+      setProducts(getMergedCatalogProducts(INITIAL_ALL_PRODUCTS));
     };
     window.addEventListener("vf_catalog_updated", handleUpdatedEvent);
     return () => {
@@ -356,6 +348,21 @@ function CatalogWorkspace() {
     }
   };
 
+  const handleResetCatalogDefaults = () => {
+    if (
+      confirm(
+        "Restore full catalog defaults? This will merge all 20+ base products back into your catalog."
+      )
+    ) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("vf_admin_catalog_v1");
+      }
+      setProducts(INITIAL_ALL_PRODUCTS);
+      saveStoredCatalogProducts(INITIAL_ALL_PRODUCTS);
+      notify("✓ Restored full product catalogue (20+ items)!");
+    }
+  };
+
   return (
     <div className="grid gap-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -374,6 +381,14 @@ function CatalogWorkspace() {
             className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-900 transition"
           >
             <Save size={16} /> Save & Sync Storefront
+          </button>
+          <button
+            type="button"
+            onClick={handleResetCatalogDefaults}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-3 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-amber-700 transition"
+            title="Restore all 20+ default products if catalog only shows partial items"
+          >
+            Restore Defaults
           </button>
           <button
             type="button"
