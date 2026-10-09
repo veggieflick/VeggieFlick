@@ -39,12 +39,18 @@ export function getStoredCatalogProducts(): AdminProductItem[] {
   }
 }
 
-/** Save full admin catalog array to localStorage & notify listeners */
+/** Save full admin catalog array to localStorage, trigger event & background sync to server API */
 export function saveStoredCatalogProducts(products: AdminProductItem[]): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
     window.dispatchEvent(new CustomEvent(EVENT_NAME, { detail: products }));
+    // Background sync to server API endpoint for server-side rendering
+    void fetch("/api/v1/admin/catalog/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ products }),
+    }).catch((e) => console.warn("Background catalog save warning:", e));
   } catch (err) {
     console.warn("Failed to save catalog to localStorage:", err);
   }
@@ -53,7 +59,9 @@ export function saveStoredCatalogProducts(products: AdminProductItem[]): void {
 /** Upsert a single product into localStorage admin store */
 export function upsertStoredProduct(product: AdminProductItem): void {
   const current = getStoredCatalogProducts();
-  const existingIdx = current.findIndex((p) => p.id === product.id);
+  const existingIdx = current.findIndex(
+    (p) => p.id === product.id || p.slug === product.slug || (p.sku && p.sku === product.sku)
+  );
   let updatedList: AdminProductItem[];
 
   if (existingIdx >= 0) {
@@ -69,21 +77,18 @@ export function upsertStoredProduct(product: AdminProductItem): void {
 /** Delete a product from localStorage admin store */
 export function deleteStoredProduct(productId: string): void {
   const current = getStoredCatalogProducts();
-  const filtered = current.filter((p) => p.id !== productId);
+  const filtered = current.filter(
+    (p) => p.id !== productId && p.slug !== productId && p.sku !== productId
+  );
   saveStoredCatalogProducts(filtered);
 }
 
-/** Merge base/fallback products with localStorage admin overrides */
+/** Merge base/fallback products with localStorage admin overrides.
+ * If user has stored products in localStorage, user's saved list is the master truth. */
 export function getMergedCatalogProducts(baseProducts: AdminProductItem[]): AdminProductItem[] {
   const stored = getStoredCatalogProducts();
-  if (!stored.length) return baseProducts;
-
-  const storedMap = new Map(stored.map((p) => [p.id, p]));
-  const mergedBase = baseProducts.map((p) => storedMap.get(p.id) ?? p);
-
-  // Find newly added products in stored that are not in baseProducts
-  const baseIds = new Set(baseProducts.map((p) => p.id));
-  const newAdminProducts = stored.filter((p) => !baseIds.has(p.id));
-
-  return [...newAdminProducts, ...mergedBase];
+  if (stored && stored.length > 0) {
+    return stored;
+  }
+  return baseProducts;
 }

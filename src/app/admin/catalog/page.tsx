@@ -26,6 +26,7 @@ import { ALL_PRODUCTS } from "@/lib/data/all-products";
 import {
   deleteStoredProduct,
   getMergedCatalogProducts,
+  getStoredCatalogProducts,
   saveStoredCatalogProducts,
   upsertStoredProduct,
 } from "@/lib/catalog-store";
@@ -137,6 +138,13 @@ function CatalogWorkspace() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      const stored = getStoredCatalogProducts();
+      if (stored && stored.length > 0) {
+        setProducts(stored);
+        setLoading(false);
+        return;
+      }
+
       const [p, i, c] = await Promise.all([
         fetch("/api/v1/admin/catalog?view=products&limit=50").then((r) => r.json()),
         fetch("/api/v1/admin/catalog?view=inventory&limit=50").then((r) => r.json()),
@@ -161,7 +169,15 @@ function CatalogWorkspace() {
 
   useEffect(() => {
     const timer = setTimeout(() => void load(), 0);
-    return () => clearTimeout(timer);
+    const handleUpdatedEvent = () => {
+      const stored = getStoredCatalogProducts();
+      if (stored && stored.length > 0) setProducts(stored);
+    };
+    window.addEventListener("vf_catalog_updated", handleUpdatedEvent);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("vf_catalog_updated", handleUpdatedEvent);
+    };
   }, [load]);
 
   // Filtered Products
@@ -221,7 +237,7 @@ function CatalogWorkspace() {
       id: `prod-${Date.now()}`,
       name,
       tamilName,
-      slug: name.toLowerCase().replace(/\s+/g, "-"),
+      slug: name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-"),
       sku: `VF-${Math.floor(1000 + Math.random() * 9000)}`,
       emoji: String(data.get("emoji") || "🥬"),
       status: "active",
@@ -264,8 +280,9 @@ function CatalogWorkspace() {
       ...editingProduct,
       name,
       tamilName,
-      categoryName: String(data.get("categoryName")),
-      emoji: String(data.get("emoji")),
+      slug: name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-"),
+      categoryName: String(data.get("categoryName") || editingProduct.categoryName),
+      emoji: String(data.get("emoji") || editingProduct.emoji || "🥬"),
       price: price.toFixed(2),
       mrp: mrp.toFixed(2),
       weight,
@@ -273,10 +290,10 @@ function CatalogWorkspace() {
       isOrganic: data.get("isOrganic") === "on",
       isFeatured: data.get("isFeatured") === "on",
       isBestSeller: data.get("isBestSeller") === "on",
-      status: String(data.get("status")),
+      status: String(data.get("status") || editingProduct.status || "active"),
       imageUrl: finalImages.length > 0 ? finalImages[0] : null,
       images: finalImages,
-      shortDescription: String(data.get("shortDescription")),
+      shortDescription: String(data.get("shortDescription") || ""),
     };
 
     upsertStoredProduct(updated);
