@@ -1,13 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Bike, Sparkles, Scissors, Clock, Truck, ShieldCheck, Star, Zap, UtensilsCrossed, ArrowRight } from "lucide-react";
+import { Bike, Sparkles, Scissors, Truck, ShieldCheck, Star, UtensilsCrossed, ArrowRight } from "lucide-react";
 import { catalogCounts, listCollection } from "@/lib/services/catalog";
 import { ProductCard, ProductCarousel } from "@/components/product-card";
 import { SectionHeading, Badge } from "@/components/ui/primitives";
 import { AnimatedSection } from "@/components/ui/animated-section";
 import { ComboKitsSection } from "@/components/combo-kits-section";
 import { HeroDialogueHeading } from "@/components/hero-dialogue-heading";
-import { ChefDialogueSlider } from "@/components/chef-dialogue-slider";
 import { FeedbackRatingSection } from "@/components/feedback-rating-section";
 
 export const dynamic = "force-dynamic";
@@ -128,58 +127,7 @@ export default async function HomePage() {
               <HeroDialogueHeading />
             </div>
 
-            {/* Minimal Infographic Feature Strip */}
-            <div className="mt-4 flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/80 px-3 py-1.5 text-xs font-bold text-emerald-950">
-                <Zap size={13} className="text-emerald-700" /> 10-Min Meal Kits
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50/80 px-3 py-1.5 text-xs font-bold text-amber-950">
-                <Scissors size={13} className="text-amber-700" /> Pre-Cut Veggies
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-xl border border-teal-200 bg-teal-50/80 px-3 py-1.5 text-xs font-bold text-teal-950">
-                <Clock size={13} className="text-teal-700" /> 6 Delivery Slots
-              </span>
-            </div>
 
-            {/* INFOGRAPHIC PREP WIDGET */}
-            <ChefDialogueSlider />
-
-            {/* Primary Action Buttons */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="#vegetables-shopping"
-                className="btn btn-primary shadow-xl shadow-emerald-700/25 px-6 py-3.5 text-sm font-bold transition-transform hover:scale-[1.02] active:scale-[0.98]"
-              >
-                Shop Fresh Vegetables →
-              </Link>
-              <Link
-                href="/shop?category=fruit-salads"
-                className="btn btn-outline bg-white/95 backdrop-blur px-5 py-3.5 text-sm font-bold shadow-sm hover:bg-emerald-50/50"
-              >
-                Explore Salads
-              </Link>
-            </div>
-
-            {/* Quick Stat Chips */}
-            <dl className="mt-6 grid max-w-lg grid-cols-3 gap-2.5">
-              {[
-                { label: "Radius", value: "10 km" },
-                { label: "Daily Slots", value: "6 Slots" },
-                { label: "Prep Time", value: "Zero Prep" },
-              ].map((stat) => (
-                <div
-                  key={stat.label}
-                  className="rounded-2xl border border-emerald-100/80 bg-white/90 px-3 py-2.5 shadow-xs text-center"
-                >
-                  <dt className="text-[9px] font-black tracking-widest text-muted uppercase">
-                    {stat.label}
-                  </dt>
-                  <dd className="mt-0.5 text-[18px] md:text-[20px] font-black tracking-tight text-ink">
-                    {stat.value}
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
 
           <div className="relative">
