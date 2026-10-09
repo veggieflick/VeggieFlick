@@ -84,13 +84,45 @@ export function upsertStoredProduct(product: AdminProductItem): void {
   saveStoredCatalogProducts(updatedList);
 }
 
-/** Delete a product from localStorage admin store */
+/** Mark a product as deleted in localStorage admin store so it is permanently excluded across refreshes */
 export function deleteStoredProduct(productId: string): void {
   const current = getStoredCatalogProducts();
-  const filtered = current.filter(
-    (p) => p.id !== productId && p.slug !== productId && p.sku !== productId
+  const existingIdx = current.findIndex(
+    (p) =>
+      p.id === productId ||
+      p.slug === productId ||
+      p.sku === productId ||
+      (p.id && productId && (p.id.includes(productId) || productId.includes(p.id)))
   );
-  saveStoredCatalogProducts(filtered);
+
+  let updatedList: AdminProductItem[];
+
+  if (existingIdx >= 0) {
+    updatedList = [...current];
+    updatedList[existingIdx] = {
+      ...current[existingIdx],
+      status: "deleted",
+    };
+  } else {
+    updatedList = [
+      {
+        id: productId,
+        name: productId,
+        slug: productId,
+        sku: productId,
+        emoji: "🥬",
+        status: "deleted",
+        categoryName: "General",
+        price: "0",
+        mrp: "0",
+        stock: 0,
+        isOrganic: false,
+      },
+      ...current,
+    ];
+  }
+
+  saveStoredCatalogProducts(updatedList);
 }
 
 /** Merge base/fallback products with localStorage admin overrides.

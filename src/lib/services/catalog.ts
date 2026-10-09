@@ -983,12 +983,17 @@ export async function listProducts(query: ProductQuery) {
   }
 
 function getActiveFallbackProducts(): (ProductCard & { imageUrl?: string })[] {
+  let rawList: any[] = FALLBACK_PRODUCTS;
   if (
     typeof globalThis !== "undefined" &&
     Array.isArray((globalThis as any).__VF_SAVED_CATALOG__) &&
     (globalThis as any).__VF_SAVED_CATALOG__.length > 0
   ) {
-    return (globalThis as any).__VF_SAVED_CATALOG__.map((p: any) => ({
+    rawList = (globalThis as any).__VF_SAVED_CATALOG__;
+  }
+  return rawList
+    .filter((p: any) => p.status !== "deleted" && p.status !== "inactive")
+    .map((p: any) => ({
       id: p.id,
       name: p.name,
       tamilName: p.tamilName ?? null,
@@ -1014,8 +1019,6 @@ function getActiveFallbackProducts(): (ProductCard & { imageUrl?: string })[] {
       discountPercentage: Math.round(((Number(p.mrp) - Number(p.price)) / (Number(p.mrp) || 1)) * 100) || 20,
       availableStock: p.stock ?? 100,
     }));
-  }
-  return FALLBACK_PRODUCTS;
 }
 
   // Filter fallback products dynamically

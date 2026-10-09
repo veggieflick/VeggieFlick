@@ -309,8 +309,8 @@ function CatalogWorkspace() {
   const handleDeleteProduct = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
       deleteStoredProduct(id);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-      notify(`Product ${name} removed from catalog.`);
+      setProducts((prev) => prev.filter((p) => p.id !== id && p.slug !== id && p.name !== name));
+      notify(`Product "${name}" permanently deleted from catalog.`);
     }
   };
 
