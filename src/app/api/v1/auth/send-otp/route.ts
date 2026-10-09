@@ -39,11 +39,29 @@ export async function POST(request: Request) {
         console.warn("sendOtp db insertion warning:", err);
       });
 
-    const smsConfigured = Boolean(process.env.MSG91_API_KEY);
-    if (smsConfigured) {
+    const fast2smsKey = process.env.FAST2SMS_API_KEY;
+    const msg91Key = process.env.MSG91_API_KEY;
+    const smsConfigured = Boolean(fast2smsKey || msg91Key);
+
+    if (fast2smsKey) {
+      await fetch("https://www.fast2sms.com/dev/bulkV2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          authorization: fast2smsKey,
+        },
+        body: JSON.stringify({
+          route: "otp",
+          variables_values: code,
+          numbers: phone,
+        }),
+      }).catch((err) => {
+        console.warn("Fast2SMS API dispatch warning:", err);
+      });
+    } else if (msg91Key) {
       await fetch("https://control.msg91.com/api/v5/otp", {
         method: "POST",
-        headers: { "Content-Type": "application/json", authkey: process.env.MSG91_API_KEY as string },
+        headers: { "Content-Type": "application/json", authkey: msg91Key },
         body: JSON.stringify({
           template_id: process.env.MSG91_TEMPLATE_ID ?? "veggieflick_otp",
           mobile: `91${phone}`,
