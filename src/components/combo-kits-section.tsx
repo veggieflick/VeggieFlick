@@ -7,6 +7,8 @@ import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+import { CustomIngredientModal, COMBO_INGREDIENTS } from "@/components/custom-ingredient-modal";
+
 type ComboKit = {
   id: string;
   name: string;
@@ -68,20 +70,19 @@ const COMBO_KITS: ComboKit[] = [
 
 export function ComboKitsSection() {
   const { addItem, setDrawerOpen, notify } = useApp();
-  const [addingId, setAddingId] = useState<string | null>(null);
+  const [activeKit, setActiveKit] = useState<ComboKit | null>(null);
 
-  const handleAddCombo = async (kit: ComboKit) => {
-    setAddingId(kit.id);
+  const handleConfirmCombo = async (kit: ComboKit, selectedItems: string[]) => {
     try {
       const prodId = `prod-${kit.id}`;
       const varId = `var-${kit.id}`;
       await addItem(prodId, varId, 1);
       setDrawerOpen(true);
-      notify(`Added ${kit.name} to basket!`);
+      notify(`Added ${kit.name} (${selectedItems.length} items selected)`);
     } catch {
       notify("Failed to add combo kit", "error");
     } finally {
-      setAddingId(null);
+      setActiveKit(null);
     }
   };
 
@@ -166,8 +167,7 @@ export function ComboKitsSection() {
                   whileHover={{ scale: 1.04 }}
                   whileTap={{ scale: 0.96 }}
                   type="button"
-                  onClick={() => handleAddCombo(kit)}
-                  disabled={addingId === kit.id}
+                  onClick={() => setActiveKit(kit)}
                   className="btn btn-primary btn-sm bg-emerald-800 text-white font-bold text-xs shadow-md hover:bg-emerald-900 border-none"
                 >
                   <ShoppingBag size={14} /> Add Kit
@@ -177,6 +177,23 @@ export function ComboKitsSection() {
           ))}
         </div>
       </div>
+
+      {activeKit && (
+        <CustomIngredientModal
+          isOpen={!!activeKit}
+          onClose={() => setActiveKit(null)}
+          productName={activeKit.name}
+          variantName="Meal Kit"
+          price={activeKit.price}
+          categorySlug="recipe-meal-kits"
+          customIngredientsList={
+            COMBO_INGREDIENTS[activeKit.id] ||
+            activeKit.items.map((it, idx) => ({ id: `it-${idx}`, name: it, emoji: "🥗" }))
+          }
+          maxSelectable={4}
+          onConfirm={(selectedItems) => handleConfirmCombo(activeKit, selectedItems)}
+        />
+      )}
     </section>
   );
 }

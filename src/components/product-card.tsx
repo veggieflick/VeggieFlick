@@ -11,6 +11,7 @@ import { formatINR } from "@/lib/utils";
 import { Badge, Rating } from "@/components/ui/primitives";
 import { DynamicIcon } from "@/lib/icons";
 import { CutSelectorModal } from "@/components/cut-selector-modal";
+import { CustomIngredientModal } from "@/components/custom-ingredient-modal";
 
 export type ProductCardData = {
   id: string;
@@ -47,10 +48,16 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const { cart, addItem, setQuantity, user, notify } = useApp();
   const { isStoreOpen } = useStoreStatus();
   const [cutModalOpen, setCutModalOpen] = useState(false);
+  const [customModalOpen, setCustomModalOpen] = useState(false);
   const line = cart.items.find((item) => item.variantId === product.variantId);
   const outOfStock = product.availableStock <= 0;
   const imageSrc = product.imageUrl || CATEGORY_HERO[product.categorySlug];
   const discountPct = Math.round(product.discountPercentage);
+
+  const isCustomizable =
+    product.categorySlug === "fruit-salads" ||
+    product.categorySlug === "veg-salads" ||
+    product.categorySlug === "recipe-meal-kits";
 
   const handleAddClick = () => {
     if (!isStoreOpen) {
@@ -59,6 +66,8 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
     }
     if (product.categorySlug === "vegetables-shopping" && !product.isCutVegetable) {
       setCutModalOpen(true);
+    } else if (isCustomizable) {
+      setCustomModalOpen(true);
     } else {
       void addItem(product.id, product.variantId, 1);
     }
@@ -87,6 +96,19 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
         onSelectCut={(cutStyle) => {
           void addItem(product.id, product.variantId, 1);
           notify(`Added ${product.name} (${cutStyle.toUpperCase()} cut)`);
+        }}
+      />
+      <CustomIngredientModal
+        isOpen={customModalOpen}
+        onClose={() => setCustomModalOpen(false)}
+        productName={product.name}
+        variantName={product.variantName}
+        price={product.price}
+        categorySlug={product.categorySlug}
+        maxSelectable={5}
+        onConfirm={(selectedIngredients) => {
+          void addItem(product.id, product.variantId, 1);
+          notify(`Added ${product.name} (${selectedIngredients.slice(0, 3).join(", ")}...)`);
         }}
       />
       <motion.article
