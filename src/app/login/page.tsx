@@ -52,17 +52,14 @@ function LoginFlow() {
         setError(json.error?.message ?? "Could not send OTP");
         return;
       }
-      const otpCode = json.data?.otpPreview || "123456";
+      const otpPreview = json.data?.otpPreview ?? null;
       setStep("otp");
-      setSeconds(30);
-      setPreviewCode(otpCode);
-      setCode(otpCode); // Auto-fill 6-digit code so user can 1-click verify!
+      setSeconds(json.data?.resendAfter ?? 30);
+      setPreviewCode(otpPreview);
+      setCode(otpPreview ?? "");
     } catch {
       setBusy(false);
-      const fallbackOtp = "123456";
-      setStep("otp");
-      setPreviewCode(fallbackOtp);
-      setCode(fallbackOtp);
+      setError("Unable to send OTP. Please check your internet connection.");
     }
   }
 
