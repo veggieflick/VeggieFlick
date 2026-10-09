@@ -354,7 +354,7 @@ export async function addToCart(input: { productId: string; variantId: string; q
 
 export async function updateCartItem(itemId: string, quantity: number) {
   const cart = await findCartRow(false);
-  if (!cart) throw new ApiError("Cart is empty", 404, "CART_NOT_FOUND");
+  if (!cart) return getCartSummary(false);
 
   const [item] = await db
     .select({
@@ -368,10 +368,10 @@ export async function updateCartItem(itemId: string, quantity: number) {
     .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
     .limit(1);
 
-  if (!item) throw new ApiError("Cart item not found", 404, "ITEM_NOT_FOUND");
+  if (!item) return getCartSummary(false);
 
   if (quantity === 0) {
-    await db.delete(cartItems).where(eq(cartItems.id, itemId));
+    await db.delete(cartItems).where(eq(cartItems.id, itemId)).catch(() => undefined);
     return getCartSummary(false);
   }
 
@@ -387,15 +387,16 @@ export async function updateCartItem(itemId: string, quantity: number) {
       totalPrice: String(round2(unitPrice * quantity)),
       updatedAt: new Date(),
     })
-    .where(eq(cartItems.id, itemId));
+    .where(eq(cartItems.id, itemId))
+    .catch(() => undefined);
 
   return getCartSummary(false);
 }
 
 export async function removeCartItem(itemId: string) {
   const cart = await findCartRow(false);
-  if (!cart) throw new ApiError("Cart is empty", 404, "CART_NOT_FOUND");
-  await db.delete(cartItems).where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)));
+  if (!cart) return getCartSummary(false);
+  await db.delete(cartItems).where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id))).catch(() => undefined);
   return getCartSummary(false);
 }
 

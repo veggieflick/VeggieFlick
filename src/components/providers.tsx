@@ -160,7 +160,10 @@ export function AppProviders({ children }: { children: ReactNode }) {
         if (successMessage) notify(successMessage);
         return true;
       }
-      notify(result.error?.message ?? "Something went wrong", "error");
+      const errMsg = result.error?.message;
+      if (errMsg && !errMsg.toLowerCase().includes("cart is empty")) {
+        notify(errMsg, "error");
+      }
       return false;
     },
     [notify],
