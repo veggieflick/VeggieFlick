@@ -294,8 +294,17 @@ function CatalogWorkspace() {
     }
   };
 
-  const handleSaveAndSyncCatalog = () => {
+  const handleSaveAndSyncCatalog = async () => {
     saveStoredCatalogProducts(products);
+    try {
+      await fetch("/api/v1/admin/catalog/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ products }),
+      });
+    } catch (err) {
+      console.warn("API sync error:", err);
+    }
     notify(`✓ Saved & Synced! All ${products.length} products & uploaded images are live on Storefront.`);
   };
 

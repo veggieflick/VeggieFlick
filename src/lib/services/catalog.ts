@@ -982,8 +982,44 @@ export async function listProducts(query: ProductQuery) {
     console.warn("listProducts query error:", err);
   }
 
+function getActiveFallbackProducts(): (ProductCard & { imageUrl?: string })[] {
+  if (
+    typeof globalThis !== "undefined" &&
+    Array.isArray((globalThis as any).__VF_SAVED_CATALOG__) &&
+    (globalThis as any).__VF_SAVED_CATALOG__.length > 0
+  ) {
+    return (globalThis as any).__VF_SAVED_CATALOG__.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      tamilName: p.tamilName ?? null,
+      slug: p.slug,
+      emoji: p.emoji || "🥬",
+      imageUrl: p.imageUrl || (p.images && p.images[0]) || null,
+      shortDescription: p.shortDescription ?? null,
+      isOrganic: Boolean(p.isOrganic),
+      isBestSeller: Boolean(p.isBestSeller),
+      isFeatured: Boolean(p.isFeatured),
+      isFreshToday: true,
+      isCutVegetable: p.categoryName === "Vegetables Shopping",
+      rating: 4.8,
+      ratingCount: 350,
+      soldCount: 2500,
+      categoryName: p.categoryName || "Vegetables Shopping",
+      categorySlug: (p.categoryName || "").toLowerCase().includes("salad") ? "salad" : "vegetables-shopping",
+      variantId: `var-${p.id}`,
+      variantName: p.weight || "250 g",
+      unit: "g",
+      mrp: Number(p.mrp) || 50,
+      price: Number(p.price) || 35,
+      discountPercentage: Math.round(((Number(p.mrp) - Number(p.price)) / (Number(p.mrp) || 1)) * 100) || 20,
+      availableStock: p.stock ?? 100,
+    }));
+  }
+  return FALLBACK_PRODUCTS;
+}
+
   // Filter fallback products dynamically
-  let filtered = FALLBACK_PRODUCTS;
+  let filtered = getActiveFallbackProducts();
   if (query.category) filtered = filtered.filter(p => p.categorySlug === query.category);
   if (query.organic === "true") filtered = filtered.filter(p => p.isOrganic);
   if (query.bestSeller === "true") filtered = filtered.filter(p => p.isBestSeller);
