@@ -60,13 +60,23 @@ export function saveStoredCatalogProducts(products: AdminProductItem[]): void {
 export function upsertStoredProduct(product: AdminProductItem): void {
   const current = getStoredCatalogProducts();
   const existingIdx = current.findIndex(
-    (p) => p.id === product.id || p.slug === product.slug || (p.sku && p.sku === product.sku)
+    (p) =>
+      p.id === product.id ||
+      (product.id && p.id && (p.id.includes(product.id) || product.id.includes(p.id))) ||
+      (product.slug && p.slug === product.slug) ||
+      (product.sku && p.sku && p.sku === product.sku) ||
+      (product.name && p.name && p.name.toLowerCase().trim() === product.name.toLowerCase().trim())
   );
   let updatedList: AdminProductItem[];
 
   if (existingIdx >= 0) {
     updatedList = [...current];
-    updatedList[existingIdx] = product;
+    updatedList[existingIdx] = {
+      ...current[existingIdx],
+      ...product,
+      id: current[existingIdx].id || product.id,
+      sku: current[existingIdx].sku || product.sku,
+    };
   } else {
     updatedList = [product, ...current];
   }
@@ -84,7 +94,7 @@ export function deleteStoredProduct(productId: string): void {
 }
 
 /** Merge base/fallback products with localStorage admin overrides.
- * Preserves all base products, applying user's stored edits/overrides when matching by id, slug, or sku.
+ * Preserves all base products, applying user's stored edits/overrides when matching by id, slug, sku, or name.
  * Newly created admin products are appended to the list. Deleted products are omitted.
  */
 export function getMergedCatalogProducts(baseProducts: AdminProductItem[]): AdminProductItem[] {
@@ -93,16 +103,18 @@ export function getMergedCatalogProducts(baseProducts: AdminProductItem[]): Admi
     return baseProducts;
   }
 
-  // Build lookup maps for stored products by id, slug, sku
+  // Build lookup maps for stored products by id, slug, sku, name
   const storedById = new Map<string, AdminProductItem>();
   const storedBySlug = new Map<string, AdminProductItem>();
   const storedBySku = new Map<string, AdminProductItem>();
+  const storedByName = new Map<string, AdminProductItem>();
   const usedStoredKeys = new Set<string>();
 
   for (const item of stored) {
     if (item.id) storedById.set(item.id, item);
     if (item.slug) storedBySlug.set(item.slug, item);
     if (item.sku) storedBySku.set(item.sku, item);
+    if (item.name) storedByName.set(item.name.toLowerCase().trim(), item);
   }
 
   const merged: AdminProductItem[] = [];
@@ -111,16 +123,23 @@ export function getMergedCatalogProducts(baseProducts: AdminProductItem[]): Admi
     const matched =
       (base.id && storedById.get(base.id)) ||
       (base.slug && storedBySlug.get(base.slug)) ||
-      (base.sku && storedBySku.get(base.sku));
+      (base.sku && storedBySku.get(base.sku)) ||
+      (base.name && storedByName.get(base.name.toLowerCase().trim()));
 
     if (matched) {
       if (matched.id) usedStoredKeys.add(matched.id);
       if (matched.slug) usedStoredKeys.add(matched.slug);
       if (matched.sku) usedStoredKeys.add(matched.sku);
+      if (matched.name) usedStoredKeys.add(matched.name.toLowerCase().trim());
 
       // Only include if not explicitly marked deleted
       if (matched.status !== "deleted") {
-        merged.push(matched);
+        merged.push({
+          ...base,
+          ...matched,
+          id: base.id || matched.id,
+          sku: base.sku || matched.sku,
+        });
       }
     } else {
       merged.push(base);
@@ -132,13 +151,15 @@ export function getMergedCatalogProducts(baseProducts: AdminProductItem[]): Admi
     const isUsed =
       (item.id && usedStoredKeys.has(item.id)) ||
       (item.slug && usedStoredKeys.has(item.slug)) ||
-      (item.sku && usedStoredKeys.has(item.sku));
+      (item.sku && usedStoredKeys.has(item.sku)) ||
+      (item.name && usedStoredKeys.has(item.name.toLowerCase().trim()));
 
     if (!isUsed && item.status !== "deleted") {
       merged.push(item);
       if (item.id) usedStoredKeys.add(item.id);
       if (item.slug) usedStoredKeys.add(item.slug);
       if (item.sku) usedStoredKeys.add(item.sku);
+      if (item.name) usedStoredKeys.add(item.name.toLowerCase().trim());
     }
   }
 

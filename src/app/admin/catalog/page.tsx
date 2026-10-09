@@ -121,10 +121,15 @@ function CatalogWorkspace() {
   const [coupons, setCoupons] = useState<CouponRow[]>([]);
   const [categories] = useState<Category[]>([
     { id: "cat-1", name: "Vegetables Shopping" },
-    { id: "cat-2", name: "Fruit Salads" },
-    { id: "cat-3", name: "Veg Salads" },
-    { id: "cat-5", name: "Fresh Vegetables" },
-    { id: "cat-6", name: "Leafy Vegetables" },
+    { id: "cat-2", name: "Salad" },
+    { id: "cat-3", name: "Fruit Salad" },
+    { id: "cat-4", name: "Sprouts Salad" },
+    { id: "cat-5", name: "Vegetable Salad" },
+    { id: "cat-6", name: "Fruit Salads" },
+    { id: "cat-7", name: "Veg Salads" },
+    { id: "cat-8", name: "Fruits Cutting & Combo Pack" },
+    { id: "cat-9", name: "Fresh Vegetables" },
+    { id: "cat-10", name: "Leafy Vegetables" },
   ]);
   const [loading, setLoading] = useState(true);
 
@@ -259,37 +264,43 @@ function CatalogWorkspace() {
     if (!editingProduct) return;
 
     const data = new FormData(e.currentTarget);
-    const name = String(data.get("name"));
-    const tamilName = String(data.get("tamilName") || "");
-    const price = Number(data.get("sellingPrice"));
-    const mrp = Number(data.get("mrp"));
-    const stock = Number(data.get("stock"));
-    const weight = String(data.get("weight") || editingProduct.weight || "250 g");
+    const name = String(data.get("name") || "").trim();
+    const tamilName = String(data.get("tamilName") || "").trim();
+    const priceNum = Number(data.get("sellingPrice"));
+    const mrpNum = Number(data.get("mrp"));
+    const stockNum = Number(data.get("stock"));
+    const weight = String(data.get("weight") || editingProduct.weight || "250 g").trim();
 
     const finalImages = modalImages.length > 0 ? modalImages : (editingProduct.images ?? []);
 
     const updated: ProductRow = {
       ...editingProduct,
-      name,
-      tamilName,
-      slug: name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-"),
+      id: editingProduct.id,
+      sku: editingProduct.sku,
+      name: name || editingProduct.name,
+      tamilName: tamilName || editingProduct.tamilName,
+      slug: name ? name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-") : editingProduct.slug,
       categoryName: String(data.get("categoryName") || editingProduct.categoryName),
       emoji: String(data.get("emoji") || editingProduct.emoji || "🥬"),
-      price: price.toFixed(2),
-      mrp: mrp.toFixed(2),
+      price: !isNaN(priceNum) && priceNum > 0 ? priceNum.toFixed(2) : editingProduct.price,
+      mrp: !isNaN(mrpNum) && mrpNum > 0 ? mrpNum.toFixed(2) : editingProduct.mrp,
       weight,
-      stock,
+      stock: !isNaN(stockNum) ? stockNum : (editingProduct.stock ?? 0),
       isOrganic: data.get("isOrganic") === "on",
       isFeatured: data.get("isFeatured") === "on",
       isBestSeller: data.get("isBestSeller") === "on",
       status: String(data.get("status") || editingProduct.status || "active"),
-      imageUrl: finalImages.length > 0 ? finalImages[0] : null,
+      imageUrl: finalImages.length > 0 ? finalImages[0] : (editingProduct.imageUrl ?? null),
       images: finalImages,
-      shortDescription: String(data.get("shortDescription") || ""),
+      shortDescription: String(data.get("shortDescription") || editingProduct.shortDescription || ""),
     };
 
     upsertStoredProduct(updated);
-    setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? updated : p)));
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === editingProduct.id || (p.slug && p.slug === editingProduct.slug) ? updated : p
+      )
+    );
     setEditingProduct(null);
     setModalImages([]);
     notify(`Product "${updated.name}" updated & saved permanently!`);

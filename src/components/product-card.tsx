@@ -52,17 +52,18 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
       const match = storedList.find(
         (p) =>
           p.id === product.id ||
-          p.slug === product.slug ||
-          p.name === product.name ||
-          (p.sku && product.id.includes(p.sku))
+          (product.id && p.id && (p.id.includes(product.id) || product.id.includes(p.id))) ||
+          (product.slug && p.slug === product.slug) ||
+          (product.name && p.name && p.name.toLowerCase().trim() === product.name.toLowerCase().trim()) ||
+          (p.sku && product.id && product.id.includes(p.sku))
       );
       if (match) {
         const mrpVal = Number(match.mrp) || product.mrp;
         const priceVal = Number(match.price) || product.price;
         const discountVal = mrpVal > priceVal ? Math.round(((mrpVal - priceVal) / mrpVal) * 100) : product.discountPercentage;
         setCardData({
-          id: match.id || product.id,
-          name: match.name,
+          id: product.id,
+          name: match.name || product.name,
           tamilName: match.tamilName ?? product.tamilName,
           slug: match.slug || product.slug,
           emoji: match.emoji || product.emoji,
