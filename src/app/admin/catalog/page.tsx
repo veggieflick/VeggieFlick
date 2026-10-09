@@ -314,20 +314,6 @@ function CatalogWorkspace() {
     }
   };
 
-  const handleSaveAndSyncCatalog = async () => {
-    saveStoredCatalogProducts(products);
-    try {
-      await fetch("/api/v1/admin/catalog/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ products }),
-      });
-    } catch (err) {
-      console.warn("API sync error:", err);
-    }
-    notify(`✓ Saved & Synced! All ${products.length} products & uploaded images are live on Storefront.`);
-  };
-
   const handleExportCatalogJSON = () => {
     const jsonStr = JSON.stringify(products, null, 2);
     const blob = new Blob([jsonStr], { type: "application/json" });
@@ -386,13 +372,6 @@ function CatalogWorkspace() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={handleSaveAndSyncCatalog}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-900 transition"
-          >
-            <Save size={16} /> Save & Sync Storefront
-          </button>
           <button
             type="button"
             onClick={handleResetCatalogDefaults}
