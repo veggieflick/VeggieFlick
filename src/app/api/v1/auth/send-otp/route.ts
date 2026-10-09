@@ -2,7 +2,7 @@ import { and, desc, eq, gt, count } from "drizzle-orm";
 import { db } from "@/db";
 import { otpCodes } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
-import { generateOtp, hashOtp } from "@/lib/auth";
+import { generateOtp, hashOtp, saveOtpInMemory } from "@/lib/auth";
 import { sendOtpSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +15,7 @@ export async function POST(request: Request) {
   return handle(async () => {
     const { phone } = await parseBody(request, sendOtpSchema);
     const code = generateOtp(6);
+    saveOtpInMemory(phone, code, OTP_TTL_SECONDS);
 
     const windowStart = new Date(Date.now() - 15 * 60 * 1000);
     const recentRecords = await db

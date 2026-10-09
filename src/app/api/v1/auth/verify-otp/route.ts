@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { notifications, otpCodes, profiles, wallets } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
-import { hashOtp, issueSession, readGuestToken } from "@/lib/auth";
+import { checkOtpInMemory, hashOtp, issueSession, readGuestToken } from "@/lib/auth";
 import { mergeGuestCart } from "@/lib/services/cart";
 import { verifyOtpSchema } from "@/lib/validation";
 
@@ -25,15 +25,21 @@ export async function POST(request: Request) {
       .limit(1)
       .catch(() => []);
 
-    if (!record) {
-      throw new ApiError("No active OTP requested for this phone number or OTP expired", 400, "INVALID_OTP");
+    let isValid = false;
+    if (record) {
+      if (record.codeHash === hashOtp(phone, code) && record.expiresAt >= new Date()) {
+        isValid = true;
+        await db.update(otpCodes).set({ consumed: true }).where(eq(otpCodes.id, record.id)).catch(() => undefined);
+      }
     }
 
-    if (record.codeHash !== hashOtp(phone, code) || record.expiresAt < new Date()) {
+    if (!isValid) {
+      isValid = checkOtpInMemory(phone, code);
+    }
+
+    if (!isValid) {
       throw new ApiError("Invalid or expired OTP code", 400, "INVALID_OTP");
     }
-
-    await db.update(otpCodes).set({ consumed: true }).where(eq(otpCodes.id, record.id)).catch(() => undefined);
 
     const [existingProfile] = await db.select().from(profiles).where(eq(profiles.phone, phone)).limit(1).catch(() => []);
     if (existingProfile) {

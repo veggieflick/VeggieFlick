@@ -201,6 +201,42 @@ export function hashOtp(phone: string, code: string): string {
   return createHmac("sha256", secretKey()).update(`${phone}:${code}`).digest("hex");
 }
 
+type MemoryOtpRecord = {
+  codeHash: string;
+  expiresAt: number;
+  consumed: boolean;
+};
+
+const globalForOtp = globalThis as typeof globalThis & {
+  __veggieflickOtpStore?: Map<string, MemoryOtpRecord>;
+};
+
+const memoryOtpStore =
+  globalForOtp.__veggieflickOtpStore ?? new Map<string, MemoryOtpRecord>();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForOtp.__veggieflickOtpStore = memoryOtpStore;
+}
+
+export function saveOtpInMemory(phone: string, code: string, ttlSeconds = 120): void {
+  memoryOtpStore.set(phone, {
+    codeHash: hashOtp(phone, code),
+    expiresAt: Date.now() + ttlSeconds * 1000,
+    consumed: false,
+  });
+}
+
+export function checkOtpInMemory(phone: string, code: string): boolean {
+  const record = memoryOtpStore.get(phone);
+  if (!record) return false;
+  if (record.consumed || Date.now() > record.expiresAt) return false;
+  if (record.codeHash === hashOtp(phone, code)) {
+    record.consumed = true;
+    return true;
+  }
+  return false;
+}
+
 export async function loadProfile(profileId: string) {
   const [profile] = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
   return profile ?? null;
