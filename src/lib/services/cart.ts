@@ -229,38 +229,63 @@ async function persistTotals(cartId: string, totals: CartTotals) {
     .where(eq(carts.id, cartId));
 }
 
+const globalForCartMemory = globalThis as typeof globalThis & {
+  __veggieflickMemoryCart?: Map<string, CartLine>;
+};
+
+const memoryCartMap =
+  globalForCartMemory.__veggieflickMemoryCart ?? new Map<string, CartLine>();
+
+if (process.env.NODE_ENV !== "production") {
+  globalForCartMemory.__veggieflickMemoryCart = memoryCartMap;
+}
+
+function getMemoryCartSummary(): CartSummary {
+  const items = Array.from(memoryCartMap.values());
+  const totals = computeTotals(items, null, null);
+  return {
+    cartId: "guest-demo-cart-id",
+    items,
+    totals,
+    itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+  };
+}
+
 export async function getCartSummary(create = false): Promise<CartSummary> {
   try {
     const cart = await findCartRow(create);
-    if (!cart) return EMPTY_CART;
+    if (cart) {
+      const items = await loadCartLines(cart.id);
+      if (items.length > 0) {
+        let coupon = null;
+        if (cart.couponCode) {
+          const [row] = await db
+            .select()
+            .from(coupons)
+            .where(and(eq(coupons.couponCode, cart.couponCode), eq(coupons.status, "active")))
+            .limit(1)
+            .catch(() => []);
+          coupon = row ?? null;
+        }
 
-    const items = await loadCartLines(cart.id);
-    let coupon = null;
-    if (cart.couponCode) {
-      const [row] = await db
-        .select()
-        .from(coupons)
-        .where(and(eq(coupons.couponCode, cart.couponCode), eq(coupons.status, "active")))
-        .limit(1)
-        .catch(() => []);
-      coupon = row ?? null;
+        const subtotalBefore = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+        const couponUsable = coupon && subtotalBefore >= toNumber(coupon.minimumOrderAmount) ? coupon : null;
+        const totals = computeTotals(items, couponUsable, couponUsable?.couponCode ?? null);
+        await persistTotals(cart.id, totals).catch(() => undefined);
+
+        return {
+          cartId: cart.id,
+          items,
+          totals,
+          itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+        };
+      }
     }
-
-    const subtotalBefore = items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
-    const couponUsable = coupon && subtotalBefore >= toNumber(coupon.minimumOrderAmount) ? coupon : null;
-    const totals = computeTotals(items, couponUsable, couponUsable?.couponCode ?? null);
-    await persistTotals(cart.id, totals).catch(() => undefined);
-
-    return {
-      cartId: cart.id,
-      items,
-      totals,
-      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
-    };
   } catch (err) {
     console.warn("getCartSummary warning:", err);
-    return EMPTY_CART;
   }
+
+  return getMemoryCartSummary();
 }
 
 import { FALLBACK_PRODUCTS } from "@/lib/services/catalog";
@@ -323,8 +348,11 @@ export async function addToCart(input: { productId: string; variantId: string; q
     console.warn("addToCart db warning:", err);
   }
 
-  // Fallback in-memory seamless cart response
+  // Fallback in-memory multi-product cart
   const fb = FALLBACK_PRODUCTS.find((p) => p.variantId === input.variantId || p.id === input.productId);
+  const existingLine = memoryCartMap.get(input.variantId);
+  const nextQty = (existingLine?.quantity ?? 0) + input.quantity;
+
   const line: CartLine = {
     id: `line-${input.variantId}`,
     productId: fb ? fb.id : input.productId,
@@ -334,77 +362,101 @@ export async function addToCart(input: { productId: string; variantId: string; q
     emoji: fb ? fb.emoji : "vegetables",
     variantName: fb ? fb.variantName : "500 g",
     unit: fb ? fb.unit : "g",
-    quantity: input.quantity,
+    quantity: nextQty,
     unitPrice: fb ? fb.price : 35,
     mrp: fb ? fb.mrp : 45,
     taxPercentage: 0,
-    totalPrice: round2((fb ? fb.price : 35) * input.quantity),
+    totalPrice: round2((fb ? fb.price : 35) * nextQty),
     availableStock: fb ? fb.availableStock : 100,
   };
 
-  const totals = computeTotals([line], null, null);
-
-  return {
-    cartId: "guest-demo-cart-id",
-    items: [line],
-    totals,
-    itemCount: input.quantity,
-  };
+  memoryCartMap.set(input.variantId, line);
+  return getMemoryCartSummary();
 }
 
 export async function updateCartItem(itemId: string, quantity: number) {
-  const cart = await findCartRow(false);
-  if (!cart) return getCartSummary(false);
-
-  const [item] = await db
-    .select({
-      id: cartItems.id,
-      variantId: cartItems.variantId,
-      unitPrice: cartItems.unitPrice,
-      availableStock: inventory.availableStock,
-    })
-    .from(cartItems)
-    .leftJoin(inventory, eq(inventory.variantId, cartItems.variantId))
-    .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
-    .limit(1);
-
-  if (!item) return getCartSummary(false);
-
-  if (quantity === 0) {
-    await db.delete(cartItems).where(eq(cartItems.id, itemId)).catch(() => undefined);
-    return getCartSummary(false);
+  // Sync memoryCartMap
+  for (const [key, line] of memoryCartMap.entries()) {
+    if (line.id === itemId || key === itemId || line.variantId === itemId) {
+      if (quantity <= 0) {
+        memoryCartMap.delete(key);
+      } else {
+        line.quantity = quantity;
+        line.totalPrice = round2(line.unitPrice * quantity);
+        memoryCartMap.set(key, line);
+      }
+    }
   }
 
-  if (quantity > (item.availableStock ?? 0)) {
-    throw new ApiError(`Only ${item.availableStock ?? 0} unit(s) left in stock`, 409, "OUT_OF_STOCK");
-  }
+  try {
+    const cart = await findCartRow(false);
+    if (cart) {
+      const [item] = await db
+        .select({
+          id: cartItems.id,
+          variantId: cartItems.variantId,
+          unitPrice: cartItems.unitPrice,
+          availableStock: inventory.availableStock,
+        })
+        .from(cartItems)
+        .leftJoin(inventory, eq(inventory.variantId, cartItems.variantId))
+        .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
+        .limit(1);
 
-  const unitPrice = toNumber(item.unitPrice);
-  await db
-    .update(cartItems)
-    .set({
-      quantity,
-      totalPrice: String(round2(unitPrice * quantity)),
-      updatedAt: new Date(),
-    })
-    .where(eq(cartItems.id, itemId))
-    .catch(() => undefined);
+      if (item) {
+        if (quantity === 0) {
+          await db.delete(cartItems).where(eq(cartItems.id, itemId)).catch(() => undefined);
+        } else {
+          const unitPrice = toNumber(item.unitPrice);
+          await db
+            .update(cartItems)
+            .set({
+              quantity,
+              totalPrice: String(round2(unitPrice * quantity)),
+              updatedAt: new Date(),
+            })
+            .where(eq(cartItems.id, itemId))
+            .catch(() => undefined);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("updateCartItem db warning:", err);
+  }
 
   return getCartSummary(false);
 }
 
 export async function removeCartItem(itemId: string) {
-  const cart = await findCartRow(false);
-  if (!cart) return getCartSummary(false);
-  await db.delete(cartItems).where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id))).catch(() => undefined);
+  for (const [key, line] of memoryCartMap.entries()) {
+    if (line.id === itemId || key === itemId || line.variantId === itemId) {
+      memoryCartMap.delete(key);
+    }
+  }
+
+  try {
+    const cart = await findCartRow(false);
+    if (cart) {
+      await db.delete(cartItems).where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id))).catch(() => undefined);
+    }
+  } catch (err) {
+    console.warn("removeCartItem db warning:", err);
+  }
+
   return getCartSummary(false);
 }
 
 export async function clearCart() {
-  const cart = await findCartRow(false);
-  if (!cart) return EMPTY_CART;
-  await db.delete(cartItems).where(eq(cartItems.cartId, cart.id));
-  await db.update(carts).set({ couponCode: null }).where(eq(carts.id, cart.id));
+  memoryCartMap.clear();
+  try {
+    const cart = await findCartRow(false);
+    if (cart) {
+      await db.delete(cartItems).where(eq(cartItems.cartId, cart.id)).catch(() => undefined);
+      await db.update(carts).set({ couponCode: null }).where(eq(carts.id, cart.id)).catch(() => undefined);
+    }
+  } catch (err) {
+    console.warn("clearCart db warning:", err);
+  }
   return getCartSummary(false);
 }
 
