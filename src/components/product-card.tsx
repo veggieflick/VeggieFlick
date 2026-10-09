@@ -28,6 +28,7 @@ export type ProductCardData = {
   rating: number;
   ratingCount: number;
   categorySlug: string;
+  subCategorySlug?: string;
   variantId: string;
   variantName: string;
   mrp: number;
@@ -39,9 +40,9 @@ export type ProductCardData = {
 /** Map category slug to a real product photo. */
 const CATEGORY_HERO: Record<string, string> = {
   "vegetables-shopping": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+  salad: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
   "fruit-salads": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?auto=format&fit=crop&w=600&q=80",
   "veg-salads": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
-  "fruits-cutting-combo": "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=600&q=80",
 };
 
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
@@ -55,9 +56,11 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const discountPct = Math.round(product.discountPercentage);
 
   const isCustomizable =
+    product.categorySlug === "salad" ||
     product.categorySlug === "fruit-salads" ||
     product.categorySlug === "veg-salads" ||
-    product.categorySlug === "recipe-meal-kits";
+    product.categorySlug === "recipe-meal-kits" ||
+    !!product.subCategorySlug;
 
   const handleAddClick = () => {
     if (!isStoreOpen) {
@@ -105,10 +108,14 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
         variantName={product.variantName}
         price={product.price}
         categorySlug={product.categorySlug}
-        maxSelectable={5}
-        onConfirm={(selectedIngredients) => {
+        subCategorySlug={product.subCategorySlug}
+        onConfirm={({ weight, ingredients }) => {
           void addItem(product.id, product.variantId, 1);
-          notify(`Added ${product.name} (${selectedIngredients.slice(0, 3).join(", ")}...)`);
+          notify(
+            `Added ${product.name} (${weight}) with ${ingredients.slice(0, 3).join(", ")}${
+              ingredients.length > 3 ? "..." : ""
+            }`,
+          );
         }}
       />
       <motion.article

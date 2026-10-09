@@ -5,8 +5,10 @@ import { NewsletterForm } from "@/components/newsletter-form";
 const SHOP_LINKS = [
   { label: "Vegetables Shopping", href: "/shop?category=vegetables-shopping" },
   { label: "Chopped & Cut Vegetables", href: "/shop?category=vegetables-shopping&cut=true" },
-  { label: "Fruit Salads", href: "/shop?category=fruit-salads" },
-  { label: "Veg Salads", href: "/shop?category=veg-salads" },
+  { label: "Salad (Main Category)", href: "/shop?category=salad" },
+  { label: "Fruit Salad", href: "/shop?category=salad&subCategory=fruit-salad" },
+  { label: "Sprouts Salad", href: "/shop?category=salad&subCategory=sprouts-salad" },
+  { label: "Vegetable Salad", href: "/shop?category=salad&subCategory=vegetable-salad" },
   { label: "Recipe Combo Kits", href: "/#combo-kits" },
 ];
 

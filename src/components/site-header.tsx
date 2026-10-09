@@ -361,11 +361,17 @@ export function SiteHeader() {
           <Link href="/shop?category=vegetables-shopping" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-emerald-900 font-bold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
             Vegetables Shopping
           </Link>
-          <Link href="/shop?category=fruit-salads" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Fruit Salads
+          <Link href="/shop?category=salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-emerald-950 font-extrabold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+            Salad
           </Link>
-          <Link href="/shop?category=veg-salads" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Veg Salads
+          <Link href="/shop?category=salad&subCategory=fruit-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-700 font-semibold hover:bg-emerald-50">
+            Fruit Salad
+          </Link>
+          <Link href="/shop?category=salad&subCategory=sprouts-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-700 font-semibold hover:bg-emerald-50">
+            Sprouts Salad
+          </Link>
+          <Link href="/shop?category=salad&subCategory=vegetable-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-700 font-semibold hover:bg-emerald-50">
+            Vegetable Salad
           </Link>
           <Link href="/#combo-kits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-amber-900 bg-amber-50/80 border border-amber-200/60 font-bold hover:bg-amber-100">
             Recipe Combo Kits
@@ -410,8 +416,10 @@ export function SiteHeader() {
               <Link href="/" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Home</Link>
               <Link href="/shop?category=vegetables-shopping" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-extrabold hover:bg-emerald-50">Vegetables Shopping</Link>
               <Link href="/shop?category=vegetables-shopping&cut=true" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-amber-800 bg-amber-50 font-bold ml-2">↳ Chopped & Cut Vegetables</Link>
-              <Link href="/shop?category=fruit-salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Fruit Salads</Link>
-              <Link href="/shop?category=veg-salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Veg Salads</Link>
+              <Link href="/shop?category=salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-900 font-black hover:bg-emerald-50">Salad (Main Category)</Link>
+              <Link href="/shop?category=salad&subCategory=fruit-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold ml-3">↳ Fruit Salad</Link>
+              <Link href="/shop?category=salad&subCategory=sprouts-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold ml-3">↳ Sprouts Salad</Link>
+              <Link href="/shop?category=salad&subCategory=vegetable-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold ml-3">↳ Vegetable Salad</Link>
               <Link href="/#combo-kits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">Recipe Meal Kits</Link>
               <Link href="/subscriptions" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Subscriptions</Link>
               <Link href="/shop?sort=discount" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-bold">Special Offers</Link>

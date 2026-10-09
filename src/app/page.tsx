@@ -24,21 +24,11 @@ const CORE_CATEGORIES = [
     accent: "bg-emerald-700",
   },
   {
-    id: "cat-fruit-salads",
-    name: "Fruit Salads",
-    slug: "fruit-salads",
-    tagline: "Chilled, tossed fresh fruit bowls",
-    badge: "Ready To Eat",
-    image: "https://images.unsplash.com/photo-1519996529931-28324d5a630e?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-rose-950/85 via-rose-900/40 to-transparent",
-    accent: "bg-rose-600",
-  },
-  {
-    id: "cat-veg-salads",
-    name: "Veg Salads",
-    slug: "veg-salads",
-    tagline: "Crisp greens & protein sprout mixes",
-    badge: "Fresh & Crisp",
+    id: "cat-salad",
+    name: "Salad",
+    slug: "salad",
+    tagline: "Fruit Salad, Sprouts Salad & Vegetable Salad in 250g & 500g custom packs",
+    badge: "Custom Bowls",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
     gradient: "from-teal-950/85 via-teal-900/40 to-transparent",
     accent: "bg-teal-700",
@@ -77,13 +67,11 @@ const TESTIMONIALS = [
 export default async function HomePage() {
   const [
     vegProducts,
-    fruitSaladProducts,
-    vegSaladProducts,
+    saladProducts,
     counts,
   ] = await Promise.all([
     listCollection({ category: "vegetables-shopping" }, 16, "popularity"),
-    listCollection({ category: "fruit-salads" }, 8, "popularity"),
-    listCollection({ category: "veg-salads" }, 8, "popularity"),
+    listCollection({ category: "salad" }, 12, "popularity"),
     catalogCounts(),
   ]);
 
@@ -167,17 +155,17 @@ export default async function HomePage() {
         </span>
       </div>
 
-      {/* CORE 3 CATEGORIES - PROMINENT LUXURY TILES */}
+      {/* CORE CATEGORIES - PROMINENT LUXURY TILES */}
       <AnimatedSection className="container-page py-10 md:py-16">
         <SectionHeading
           eyebrow="Core Collections"
           title="Featured Categories"
-          description="Select from our dedicated fresh categories — precision-cut vegetables, fruit salads, and crisp veg salads."
+          description="Select from our dedicated fresh categories — precision-cut vegetables, and custom tossed salads."
           href="/shop"
           linkLabel="Browse All"
         />
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-2">
           {CORE_CATEGORIES.map((cat) => (
             <Link
               key={cat.id}
@@ -279,30 +267,40 @@ export default async function HomePage() {
         </div>
       </AnimatedSection>
 
-      {/* 2. FRUIT SALADS SECTION */}
-      <AnimatedSection id="fruit-salads" className="bg-surface/50 py-10 md:py-16 border-y border-line/60 scroll-mt-20">
+      {/* 2. UNIFIED SALAD CATEGORY SECTION */}
+      <AnimatedSection id="salad" className="bg-surface/50 py-10 md:py-16 border-y border-line/60 scroll-mt-20">
         <div className="container-page">
           <SectionHeading
-            eyebrow="Tossed Bowls"
-            title="Fruit Salads"
-            description="Refreshing, nutrient-dense fruit bowls hand-tossed with fresh seasonal fruits. Chilled and ready to enjoy."
-            href="/shop?category=fruit-salads"
-            linkLabel="View All Fruit Salads"
+            eyebrow="Tossed & Custom Bowls"
+            title="Salad Category"
+            description="Build your custom Fruit Salad, Sprouts Salad, or Vegetable Salad. Available in 250g (min 5 items) & 500g packs."
+            href="/shop?category=salad"
+            linkLabel="View All Salads"
           />
-          <ProductCarousel products={fruitSaladProducts} />
-        </div>
-      </AnimatedSection>
 
-      {/* 3. VEG SALADS SECTION */}
-      <AnimatedSection id="veg-salads" className="container-page py-10 md:py-16 scroll-mt-20">
-        <SectionHeading
-          eyebrow="Crisp Greens"
-          title="Veg Salads"
-          description="Clean tossed vegetable mixes and protein-rich sprouts designed for light, nourishing daily meals."
-          href="/shop?category=veg-salads"
-          linkLabel="View All Veg Salads"
-        />
-        <ProductCarousel products={vegSaladProducts} />
+          <div className="mb-4 flex flex-wrap gap-2">
+            <Link
+              href="/shop?category=salad&subCategory=fruit-salad"
+              className="chip border border-emerald-300 bg-emerald-50 text-emerald-900 font-bold hover:bg-emerald-100"
+            >
+              🍎 Fruit Salad
+            </Link>
+            <Link
+              href="/shop?category=salad&subCategory=sprouts-salad"
+              className="chip border border-teal-300 bg-teal-50 text-teal-900 font-bold hover:bg-teal-100"
+            >
+              🌱 Sprouts Salad
+            </Link>
+            <Link
+              href="/shop?category=salad&subCategory=vegetable-salad"
+              className="chip border border-amber-300 bg-amber-50 text-amber-900 font-bold hover:bg-amber-100"
+            >
+              🥗 Vegetable Salad
+            </Link>
+          </div>
+
+          <ProductCarousel products={saladProducts} />
+        </div>
       </AnimatedSection>
 
 

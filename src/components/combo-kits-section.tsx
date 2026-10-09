@@ -72,13 +72,13 @@ export function ComboKitsSection() {
   const { addItem, setDrawerOpen, notify } = useApp();
   const [activeKit, setActiveKit] = useState<ComboKit | null>(null);
 
-  const handleConfirmCombo = async (kit: ComboKit, selectedItems: string[]) => {
+  const handleConfirmCombo = async (kit: ComboKit, data: { weight: "250g" | "500g"; price: number; ingredients: string[] }) => {
     try {
       const prodId = `prod-${kit.id}`;
       const varId = `var-${kit.id}`;
       await addItem(prodId, varId, 1);
       setDrawerOpen(true);
-      notify(`Added ${kit.name} (${selectedItems.length} items selected)`);
+      notify(`Added ${kit.name} (${data.weight}) with ${data.ingredients.slice(0, 3).join(", ")}`);
     } catch {
       notify("Failed to add combo kit", "error");
     } finally {
@@ -183,15 +183,13 @@ export function ComboKitsSection() {
           isOpen={!!activeKit}
           onClose={() => setActiveKit(null)}
           productName={activeKit.name}
-          variantName="Meal Kit"
           price={activeKit.price}
           categorySlug="recipe-meal-kits"
           customIngredientsList={
             COMBO_INGREDIENTS[activeKit.id] ||
             activeKit.items.map((it, idx) => ({ id: `it-${idx}`, name: it, emoji: "🥗" }))
           }
-          maxSelectable={4}
-          onConfirm={(selectedItems) => handleConfirmCombo(activeKit, selectedItems)}
+          onConfirm={(data) => handleConfirmCombo(activeKit, data)}
         />
       )}
     </section>
