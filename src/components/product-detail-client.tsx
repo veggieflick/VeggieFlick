@@ -19,25 +19,20 @@ export type VariantOption = {
   availableStock: number;
 };
 
-const CATEGORY_HERO: Record<string, string> = {
-  "vegetables-shopping": "/images/hero-fresh.jpg",
-  "fruit-salads": "/images/hero-fruits.jpg",
-  "veg-salads": "/images/hero-fresh.jpg",
-  "fruits-cutting-combo": "/images/hero-fruits.jpg",
-};
-
 export function ProductPurchasePanel({
   productId,
   productName,
   emoji,
   categorySlug,
   variants,
+  imageUrl,
 }: {
   productId: string;
   productName: string;
   emoji: string;
   categorySlug: string;
   variants: VariantOption[];
+  imageUrl?: string | null;
 }) {
   const router = useRouter();
   const { addItem, user, notify } = useApp();
@@ -48,7 +43,6 @@ export function ProductPurchasePanel({
   const [busy, setBusy] = useState(false);
 
   const outOfStock = !selected || selected.availableStock <= 0;
-  const hero = CATEGORY_HERO[categorySlug];
 
   async function handleAdd(buyNow = false) {
     if (!selected) return;
@@ -89,9 +83,9 @@ export function ProductPurchasePanel({
       {/* Image */}
       <div>
         <div className="relative aspect-square overflow-hidden rounded-3xl bg-surface">
-          {hero ? (
+          {imageUrl ? (
             <Image
-              src={hero}
+              src={imageUrl}
               alt={productName}
               fill
               sizes="(max-width: 1024px) 100vw, 560px"
@@ -99,9 +93,12 @@ export function ProductPurchasePanel({
               className="object-cover"
             />
           ) : (
-          <span className="absolute inset-0 flex items-center justify-center text-brand-700/60">
-            <DynamicIcon name={emoji} size={140} strokeWidth={1.1} />
-          </span>
+            <span className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 via-white to-teal-50 text-brand-700/80 p-6 text-center">
+              <DynamicIcon name={emoji} size={120} strokeWidth={1.2} />
+              <span className="mt-4 rounded-full bg-emerald-100 px-4 py-1 text-xs font-bold text-emerald-800">
+                Washed & Ready To Cook
+              </span>
+            </span>
           )}
         </div>
         <div className="mt-3 grid grid-cols-4 gap-2">

@@ -23,6 +23,11 @@ import { useApp } from "@/components/providers";
 import { formatDateIST, formatINR } from "@/lib/utils";
 import { StatusPill } from "@/components/ui/primitives";
 import { ALL_PRODUCTS } from "@/lib/data/all-products";
+import {
+  deleteStoredProduct,
+  getMergedCatalogProducts,
+  upsertStoredProduct,
+} from "@/lib/catalog-store";
 
 type ProductRow = {
   id: string;
@@ -73,15 +78,6 @@ type CouponRow = {
 
 type Category = { id: string; name: string };
 
-const PRESET_PRODUCE_IMAGES = [
-  { name: "Tomato", url: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80" },
-  { name: "Onion", url: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80" },
-  { name: "Carrot", url: "https://images.unsplash.com/photo-1598170845058-12ef4a457939?w=400&q=80" },
-  { name: "Greens", url: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?w=400&q=80" },
-  { name: "Sambar Mix", url: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80" },
-  { name: "Fruit Salad", url: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80" },
-];
-
 const INITIAL_ALL_PRODUCTS: ProductRow[] = ALL_PRODUCTS.map((p, idx) => ({
   id: p.id,
   name: p.name,
@@ -99,12 +95,8 @@ const INITIAL_ALL_PRODUCTS: ProductRow[] = ALL_PRODUCTS.map((p, idx) => ({
   weight: p.variantName,
   unit: p.unit,
   stock: p.availableStock,
-  imageUrl: p.imageUrl ?? PRESET_PRODUCE_IMAGES[0].url,
-  images: [
-    p.imageUrl ?? PRESET_PRODUCE_IMAGES[0].url,
-    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
-    "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
-  ],
+  imageUrl: p.imageUrl ?? null,
+  images: p.imageUrl ? [p.imageUrl] : [],
   shortDescription: p.shortDescription ?? "",
 }));
 
@@ -117,7 +109,9 @@ function CatalogWorkspace() {
     (params.get("tab") as (typeof TABS)[number]) ?? "products"
   );
 
-  const [products, setProducts] = useState<ProductRow[]>(INITIAL_ALL_PRODUCTS);
+  const [products, setProducts] = useState<ProductRow[]>(() =>
+    getMergedCatalogProducts(INITIAL_ALL_PRODUCTS)
+  );
   const [search, setSearch] = useState("");
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState("All");
 
@@ -147,15 +141,18 @@ function CatalogWorkspace() {
         fetch("/api/v1/admin/catalog?view=inventory&limit=50").then((r) => r.json()),
         fetch("/api/v1/admin/coupons").then((r) => r.json()),
       ]);
+      let baseList = INITIAL_ALL_PRODUCTS;
       if (p?.success && Array.isArray(p.data) && p.data.length > 0) {
-        setProducts(p.data as ProductRow[]);
+        baseList = p.data as ProductRow[];
       }
+      setProducts(getMergedCatalogProducts(baseList));
       if (i?.success && Array.isArray(i.data) && i.data.length > 0) {
         setInventory(i.data as InventoryRow[]);
       }
       if (c?.success) setCoupons(c.data as CouponRow[]);
     } catch (err) {
       console.warn("Catalog load warning:", err);
+      setProducts(getMergedCatalogProducts(INITIAL_ALL_PRODUCTS));
     } finally {
       setLoading(false);
     }
@@ -194,13 +191,6 @@ function CatalogWorkspace() {
     }
   };
 
-  const handleAddPresetImage = (url: string) => {
-    if (!modalImages.includes(url)) {
-      setModalImages((prev) => [...prev, url].slice(0, 5));
-      notify("Sample image added!");
-    }
-  };
-
   const handleRemoveImage = (index: number) => {
     setModalImages((prev) => prev.filter((_, i) => i !== index));
   };
@@ -224,7 +214,7 @@ function CatalogWorkspace() {
     const stock = Number(data.get("stock") || 50);
     const weight = String(data.get("weight") || "250 g");
 
-    const finalImages = modalImages.length > 0 ? modalImages : [PRESET_PRODUCE_IMAGES[0].url];
+    const finalImages = modalImages;
 
     const newProd: ProductRow = {
       id: `prod-${Date.now()}`,
@@ -243,15 +233,16 @@ function CatalogWorkspace() {
       weight,
       unit: "g",
       stock,
-      imageUrl: finalImages[0],
+      imageUrl: finalImages.length > 0 ? finalImages[0] : null,
       images: finalImages,
       shortDescription: String(data.get("shortDescription") || ""),
     };
 
-    setProducts([newProd, ...products]);
+    upsertStoredProduct(newProd);
+    setProducts((prev) => [newProd, ...prev]);
     setShowAddModal(false);
     setModalImages([]);
-    notify(`Product "${newProd.name}" published to catalog!`);
+    notify(`Product "${newProd.name}" published to catalog & saved permanently!`);
   };
 
   const handleUpdateProduct = (e: React.FormEvent<HTMLFormElement>) => {
@@ -266,7 +257,7 @@ function CatalogWorkspace() {
     const stock = Number(data.get("stock"));
     const weight = String(data.get("weight") || editingProduct.weight || "250 g");
 
-    const finalImages = modalImages.length > 0 ? modalImages : [editingProduct.imageUrl || PRESET_PRODUCE_IMAGES[0].url];
+    const finalImages = modalImages.length > 0 ? modalImages : (editingProduct.images ?? []);
 
     const updated: ProductRow = {
       ...editingProduct,
@@ -282,19 +273,21 @@ function CatalogWorkspace() {
       isFeatured: data.get("isFeatured") === "on",
       isBestSeller: data.get("isBestSeller") === "on",
       status: String(data.get("status")),
-      imageUrl: finalImages[0],
+      imageUrl: finalImages.length > 0 ? finalImages[0] : null,
       images: finalImages,
       shortDescription: String(data.get("shortDescription")),
     };
 
+    upsertStoredProduct(updated);
     setProducts((prev) => prev.map((p) => (p.id === editingProduct.id ? updated : p)));
     setEditingProduct(null);
     setModalImages([]);
-    notify(`Product "${updated.name}" updated successfully!`);
+    notify(`Product "${updated.name}" updated & saved permanently!`);
   };
 
   const handleDeleteProduct = (id: string, name: string) => {
     if (confirm(`Are you sure you want to delete ${name}?`)) {
+      deleteStoredProduct(id);
       setProducts((prev) => prev.filter((p) => p.id !== id));
       notify(`Product ${name} removed from catalog.`);
     }
@@ -397,21 +390,29 @@ function CatalogWorkspace() {
                 {filteredProducts.map((product) => (
                   <tr key={product.id} className="hover:bg-slate-50/80 transition">
                     <td className="px-6 py-4 flex items-center gap-3">
-                      {/* Photo Thumbnail Strip */}
-                      <div className="flex items-center -space-x-2">
-                        {(product.images && product.images.length > 0
-                          ? product.images.slice(0, 3)
-                          : [product.imageUrl || PRESET_PRODUCE_IMAGES[0].url]
-                        ).map((img, i) => (
-                          <div
-                            key={i}
-                            className="relative h-10 w-10 shrink-0 rounded-lg bg-slate-100 overflow-hidden border-2 border-white shadow-xs"
-                          >
-                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                            <img src={img} alt={product.name} className="h-full w-full object-cover" />
-                          </div>
-                        ))}
-                      </div>
+                      {/* Photo Thumbnail Strip or Clean Emoji Badge */}
+                      {product.images && product.images.length > 0 ? (
+                        <div className="flex items-center -space-x-2">
+                          {product.images.slice(0, 3).map((img, i) => (
+                            <div
+                              key={i}
+                              className="relative h-10 w-10 shrink-0 rounded-lg bg-slate-100 overflow-hidden border-2 border-white shadow-xs"
+                            >
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={img} alt={product.name} className="h-full w-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      ) : product.imageUrl ? (
+                        <div className="relative h-10 w-10 shrink-0 rounded-lg bg-slate-100 overflow-hidden border-2 border-white shadow-xs">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={product.imageUrl} alt={product.name} className="h-full w-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-800 text-lg border border-emerald-200 font-bold shadow-xs">
+                          {product.emoji || "🥬"}
+                        </div>
+                      )}
 
                       <div>
                         <div className="flex items-center gap-1.5">
@@ -479,7 +480,7 @@ function CatalogWorkspace() {
                             setModalImages(
                               product.images && product.images.length > 0
                                 ? product.images
-                                : [product.imageUrl || PRESET_PRODUCE_IMAGES[0].url]
+                                : product.imageUrl ? [product.imageUrl] : []
                             );
                           }}
                           className="p-1.5 rounded-lg text-slate-700 hover:bg-slate-100 hover:text-brand-700 transition"
@@ -565,22 +566,7 @@ function CatalogWorkspace() {
                   </label>
                 </div>
 
-                {/* Quick preset images */}
-                <div className="pt-1">
-                  <p className="text-[11px] font-semibold text-slate-500 mb-1">Quick Add Sample Produce Photos:</p>
-                  <div className="flex flex-wrap gap-1.5 justify-center">
-                    {PRESET_PRODUCE_IMAGES.map((preset) => (
-                      <button
-                        key={preset.name}
-                        type="button"
-                        onClick={() => handleAddPresetImage(preset.url)}
-                        className="text-[11px] bg-white px-2 py-0.5 rounded-lg border border-slate-200 hover:border-emerald-600 font-semibold text-slate-700"
-                      >
-                        + {preset.name}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+
               </div>
 
               {/* Product Info Fields */}
@@ -945,7 +931,11 @@ function CatalogWorkspace() {
                       <button
                         onClick={() => {
                           setEditingProduct(row);
-                          setModalImages([row.imageUrl || PRESET_PRODUCE_IMAGES[0].url]);
+                          setModalImages(
+                            row.images && row.images.length > 0
+                              ? row.images
+                              : row.imageUrl ? [row.imageUrl] : []
+                          );
                         }}
                         className="text-xs font-bold text-brand-700 hover:underline"
                       >

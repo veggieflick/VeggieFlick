@@ -16,7 +16,7 @@ type ComboKit = {
   price: number;
   originalPrice: number;
   emoji: string;
-  imageUrl: string;
+  imageUrl?: string;
   items: string[];
   badge: string;
 };
@@ -29,7 +29,6 @@ const COMBO_KITS: ComboKit[] = [
     price: 129,
     originalPrice: 180,
     emoji: "🍲",
-    imageUrl: "/images/products/combo-kit-pulav.jpg",
     items: ["Chopped Carrot 250g", "French Beans 250g", "Green Peas 200g", "Whole Spices Pouch"],
     badge: "SAVE ₹51",
   },
@@ -40,7 +39,6 @@ const COMBO_KITS: ComboKit[] = [
     price: 179,
     originalPrice: 240,
     emoji: "🍚",
-    imageUrl: "/images/products/combo-kit-biryani.jpg",
     items: ["Cauliflower Florets 300g", "Cut Veggies 500g", "Fresh Mint & Coriander", "Biryani Spice Pack"],
     badge: "SAVE ₹61",
   },
@@ -51,7 +49,6 @@ const COMBO_KITS: ComboKit[] = [
     price: 125,
     originalPrice: 170,
     emoji: "🥗",
-    imageUrl: "/images/products/combo-kit-aviyal.jpg",
     items: ["7-Veg Aviyal Cut Mix 500g", "Grated Coconut 100g", "Curry Leaves Bundle", "Green Chillies"],
     badge: "SAVE ₹45",
   },
@@ -62,7 +59,6 @@ const COMBO_KITS: ComboKit[] = [
     price: 139,
     originalPrice: 190,
     emoji: "🍛",
-    imageUrl: "/images/products/combo-kit-bisibele.jpg",
     items: ["Cut Sambar Veggies 500g", "Shallots (Optional)", "Stone-ground Masala 50g", "Ghee Tempering Pack"],
     badge: "SAVE ₹51",
   },
@@ -121,14 +117,20 @@ export function ComboKitsSection() {
               className="card group bg-white p-4 border-amber-200/90 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between relative overflow-hidden rounded-2xl"
             >
               <div>
-                <div className="relative w-full h-44 rounded-xl overflow-hidden mb-3.5 bg-amber-50">
-                  <Image
-                    src={kit.imageUrl}
-                    alt={kit.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                  />
+                <div className="relative w-full h-32 rounded-xl overflow-hidden mb-3.5 bg-gradient-to-br from-amber-50 to-orange-100 flex items-center justify-center border border-amber-200/80">
+                  {kit.imageUrl ? (
+                    <Image
+                      src={kit.imageUrl}
+                      alt={kit.name}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                    />
+                  ) : (
+                    <span className="text-5xl transition-transform duration-300 group-hover:scale-110 drop-shadow-xs">
+                      {kit.emoji}
+                    </span>
+                  )}
                   <div className="absolute top-2.5 right-2.5">
                     <span className="chip bg-gradient-to-r from-red-600 to-rose-600 text-white font-extrabold text-[10px] tracking-wider shadow-md">
                       {kit.badge}

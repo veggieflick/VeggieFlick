@@ -38,12 +38,8 @@ const DEFAULT_DEMO_PRODUCTS = ALL_PRODUCTS.map((p, idx) => ({
   weight: p.variantName,
   unit: p.unit,
   stock: p.availableStock,
-  imageUrl: p.imageUrl ?? "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80",
-  images: [
-    p.imageUrl ?? "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&q=80",
-    "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=400&q=80",
-    "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=400&q=80",
-  ],
+  imageUrl: p.imageUrl ?? null,
+  images: p.imageUrl ? [p.imageUrl] : [],
   shortDescription: p.shortDescription ?? "",
 }));
 

@@ -37,14 +37,6 @@ export type ProductCardData = {
   availableStock: number;
 };
 
-/** Map category slug to a real product photo. */
-const CATEGORY_HERO: Record<string, string> = {
-  "vegetables-shopping": "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
-  salad: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
-  "fruit-salads": "https://images.unsplash.com/photo-1519996529931-28324d5a630e?auto=format&fit=crop&w=600&q=80",
-  "veg-salads": "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80",
-};
-
 export function ProductCard({ product, index = 0 }: { product: ProductCardData; index?: number }) {
   const { cart, addItem, setQuantity, user, notify } = useApp();
   const { isStoreOpen } = useStoreStatus();
@@ -52,7 +44,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const [customModalOpen, setCustomModalOpen] = useState(false);
   const line = cart.items.find((item) => item.variantId === product.variantId);
   const outOfStock = product.availableStock <= 0;
-  const imageSrc = product.imageUrl || CATEGORY_HERO[product.categorySlug];
+  const imageSrc = product.imageUrl;
   const discountPct = Math.round(product.discountPercentage);
 
   const isCustomizable =

@@ -19,8 +19,8 @@ const CORE_CATEGORIES = [
     slug: "vegetables-shopping",
     tagline: "Whole produce & precision-cut cooking packs",
     badge: "Whole & Pre-Cut",
-    image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-emerald-950/85 via-emerald-900/40 to-transparent",
+    emoji: "🥦",
+    gradient: "from-emerald-900 via-emerald-800 to-teal-900",
     accent: "bg-emerald-700",
   },
   {
@@ -29,8 +29,8 @@ const CORE_CATEGORIES = [
     slug: "salad",
     tagline: "Fruit Salad, Sprouts Salad & Vegetable Salad in 250g & 500g custom packs",
     badge: "Custom Bowls",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-teal-950/85 via-teal-900/40 to-transparent",
+    emoji: "🥗",
+    gradient: "from-teal-900 via-teal-800 to-emerald-900",
     accent: "bg-teal-700",
   },
 ];
@@ -170,24 +170,18 @@ export default async function HomePage() {
             <Link
               key={cat.id}
               href={`/shop?category=${cat.slug}`}
-              className="group relative flex h-72 flex-col justify-end overflow-hidden rounded-3xl border border-slate-200/90 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl"
+              className={`group relative flex h-60 flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br ${cat.gradient} border border-emerald-800/40 p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl`}
             >
-              {/* Background Image */}
-              <Image
-                src={cat.image}
-                alt={cat.name}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"
-                className="object-cover transition-transform duration-700 group-hover:scale-108"
-              />
-              <div className={`absolute inset-0 bg-gradient-to-t ${cat.gradient}`} />
-
-              {/* Top Badge */}
-              <div className="absolute top-3.5 left-3.5 z-10">
-                <span className="rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-slate-800 shadow-sm backdrop-blur">
+              <div className="flex items-center justify-between">
+                <span className="rounded-full bg-white/20 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur">
                   {cat.badge}
                 </span>
+                <span className="text-4xl transition-transform duration-300 group-hover:scale-125">
+                  {cat.emoji}
+                </span>
               </div>
+
+
 
               {/* Content */}
               <div className="relative z-10 p-5 text-white">
