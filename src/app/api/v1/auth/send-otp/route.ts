@@ -44,20 +44,26 @@ export async function POST(request: Request) {
     const smsConfigured = Boolean(fast2smsKey || msg91Key);
 
     if (fast2smsKey) {
-      await fetch("https://www.fast2sms.com/dev/bulkV2", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          authorization: fast2smsKey,
-        },
-        body: JSON.stringify({
-          route: "otp",
-          variables_values: code,
-          numbers: phone,
-        }),
-      }).catch((err) => {
-        console.warn("Fast2SMS API dispatch warning:", err);
-      });
+      try {
+        const res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: fast2smsKey,
+          },
+          body: JSON.stringify({
+            route: "otp",
+            variables_values: String(code),
+            numbers: String(phone),
+          }),
+        });
+        const resData = await res.json().catch(() => ({}));
+        if (!res.ok || resData.return === false) {
+          console.warn("Fast2SMS API dispatch response:", resData);
+        }
+      } catch (err) {
+        console.warn("Fast2SMS API fetch error:", err);
+      }
     } else if (msg91Key) {
       await fetch("https://control.msg91.com/api/v5/otp", {
         method: "POST",
