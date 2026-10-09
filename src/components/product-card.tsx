@@ -49,18 +49,40 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
     const syncStored = () => {
       const storedList = getStoredCatalogProducts();
       if (!storedList.length) return;
-      const match = storedList.find((p) => p.id === product.id || p.slug === product.slug);
+      const match = storedList.find(
+        (p) =>
+          p.id === product.id ||
+          p.slug === product.slug ||
+          p.name === product.name ||
+          (p.sku && product.id.includes(p.sku))
+      );
       if (match) {
-        setCardData((prev) => ({
-          ...prev,
+        const mrpVal = Number(match.mrp) || product.mrp;
+        const priceVal = Number(match.price) || product.price;
+        const discountVal = mrpVal > priceVal ? Math.round(((mrpVal - priceVal) / mrpVal) * 100) : product.discountPercentage;
+        setCardData({
+          id: match.id || product.id,
           name: match.name,
-          tamilName: match.tamilName ?? prev.tamilName,
-          price: Number(match.price) || prev.price,
-          mrp: Number(match.mrp) || prev.mrp,
-          variantName: match.weight || prev.variantName,
-          availableStock: match.stock ?? prev.availableStock,
-          imageUrl: match.imageUrl || (match.images && match.images[0]) || prev.imageUrl,
-        }));
+          tamilName: match.tamilName ?? product.tamilName,
+          slug: match.slug || product.slug,
+          emoji: match.emoji || product.emoji,
+          imageUrl: match.imageUrl || (match.images && match.images[0]) || product.imageUrl,
+          shortDescription: match.shortDescription ?? product.shortDescription,
+          isOrganic: match.isOrganic ?? product.isOrganic,
+          isBestSeller: match.isBestSeller ?? product.isBestSeller,
+          isFreshToday: product.isFreshToday,
+          isCutVegetable: product.isCutVegetable,
+          rating: product.rating,
+          ratingCount: product.ratingCount,
+          categorySlug: product.categorySlug,
+          subCategorySlug: product.subCategorySlug,
+          variantId: product.variantId,
+          variantName: match.weight || product.variantName,
+          mrp: mrpVal,
+          price: priceVal,
+          discountPercentage: discountVal,
+          availableStock: match.stock ?? product.availableStock,
+        });
       }
     };
     syncStored();
@@ -74,23 +96,23 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const discountPct = Math.round(cardData.discountPercentage);
 
   const isCustomizable =
-    product.categorySlug === "salad" ||
-    product.categorySlug === "fruit-salads" ||
-    product.categorySlug === "veg-salads" ||
-    product.categorySlug === "recipe-meal-kits" ||
-    !!product.subCategorySlug;
+    cardData.categorySlug === "salad" ||
+    cardData.categorySlug === "fruit-salads" ||
+    cardData.categorySlug === "veg-salads" ||
+    cardData.categorySlug === "recipe-meal-kits" ||
+    !!cardData.subCategorySlug;
 
   const handleAddClick = () => {
     if (!isStoreOpen) {
       notify("🔴 கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது (Store is Offline)", "error");
       return;
     }
-    if (product.categorySlug === "vegetables-shopping" && !product.isCutVegetable) {
+    if (cardData.categorySlug === "vegetables-shopping" && !cardData.isCutVegetable) {
       setCutModalOpen(true);
     } else if (isCustomizable) {
       setCustomModalOpen(true);
     } else {
-      void addItem(product.id, product.variantId, 1);
+      void addItem(cardData.id, cardData.variantId, 1);
     }
   };
 
@@ -102,7 +124,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
     const res = await fetch("/api/v1/wishlist", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId: product.id, variantId: product.variantId }),
+      body: JSON.stringify({ productId: cardData.id, variantId: cardData.variantId }),
     });
     const json = await res.json();
     notify(json?.data?.saved ? "Saved to wishlist" : "Removed from wishlist");
@@ -113,24 +135,24 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
       <CutSelectorModal
         isOpen={cutModalOpen}
         onClose={() => setCutModalOpen(false)}
-        productName={product.name}
+        productName={cardData.name}
         onSelectCut={(cutStyle) => {
-          void addItem(product.id, product.variantId, 1);
-          notify(`Added ${product.name} (${cutStyle.toUpperCase()} cut)`);
+          void addItem(cardData.id, cardData.variantId, 1);
+          notify(`Added ${cardData.name} (${cutStyle.toUpperCase()} cut)`);
         }}
       />
       <CustomIngredientModal
         isOpen={customModalOpen}
         onClose={() => setCustomModalOpen(false)}
-        productName={product.name}
-        variantName={product.variantName}
-        price={product.price}
-        categorySlug={product.categorySlug}
-        subCategorySlug={product.subCategorySlug}
+        productName={cardData.name}
+        variantName={cardData.variantName}
+        price={cardData.price}
+        categorySlug={cardData.categorySlug}
+        subCategorySlug={cardData.subCategorySlug}
         onConfirm={({ weight, ingredients }) => {
-          void addItem(product.id, product.variantId, 1);
+          void addItem(cardData.id, cardData.variantId, 1);
           notify(
-            `Added ${product.name} (${weight}) with ${ingredients.slice(0, 3).join(", ")}${
+            `Added ${cardData.name} (${weight}) with ${ingredients.slice(0, 3).join(", ")}${
               ingredients.length > 3 ? "..." : ""
             }`,
           );
@@ -146,18 +168,18 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
       >
         {/* Image area */}
         <div className="relative block aspect-square overflow-hidden bg-surface">
-          <Link href={`/product/${product.slug}`} aria-label={product.name} className="block h-full w-full">
+          <Link href={`/product/${cardData.slug}`} aria-label={cardData.name} className="block h-full w-full">
             {imageSrc ? (
               <Image
                 src={imageSrc}
-                alt={product.name}
+                alt={cardData.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 220px"
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : (
               <span className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50/80 via-white to-surface text-brand-700 transition-transform duration-300 group-hover:scale-105">
-                <DynamicIcon name={product.emoji} size={54} strokeWidth={1.3} />
+                <DynamicIcon name={cardData.emoji} size={54} strokeWidth={1.3} />
               </span>
             )}
           </Link>
@@ -167,9 +189,9 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             {discountPct > 0 && (
               <span className="chip bg-emerald-800 text-white font-extrabold text-[10px] tracking-wider shadow-sm">{discountPct}% OFF</span>
             )}
-            {product.isCutVegetable ? (
+            {cardData.isCutVegetable ? (
               <span className="chip bg-amber-700 text-white font-bold text-[10px] tracking-wide shadow-xs">Pre-Cut</span>
-            ) : product.isFreshToday ? (
+            ) : cardData.isFreshToday ? (
               <span className="chip bg-emerald-700 text-white font-bold text-[10px] tracking-wide shadow-xs">Fresh Daily</span>
             ) : null}
           </div>
@@ -182,7 +204,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               type="button"
               onClick={handleAddClick}
-              aria-label={`Add ${product.name} to cart`}
+              aria-label={`Add ${cardData.name} to cart`}
               className="absolute bottom-2.5 right-2.5 z-10 flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-800 text-white shadow-md hover:bg-emerald-900"
             >
               <Plus size={18} strokeWidth={2.5} />
@@ -194,7 +216,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             whileTap={{ scale: 0.9 }}
             type="button"
             onClick={() => void toggleWishlist()}
-            aria-label={`Save ${product.name} to wishlist`}
+            aria-label={`Save ${cardData.name} to wishlist`}
             className="absolute top-2.5 right-2.5 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted shadow-sm backdrop-blur transition-colors hover:text-emerald-800"
           >
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -205,29 +227,29 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
         {/* Content */}
         <div className="flex flex-1 flex-col p-3.5">
-          <Rating value={product.rating} count={product.ratingCount} />
+          <Rating value={cardData.rating} count={cardData.ratingCount} />
 
-          <Link href={`/product/${product.slug}`}>
+          <Link href={`/product/${cardData.slug}`}>
             <h3 className="mt-1 line-clamp-2 text-[14px] font-bold leading-snug tracking-[-0.01em] text-ink transition-colors group-hover:text-emerald-800">
-              {product.name}
+              {cardData.name}
             </h3>
           </Link>
 
           {/* Unit Pill Tag */}
           <div className="mt-1.5">
             <span className="inline-block rounded-md border border-line bg-surface px-2 py-0.5 text-[11px] font-semibold text-muted">
-              {product.variantName}
+              {cardData.variantName}
             </span>
           </div>
 
           <div className="mt-auto flex items-center justify-between gap-2 pt-3">
             <div className="flex items-baseline gap-1.5">
               <span className="text-[16px] font-extrabold tracking-[-0.01em] text-ink">
-                {formatINR(product.price)}
+                {formatINR(cardData.price)}
               </span>
-              {product.mrp > product.price && (
+              {cardData.mrp > cardData.price && (
                 <span className="text-[11px] font-medium text-muted line-through">
-                  {formatINR(product.mrp)}
+                  {formatINR(cardData.mrp)}
                 </span>
               )}
             </div>
