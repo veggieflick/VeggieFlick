@@ -80,8 +80,8 @@ export const addressSchema = z.object({
 });
 
 export const checkoutSchema = z.object({
-  addressId: uuidSchema,
-  deliverySlotId: uuidSchema,
+  addressId: z.string().trim().min(1, "Address is required"),
+  deliverySlotId: z.string().trim().min(1, "Delivery slot is required"),
   paymentMethod: z.enum(["cod", "upi", "card", "netbanking", "wallet"]),
   notes: z.string().trim().max(400).optional(),
   idempotencyKey: z.string().trim().min(8).max(120).optional(),

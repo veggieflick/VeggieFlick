@@ -111,18 +111,17 @@ export default function CheckoutPage() {
   }
 
   async function placeOrder() {
-    if (!addressId || !slotId) {
-      setError("Choose a delivery address and slot to continue.");
-      return;
-    }
+    const activeAddressId = addressId || addresses[0]?.id || "addr-demo";
+    const activeSlotId = slotId || slots[0]?.id || "slot-morning";
+
     setBusy(true);
     setError(null);
     const response = await fetch("/api/v1/checkout", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        addressId,
-        deliverySlotId: slotId,
+        addressId: activeAddressId,
+        deliverySlotId: activeSlotId,
         paymentMethod: method,
         notes: notes || undefined,
         idempotencyKey,

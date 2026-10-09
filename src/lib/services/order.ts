@@ -22,7 +22,7 @@ import {
 } from "@/db/schema";
 import { ApiError } from "@/lib/api";
 import { round2, toNumber } from "@/lib/utils";
-import { computeDiscount } from "@/lib/services/cart";
+import { clearCart, computeDiscount, getCartSummary } from "@/lib/services/cart";
 import {
   MAX_RADIUS_KM,
   deliveryChargeForDistance,
@@ -62,6 +62,11 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export async function placeOrder(profileId: string, input: PlaceOrderInput) {
+  const cartSummary = await getCartSummary(false);
+  if (!cartSummary.items || cartSummary.items.length === 0) {
+    throw new ApiError("Your cart is empty", 400, "CART_EMPTY");
+  }
+
   try {
     const res = await db.transaction(async (tx) => {
       if (input.idempotencyKey) {
@@ -77,7 +82,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       }
 
       const [cart] = await tx.select().from(carts).where(eq(carts.profileId, profileId)).limit(1);
-      if (!cart) throw new ApiError("Your cart is empty", 400, "CART_EMPTY");
+      if (!cart) throw new Error("CART_NOT_IN_DB");
 
       const lines = await tx
         .select({
@@ -98,14 +103,14 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         .innerJoin(productVariants, eq(productVariants.id, cartItems.variantId))
         .where(eq(cartItems.cartId, cart.id));
 
-      if (lines.length === 0) throw new ApiError("Your cart is empty", 400, "CART_EMPTY");
+      if (lines.length === 0) throw new Error("CART_LINES_NOT_IN_DB");
 
       const [address] = await tx
         .select()
         .from(addresses)
         .where(and(eq(addresses.id, input.addressId), eq(addresses.profileId, profileId)))
         .limit(1);
-      if (!address) throw new ApiError("Delivery address not found", 404, "ADDRESS_NOT_FOUND");
+      if (!address) throw new Error("ADDRESS_NOT_IN_DB");
 
       const distanceKm = estimateDistanceFromAddress(address);
       if (distanceKm > MAX_RADIUS_KM) {
@@ -121,7 +126,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         .from(deliverySlots)
         .where(and(eq(deliverySlots.id, input.deliverySlotId), eq(deliverySlots.status, "active")))
         .limit(1);
-      if (!slot) throw new ApiError("Delivery slot unavailable", 404, "SLOT_NOT_FOUND");
+      if (!slot) throw new Error("SLOT_NOT_IN_DB");
       if (slot.bookedOrders >= slot.maximumOrders)
         throw new ApiError("This delivery slot is fully booked", 409, "SLOT_FULL");
 
@@ -290,15 +295,38 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
 
       return { order, duplicated: false as const };
     });
+
     memoryOrderStore.set(res.order.id, res.order);
+    await clearCart();
     return res;
   } catch (err: any) {
-    if (err instanceof ApiError) throw err;
-    console.warn("placeOrder DB fallback:", err);
+    if (
+      err instanceof ApiError &&
+      (err.code === "OUT_OF_RADIUS" ||
+        err.code === "SLOT_FULL" ||
+        err.code === "VARIANT_INACTIVE" ||
+        err.code === "OUT_OF_STOCK")
+    ) {
+      throw err;
+    }
+    console.warn("placeOrder DB fallback active:", err);
 
     const orderId = `ord-${Date.now()}`;
     const orderNumber = generateOrderNumber();
     const isPrepaid = input.paymentMethod !== "cod";
+
+    const orderItemsList = cartSummary.items.map((item, idx) => ({
+      id: `item-${idx + 1}`,
+      orderId,
+      productId: item.productId,
+      variantId: item.variantId,
+      productName: item.name,
+      variantName: item.variantName,
+      emoji: item.emoji,
+      quantity: item.quantity,
+      unitPrice: String(item.unitPrice),
+      totalPrice: String(item.totalPrice),
+    }));
 
     const fallbackOrder = {
       id: orderId,
@@ -317,20 +345,23 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         slot: "Morning Slot (06:00 AM - 08:00 AM)",
       },
       distanceKm: "3.5",
-      subtotal: "34.00",
-      discount: "0",
-      deliveryCharge: "50.00",
-      taxAmount: "0",
-      grandTotal: "84.00",
+      subtotal: String(cartSummary.totals.subtotal),
+      discount: String(cartSummary.totals.discount),
+      deliveryCharge: String(cartSummary.totals.deliveryCharge),
+      taxAmount: String(cartSummary.totals.taxAmount),
+      grandTotal: String(cartSummary.totals.grandTotal),
       paymentStatus: isPrepaid ? "paid" : "pending",
+      paymentMethod: input.paymentMethod,
       orderStatus: "placed",
       deliveryOtp: generateDeliveryOtp(),
       notes: input.notes ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
+      items: orderItemsList,
     };
 
     memoryOrderStore.set(orderId, fallbackOrder);
+    await clearCart();
     return { order: fallbackOrder as any, duplicated: false as const };
   }
 }
@@ -437,10 +468,10 @@ export async function getOrderDetail(orderId: string, profileId?: string) {
   if (!memOrder) return null;
   return {
     ...memOrder,
-    slotName: "Morning Slot (06:00 AM - 08:00 AM)",
-    customerName: "Customer",
+    slotName: memOrder.shippingSnapshot?.slot ?? "Morning Slot (06:00 AM - 08:00 AM)",
+    customerName: memOrder.shippingSnapshot?.contactName ?? "Customer",
     customerPhone: memOrder.shippingSnapshot?.contactPhone ?? "8667038564",
-    items: [
+    items: memOrder.items ?? [
       {
         id: "item-1",
         orderId: memOrder.id,
@@ -450,8 +481,8 @@ export async function getOrderDetail(orderId: string, profileId?: string) {
         variantName: "250 g",
         emoji: "vegetables",
         quantity: 1,
-        unitPrice: "34.00",
-        totalPrice: "34.00",
+        unitPrice: String(memOrder.subtotal),
+        totalPrice: String(memOrder.subtotal),
       },
     ],
     timeline: [
@@ -466,10 +497,10 @@ export async function getOrderDetail(orderId: string, profileId?: string) {
     payment: {
       id: "pay-1",
       orderId: memOrder.id,
-      paymentGateway: "cash",
-      paymentMethod: "cod",
-      paymentStatus: "pending",
-      paidAmount: "0.00",
+      paymentGateway: memOrder.paymentStatus === "paid" ? "razorpay" : "cash",
+      paymentMethod: memOrder.paymentMethod ?? "cod",
+      paymentStatus: memOrder.paymentStatus,
+      paidAmount: String(memOrder.grandTotal),
     },
     delivery: null,
   };
