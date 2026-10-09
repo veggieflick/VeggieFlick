@@ -52,8 +52,10 @@ export async function POST(request: Request) {
             authorization: fast2smsKey,
           },
           body: JSON.stringify({
-            route: "otp",
-            variables_values: String(code),
+            route: "q",
+            message: `Your VeggieFlick OTP code is ${code}. Valid for 2 minutes. Do not share with anyone.`,
+            language: "english",
+            flash: "0",
             numbers: String(phone),
           }),
         });
