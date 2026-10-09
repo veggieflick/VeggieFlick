@@ -127,7 +127,6 @@ function CatalogWorkspace() {
     { id: "cat-1", name: "Vegetables Shopping" },
     { id: "cat-2", name: "Fruit Salads" },
     { id: "cat-3", name: "Veg Salads" },
-    { id: "cat-4", name: "Fruits Cutting & Combo Pack" },
     { id: "cat-5", name: "Fresh Vegetables" },
     { id: "cat-6", name: "Leafy Vegetables" },
   ]);

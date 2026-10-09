@@ -7,7 +7,6 @@ const SHOP_LINKS = [
   { label: "Chopped & Cut Vegetables", href: "/shop?category=vegetables-shopping&cut=true" },
   { label: "Fruit Salads", href: "/shop?category=fruit-salads" },
   { label: "Veg Salads", href: "/shop?category=veg-salads" },
-  { label: "Fruits Cutting & Combo Pack", href: "/shop?category=fruits-cutting-combo" },
   { label: "Recipe Combo Kits", href: "/#combo-kits" },
 ];
 

@@ -43,16 +43,6 @@ const CORE_CATEGORIES = [
     gradient: "from-teal-950/85 via-teal-900/40 to-transparent",
     accent: "bg-teal-700",
   },
-  {
-    id: "cat-fruits-cutting",
-    name: "Fruits Cutting & Combo Pack",
-    slug: "fruits-cutting-combo",
-    tagline: "Pre-sliced fruit portions & family combo boxes",
-    badge: "Zero Peeling",
-    image: "https://images.unsplash.com/photo-1619566636858-adf3ef46400b?auto=format&fit=crop&w=800&q=80",
-    gradient: "from-orange-950/85 via-orange-900/40 to-transparent",
-    accent: "bg-orange-600",
-  },
 ];
 
 const PROCESS_STEPS = [
@@ -89,13 +79,11 @@ export default async function HomePage() {
     vegProducts,
     fruitSaladProducts,
     vegSaladProducts,
-    fruitCuttingProducts,
     counts,
   ] = await Promise.all([
     listCollection({ category: "vegetables-shopping" }, 16, "popularity"),
     listCollection({ category: "fruit-salads" }, 8, "popularity"),
     listCollection({ category: "veg-salads" }, 8, "popularity"),
-    listCollection({ category: "fruits-cutting-combo" }, 8, "popularity"),
     catalogCounts(),
   ]);
 
@@ -179,17 +167,17 @@ export default async function HomePage() {
         </span>
       </div>
 
-      {/* CORE 4 CATEGORIES - PROMINENT LUXURY TILES */}
+      {/* CORE 3 CATEGORIES - PROMINENT LUXURY TILES */}
       <AnimatedSection className="container-page py-10 md:py-16">
         <SectionHeading
           eyebrow="Core Collections"
           title="Featured Categories"
-          description="Select from our four dedicated fresh categories — precision-cut vegetables, chilled salads, and sliced fruit packs."
+          description="Select from our dedicated fresh categories — precision-cut vegetables, fruit salads, and crisp veg salads."
           href="/shop"
           linkLabel="Browse All"
         />
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {CORE_CATEGORIES.map((cat) => (
             <Link
               key={cat.id}
@@ -317,19 +305,7 @@ export default async function HomePage() {
         <ProductCarousel products={vegSaladProducts} />
       </AnimatedSection>
 
-      {/* 4. FRUITS CUTTING & COMBO PACK SECTION */}
-      <AnimatedSection id="fruits-cutting-combo" className="bg-surface/50 py-10 md:py-16 border-y border-line/60 scroll-mt-20">
-        <div className="container-page">
-          <SectionHeading
-            eyebrow="Freshly Sliced"
-            title="Fruits Cutting & Combo Pack"
-            description="Convenient pre-sliced fruit portions and family combo boxes with zero peeling, deseeding, or cleanup."
-            href="/shop?category=fruits-cutting-combo"
-            linkLabel="View All Fruit Packs"
-          />
-          <ProductCarousel products={fruitCuttingProducts} />
-        </div>
-      </AnimatedSection>
+
 
       {/* HOW IT WORKS SECTION - 5 CONCISE STEPS */}
       <AnimatedSection className="container-page py-12 md:py-16">

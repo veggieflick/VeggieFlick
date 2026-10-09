@@ -367,9 +367,6 @@ export function SiteHeader() {
           <Link href="/shop?category=veg-salads" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
             Veg Salads
           </Link>
-          <Link href="/shop?category=fruits-cutting-combo" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Fruits Cutting & Combo Pack
-          </Link>
           <Link href="/#combo-kits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-amber-900 bg-amber-50/80 border border-amber-200/60 font-bold hover:bg-amber-100">
             Recipe Combo Kits
           </Link>
@@ -415,7 +412,6 @@ export function SiteHeader() {
               <Link href="/shop?category=vegetables-shopping&cut=true" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-amber-800 bg-amber-50 font-bold ml-2">↳ Chopped & Cut Vegetables</Link>
               <Link href="/shop?category=fruit-salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Fruit Salads</Link>
               <Link href="/shop?category=veg-salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Veg Salads</Link>
-              <Link href="/shop?category=fruits-cutting-combo" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Fruits Cutting & Combo Pack</Link>
               <Link href="/#combo-kits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">Recipe Meal Kits</Link>
               <Link href="/subscriptions" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Subscriptions</Link>
               <Link href="/shop?sort=discount" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-bold">Special Offers</Link>

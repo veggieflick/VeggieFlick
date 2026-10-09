@@ -199,16 +199,6 @@ export const FALLBACK_CATEGORIES = [
     description: "Crisp toss-ready vegetable bowls and protein sprouts.",
     sortOrder: 3,
   },
-  {
-    id: "cat-fruit-cutting",
-    name: "Fruits Cutting & Combo Pack",
-    slug: "fruits-cutting-combo",
-    tamilName: "நறுக்கிய பழங்கள் & காம்போ",
-    icon: "fruits",
-    accent: "#ea580c",
-    description: "Freshly sliced fruit cups and family fruit combo boxes.",
-    sortOrder: 4,
-  },
 ];
 
 export const FALLBACK_PRODUCTS: (ProductCard & { imageUrl?: string })[] = [
