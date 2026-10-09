@@ -93,7 +93,7 @@ export default function DeliveryPartnerPortal() {
         {/* Active Earnings Summary Card */}
         <div className="card bg-white p-4 shadow-sm border border-slate-200 flex justify-between items-center">
           <div>
-            <p className="text-xs font-bold text-slate-500 uppercase">Today's Earnings</p>
+            <p className="text-xs font-bold text-slate-500 uppercase">Today&apos;s Earnings</p>
             <p className="text-2xl font-extrabold text-slate-900 mt-0.5">₹650.00</p>
             <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">8 Orders Delivered Today</p>
           </div>

@@ -15,40 +15,48 @@ const StoreStatusContext = createContext<StoreStatusContextType>({
 });
 
 export function StoreStatusProvider({ children }: { children: ReactNode }) {
-  const [isStoreOpen, setIsStoreOpen] = useState<boolean>(true);
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-    try {
-      const saved = localStorage.getItem("veggieflick_store_status");
-      if (saved !== null) {
-        setIsStoreOpen(saved === "open");
+  const [isStoreOpen, setIsStoreOpen] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("veggieflick_store_status");
+        if (saved !== null) {
+          return saved === "open";
+        }
+      } catch {
+        // Fallback
       }
-    } catch {
-      // Fallback
     }
-  }, []);
+    return true;
+  });
 
   useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem("veggieflick_store_status", isStoreOpen ? "open" : "closed");
-    } catch {
-      // Fallback
-    }
-
     if (typeof document !== "undefined") {
-      if (isStoreOpen) {
-        document.body.classList.remove("store-offline");
-      } else {
-        document.body.classList.add("store-offline");
-      }
+      document.body.classList.toggle("store-offline", !isStoreOpen);
     }
-  }, [isStoreOpen, mounted]);
+  }, [isStoreOpen]);
 
-  const toggleStoreStatus = () => setIsStoreOpen((prev) => !prev);
-  const setStoreOpen = (open: boolean) => setIsStoreOpen(open);
+  const toggleStoreStatus = () => {
+    setIsStoreOpen((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("veggieflick_store_status", next ? "open" : "closed");
+      } catch {}
+      if (typeof document !== "undefined") {
+        document.body.classList.toggle("store-offline", !next);
+      }
+      return next;
+    });
+  };
+
+  const setStoreOpen = (open: boolean) => {
+    setIsStoreOpen(open);
+    try {
+      localStorage.setItem("veggieflick_store_status", open ? "open" : "closed");
+    } catch {}
+    if (typeof document !== "undefined") {
+      document.body.classList.toggle("store-offline", !open);
+    }
+  };
 
   return (
     <StoreStatusContext.Provider value={{ isStoreOpen, toggleStoreStatus, setStoreOpen }}>
