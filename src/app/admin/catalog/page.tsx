@@ -26,6 +26,7 @@ import { ALL_PRODUCTS } from "@/lib/data/all-products";
 import {
   deleteStoredProduct,
   getMergedCatalogProducts,
+  saveStoredCatalogProducts,
   upsertStoredProduct,
 } from "@/lib/catalog-store";
 
@@ -293,6 +294,42 @@ function CatalogWorkspace() {
     }
   };
 
+  const handleSaveAndSyncCatalog = () => {
+    saveStoredCatalogProducts(products);
+    notify(`✓ Saved & Synced! All ${products.length} products & uploaded images are live on Storefront.`);
+  };
+
+  const handleExportCatalogJSON = () => {
+    const jsonStr = JSON.stringify(products, null, 2);
+    const blob = new Blob([jsonStr], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `veggieflick_catalog_backup_${Date.now()}.json`;
+    a.click();
+    notify("Catalog backup JSON file downloaded!");
+  };
+
+  const handleImportCatalogJSON = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const parsed = JSON.parse(evt.target?.result as string);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            saveStoredCatalogProducts(parsed);
+            setProducts(parsed);
+            notify(`✓ Imported ${parsed.length} products from JSON file!`);
+          }
+        } catch {
+          notify("Invalid JSON catalog backup file", "error");
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   return (
     <div className="grid gap-5">
       <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -304,16 +341,37 @@ function CatalogWorkspace() {
             Edit product names, pricing (MRP/Selling), weights & grams (250g, 500g, 1kg), attach 2-3 product images, and manage category stocks.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setModalImages([]);
-            setShowAddModal(true);
-          }}
-          className="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-700 transition"
-        >
-          <Plus size={18} /> Add New Produce Item
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleSaveAndSyncCatalog}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-900 transition"
+          >
+            <Save size={16} /> Save & Sync Storefront
+          </button>
+          <button
+            type="button"
+            onClick={handleExportCatalogJSON}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-3 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-slate-800 transition"
+            title="Download JSON backup file of all products and uploaded images"
+          >
+            Export Backup
+          </button>
+          <label className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2.5 text-xs font-bold text-slate-700 border border-slate-300 shadow-xs hover:bg-slate-50 cursor-pointer transition">
+            Import Backup
+            <input type="file" accept=".json" onChange={handleImportCatalogJSON} className="hidden" />
+          </label>
+          <button
+            type="button"
+            onClick={() => {
+              setModalImages([]);
+              setShowAddModal(true);
+            }}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-xs font-bold text-white shadow-xs hover:bg-brand-700 transition"
+          >
+            <Plus size={16} /> Add Produce Item
+          </button>
+        </div>
       </header>
 
       {/* Workspace Tabs & Search/Filter Controls */}

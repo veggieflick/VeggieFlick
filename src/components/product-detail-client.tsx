@@ -2,12 +2,13 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Heart, Leaf, Minus, Plus, ShieldCheck, Truck } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
 import { Badge } from "@/components/ui/primitives";
 import { DynamicIcon } from "@/lib/icons";
+import { getStoredCatalogProducts } from "@/lib/catalog-store";
 
 export type VariantOption = {
   id: string;
@@ -41,6 +42,20 @@ export function ProductPurchasePanel({
   const [pincode, setPincode] = useState("");
   const [deliveryMessage, setDeliveryMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [activeImage, setActiveImage] = useState<string | null | undefined>(imageUrl);
+
+  useEffect(() => {
+    const syncStored = () => {
+      const storedList = getStoredCatalogProducts();
+      const match = storedList.find((p) => p.id === productId);
+      if (match) {
+        if (match.imageUrl || (match.images && match.images[0])) {
+          setActiveImage(match.imageUrl || match.images?.[0]);
+        }
+      }
+    };
+    syncStored();
+  }, [productId]);
 
   const outOfStock = !selected || selected.availableStock <= 0;
 
@@ -83,9 +98,9 @@ export function ProductPurchasePanel({
       {/* Image */}
       <div>
         <div className="relative aspect-square overflow-hidden rounded-3xl bg-surface">
-          {imageUrl ? (
+          {activeImage ? (
             <Image
-              src={imageUrl}
+              src={activeImage}
               alt={productName}
               fill
               sizes="(max-width: 1024px) 100vw, 560px"

@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Minus, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import { useApp } from "@/components/providers";
@@ -12,6 +12,7 @@ import { Badge, Rating } from "@/components/ui/primitives";
 import { DynamicIcon } from "@/lib/icons";
 import { CutSelectorModal } from "@/components/cut-selector-modal";
 import { CustomIngredientModal } from "@/components/custom-ingredient-modal";
+import { getStoredCatalogProducts } from "@/lib/catalog-store";
 
 export type ProductCardData = {
   id: string;
@@ -42,10 +43,35 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const { isStoreOpen } = useStoreStatus();
   const [cutModalOpen, setCutModalOpen] = useState(false);
   const [customModalOpen, setCustomModalOpen] = useState(false);
-  const line = cart.items.find((item) => item.variantId === product.variantId);
-  const outOfStock = product.availableStock <= 0;
-  const imageSrc = product.imageUrl;
-  const discountPct = Math.round(product.discountPercentage);
+  const [cardData, setCardData] = useState<ProductCardData>(product);
+
+  useEffect(() => {
+    const syncStored = () => {
+      const storedList = getStoredCatalogProducts();
+      if (!storedList.length) return;
+      const match = storedList.find((p) => p.id === product.id || p.slug === product.slug);
+      if (match) {
+        setCardData((prev) => ({
+          ...prev,
+          name: match.name,
+          tamilName: match.tamilName ?? prev.tamilName,
+          price: Number(match.price) || prev.price,
+          mrp: Number(match.mrp) || prev.mrp,
+          variantName: match.weight || prev.variantName,
+          availableStock: match.stock ?? prev.availableStock,
+          imageUrl: match.imageUrl || (match.images && match.images[0]) || prev.imageUrl,
+        }));
+      }
+    };
+    syncStored();
+    window.addEventListener("vf_catalog_updated", syncStored);
+    return () => window.removeEventListener("vf_catalog_updated", syncStored);
+  }, [product]);
+
+  const line = cart.items.find((item) => item.variantId === cardData.variantId);
+  const outOfStock = cardData.availableStock <= 0;
+  const imageSrc = cardData.imageUrl;
+  const discountPct = Math.round(cardData.discountPercentage);
 
   const isCustomizable =
     product.categorySlug === "salad" ||
