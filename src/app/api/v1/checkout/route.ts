@@ -32,7 +32,7 @@ export async function GET() {
           profileId: session.id,
           addressType: "home",
           contactName: session.name || "Customer",
-          contactPhone: session.phone || "8667038564",
+          contactPhone: session.phone || "9840532826",
           doorNo: "No 12",
           street: "Main Street, KK Nagar",
           area: "KK Nagar",

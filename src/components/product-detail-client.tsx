@@ -269,7 +269,7 @@ export function ProductPurchasePanel({
         </ul>
 
         <a
-          href={`https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20want%20to%20order%20${encodeURIComponent(productName)}.`}
+          href={`https://wa.me/919840532826?text=Hi%20VeggieFlick!%20I%20want%20to%20order%20${encodeURIComponent(productName)}.`}
           target="_blank"
           rel="noopener noreferrer"
           className="btn btn-outline border-emerald-600 text-emerald-800 font-bold text-xs mt-4 w-full flex items-center justify-center gap-2 hover:bg-emerald-50"

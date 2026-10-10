@@ -398,7 +398,7 @@ export default async function HomePage() {
 
           <div className="flex flex-col sm:flex-row items-center gap-3 md:justify-end">
             <a
-              href="https://wa.me/919840012345?text=Hi%20VeggieFlick%20KK%20Nagar!%20I%20have%20an%20inquiry%20about%20my%20order."
+              href="https://wa.me/919840532826?text=Hi%20VeggieFlick%20KK%20Nagar!%20I%20have%20an%20inquiry%20about%20my%20order."
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-primary bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-6 py-3.5 text-sm w-full sm:w-auto shadow-lg shadow-emerald-900/50"

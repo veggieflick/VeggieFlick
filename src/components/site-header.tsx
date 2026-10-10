@@ -170,7 +170,7 @@ export function SiteHeader() {
 
           {/* WhatsApp Direct Contact */}
           <a
-            href="https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20have%20a%20query%20about%20orders%20and%20deliveries."
+            href="https://wa.me/919840532826?text=Hi%20VeggieFlick!%20I%20have%20a%20query%20about%20orders%20and%20deliveries."
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 px-3 py-1 rounded-full font-bold text-white text-[11px] shadow-xs transition-colors shrink-0"

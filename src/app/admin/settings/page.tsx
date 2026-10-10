@@ -137,7 +137,7 @@ export default function AdminStoreSettingsPage() {
   const [storeName, setStoreName] = useState("VeggieFlick Fresh Cut Veggies & Foods");
   const [fssaiNo, setFssaiNo] = useState("12423000001234");
   const [gstin, setGstin] = useState("33AAAAA0000A1Z5");
-  const [supportPhone, setSupportPhone] = useState("+91 98400 12345");
+  const [supportPhone, setSupportPhone] = useState("+91 98405 32826");
   const [supportEmail, setSupportEmail] = useState("support@veggieflick.in");
   const [hubAddress, setHubAddress] = useState("50, 51st Street, 9th Sector, K.K. Nagar, Chennai - 600078");
 
@@ -150,7 +150,7 @@ export default function AdminStoreSettingsPage() {
   const [partners, setPartners] = useState<DeliveryPartner[]>(INITIAL_PARTNERS);
 
   // WhatsApp & QR State
-  const [whatsappNumber, setWhatsappNumber] = useState("+91 98400 12345");
+  const [whatsappNumber, setWhatsappNumber] = useState("+91 98405 32826");
   const [upiId, setUpiId] = useState("veggieflick@upi");
   const [qrDestination, setQrDestination] = useState("https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=veggieflick@upi&pn=VeggieFlick");
 

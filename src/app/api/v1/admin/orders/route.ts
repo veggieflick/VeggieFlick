@@ -65,7 +65,7 @@ export async function GET(request: Request) {
             id: order.id,
             orderNumber: order.orderNumber,
             customerName: order.shippingSnapshot?.contactName || "Customer",
-            customerPhone: order.shippingSnapshot?.contactPhone || "8667038564",
+            customerPhone: order.shippingSnapshot?.contactPhone || "9840532826",
             grandTotal: String(order.grandTotal),
             orderStatus: order.orderStatus,
             paymentStatus: order.paymentStatus,
@@ -84,7 +84,7 @@ export async function GET(request: Request) {
       combinedMap.set(ord.id, {
         ...ord,
         customerName: ord.customerName || "Customer",
-        customerPhone: ord.customerPhone || "8667038564",
+        customerPhone: ord.customerPhone || "9840532826",
         createdAt: ord.createdAt instanceof Date ? ord.createdAt.toISOString() : ord.createdAt,
       });
     }

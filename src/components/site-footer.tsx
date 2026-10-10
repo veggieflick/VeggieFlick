@@ -50,7 +50,7 @@ export function SiteFooter() {
               <span><strong>Hub Address:</strong> No. 50, 51st Street, 9th Sector, K K Nagar, Chennai - 600078</span>
             </p>
             <p className="flex items-center gap-2">
-              <Phone size={14} strokeWidth={1.6} className="text-emerald-700 shrink-0" /> +91 98400 12345 / +91 44 4000 2200
+              <Phone size={14} strokeWidth={1.6} className="text-emerald-700 shrink-0" /> +91 98405 32826
             </p>
             <p className="flex items-center gap-2">
               <Mail size={14} strokeWidth={1.6} className="text-emerald-700 shrink-0" /> hello@veggieflick.in
@@ -63,7 +63,7 @@ export function SiteFooter() {
           {/* Social Icons & WhatsApp Quick Link */}
           <div className="mt-5 flex items-center gap-3">
             <a
-              href="https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20want%20to%20place%20an%20order."
+              href="https://wa.me/919840532826?text=Hi%20VeggieFlick!%20I%20want%20to%20place%20an%20order."
               target="_blank"
               rel="noopener noreferrer"
               className="flex h-9 items-center gap-2 rounded-full bg-emerald-600 px-3.5 text-white font-bold text-xs transition-transform hover:scale-105 shadow-xs"

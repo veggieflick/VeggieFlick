@@ -99,7 +99,7 @@ export function FloatingActions() {
       <motion.a
         whileHover={{ scale: 1.08 }}
         whileTap={{ scale: 0.92 }}
-        href="https://wa.me/919840012345?text=Hi%20VeggieFlick!%20I%20have%20a%20query%20about%20orders%20and%20deliveries."
+        href="https://wa.me/919840532826?text=Hi%20VeggieFlick!%20I%20have%20a%20query%20about%20orders%20and%20deliveries."
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Chat with VeggieFlick on WhatsApp"

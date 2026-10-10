@@ -309,7 +309,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       await sendWhatsAppOrderAlert({
         orderNumber: res.order.orderNumber,
         customerName: snap?.contactName || "Customer",
-        customerPhone: snap?.contactPhone || "8667038564",
+        customerPhone: snap?.contactPhone || "9840532826",
         grandTotal: res.order.grandTotal,
         paymentMethod: input.paymentMethod,
         address: `${snap?.line || "KK Nagar"}, ${snap?.city || "Chennai"}`,
@@ -366,7 +366,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       couponId: null,
       shippingSnapshot: {
         contactName: "Customer",
-        contactPhone: "8667038564",
+        contactPhone: "9840532826",
         line: "No 12, Main Street, KK Nagar",
         city: "Chennai",
         state: "Tamil Nadu",
@@ -570,7 +570,7 @@ export async function getOrderDetail(orderId: string, profileId?: string) {
     ...memOrder,
     slotName: memOrder.shippingSnapshot?.slot ?? "Morning Slot (06:00 AM - 08:00 AM)",
     customerName: memOrder.shippingSnapshot?.contactName ?? "Customer",
-    customerPhone: memOrder.shippingSnapshot?.contactPhone ?? "8667038564",
+    customerPhone: memOrder.shippingSnapshot?.contactPhone ?? "9840532826",
     items: memOrder.items ?? [
       {
         id: "item-1",

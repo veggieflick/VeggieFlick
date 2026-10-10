@@ -15,7 +15,7 @@ export type OrderNotificationData = {
 };
 
 export async function sendWhatsAppOrderAlert(data: OrderNotificationData) {
-  const rawAdminPhone = process.env.WHATSAPP_ADMIN_NUMBER || "9840012345";
+  const rawAdminPhone = process.env.WHATSAPP_ADMIN_NUMBER || "9840532826";
   const cleanAdminPhone = rawAdminPhone.replace(/[^0-9]/g, "");
   const formattedAdminPhone = cleanAdminPhone.length === 10 ? `91${cleanAdminPhone}` : cleanAdminPhone;
   const fast2smsKey = process.env.FAST2SMS_API_KEY;

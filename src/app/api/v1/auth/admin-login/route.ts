@@ -15,19 +15,19 @@ const DEMO_STAFF: Record<
     password: "Admin@12345",
     name: "Aravind Kumar",
     role: "super_admin",
-    phone: "9840000001",
+    phone: "9840532826",
   },
   "manager@veggieflick.in": {
     password: "Manager@12345",
     name: "Divya Raman",
     role: "manager",
-    phone: "9840000002",
+    phone: "9840532826",
   },
   "warehouse@veggieflick.in": {
     password: "Warehouse@12345",
     name: "Suresh Babu",
     role: "warehouse_staff",
-    phone: "9840000003",
+    phone: "9840532826",
   },
 };
 

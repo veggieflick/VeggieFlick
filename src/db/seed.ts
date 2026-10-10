@@ -588,7 +588,7 @@ async function main() {
       {
         fullName: "Aravind Kumar",
         email: "admin@veggieflick.in",
-        phone: "9840000001",
+        phone: "9840532826",
         role: "super_admin",
         passwordHash: hashPassword("Admin@12345"),
         referralCode: "VFADMIN",
@@ -596,14 +596,14 @@ async function main() {
       {
         fullName: "Divya Raman",
         email: "manager@veggieflick.in",
-        phone: "9840000002",
+        phone: "9840532826",
         role: "manager",
         passwordHash: hashPassword("Manager@12345"),
       },
       {
         fullName: "Suresh Babu",
         email: "warehouse@veggieflick.in",
-        phone: "9840000003",
+        phone: "9840532826",
         role: "warehouse_staff",
         passwordHash: hashPassword("Warehouse@12345"),
       },
