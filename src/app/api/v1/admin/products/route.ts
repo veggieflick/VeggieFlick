@@ -56,7 +56,7 @@ export async function GET() {
         .leftJoin(productVariants, eq(productVariants.productId, products.id))
         .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
         .leftJoin(productImages, eq(productImages.productId, products.id))
-        .orderBy(desc(products.createdAt));
+        .orderBy(desc(productVariants.isDefault), desc(products.createdAt));
     } catch (dbErr) {
       console.warn("Supabase query notice, fallback to static catalog:", dbErr);
     }

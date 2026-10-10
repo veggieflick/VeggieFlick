@@ -8,7 +8,7 @@ import {
   productImages,
 } from "@/db/schema";
 import { eq, ilike, or } from "drizzle-orm";
-import { updateLiveProduct } from "@/lib/data/all-products";
+import { ALL_PRODUCTS, updateLiveProduct } from "@/lib/data/all-products";
 import { getPersistedCatalog } from "@/app/api/v1/admin/catalog/save/route";
 
 function slugify(text: string) {
@@ -126,11 +126,12 @@ export async function PUT(
       }
     }
 
-    // 2. Perform DB update safely by matching UUID or Slug/Name
+    // 2. Perform DB update safely by matching UUID, Static Definition, Slug, or Keyword Fallback
     try {
       let targetDbId: string | null = null;
       const targetSlug = slugify(name || productId.replace(/^prod-/, ""));
 
+      // Pass 1: Match by exact UUID
       if (isUUID(productId)) {
         const foundById = await db
           .select({ id: products.id })
@@ -142,6 +143,36 @@ export async function PUT(
         }
       }
 
+      // Pass 2: Match by static catalog item definition (ALL_PRODUCTS)
+      if (!targetDbId) {
+        const staticItem = ALL_PRODUCTS.find(
+          (p) =>
+            p.id === productId ||
+            p.slug === productId ||
+            (name && p.name.toLowerCase().trim() === name.toLowerCase().trim())
+        );
+
+        if (staticItem) {
+          const conditions: any[] = [];
+          if (isUUID(staticItem.id)) conditions.push(eq(products.id, staticItem.id));
+          if (staticItem.slug) conditions.push(eq(products.slug, staticItem.slug));
+          if (staticItem.name) conditions.push(ilike(products.name, staticItem.name));
+
+          if (conditions.length > 0) {
+            const foundByStatic = await db
+              .select({ id: products.id })
+              .from(products)
+              .where(or(...conditions))
+              .limit(1);
+
+            if (foundByStatic.length > 0) {
+              targetDbId = foundByStatic[0].id;
+            }
+          }
+        }
+      }
+
+      // Pass 3: Match by exact slug or exact name
       if (!targetDbId) {
         const foundBySlug = await db
           .select({ id: products.id })
@@ -157,6 +188,116 @@ export async function PUT(
 
         if (foundBySlug.length > 0) {
           targetDbId = foundBySlug[0].id;
+        }
+      }
+
+      // Pass 4: Match by clean keyword slug (exact match)
+      if (!targetDbId) {
+        const cleanKeyword = productId
+          .replace(/^prod-/, "")
+          .replace(/^whole-/, "")
+          .replace(/^cut-/, "")
+          .replace(/-/g, " ")
+          .trim();
+
+        if (cleanKeyword.length > 2) {
+          const foundByKeyword = await db
+            .select({ id: products.id })
+            .from(products)
+            .where(
+              or(
+                eq(products.slug, cleanKeyword),
+                eq(products.slug, slugify(cleanKeyword)),
+                ilike(products.name, cleanKeyword)
+              )
+            )
+            .limit(1);
+
+          if (foundByKeyword.length > 0) {
+            targetDbId = foundByKeyword[0].id;
+          }
+        }
+      }
+
+      // Pass 4: Match by static catalog definition original name/slug
+      if (!targetDbId) {
+        const staticItem = updateLiveProduct(productId, {}) as any;
+        if (staticItem && staticItem.slug) {
+          const foundByStatic = await db
+            .select({ id: products.id })
+            .from(products)
+            .where(
+              or(
+                eq(products.slug, staticItem.slug),
+                ilike(products.name, `%${staticItem.name || ""}%`)
+              )
+            )
+            .limit(1);
+
+          if (foundByStatic.length > 0) {
+            targetDbId = foundByStatic[0].id;
+          }
+        }
+      }
+
+      // Pass 5: If product does not exist in DB yet, auto-create it in Supabase DB!
+      if (!targetDbId) {
+        const newId = isUUID(productId) ? productId : crypto.randomUUID();
+        const defaultCatId = categoryId || "81227589-88a2-41e0-af7c-70d104f66d5d";
+        const finalSlug = targetSlug || slugify(productId);
+        
+        const insertedProduct = await db.insert(products).values({
+          id: newId,
+          categoryId: defaultCatId,
+          name: name || productId,
+          slug: finalSlug,
+          sku: `VF-${finalSlug.slice(0, 10).toUpperCase().replace(/-/g, "")}`,
+          tamilName: tamilName || null,
+          emoji: emoji || "🥬",
+          shortDescription: shortDescription || null,
+          isOrganic: !!isOrganic,
+          isBestSeller: !!isBestSeller,
+          isFeatured: !!isFeatured,
+          isFreshToday: !!isFreshToday,
+          isCutVegetable: !!isCutVegetable,
+          status: status || "active",
+        }).returning({ id: products.id });
+
+        if (insertedProduct.length > 0) {
+          targetDbId = insertedProduct[0].id;
+
+          // Insert default variant
+          const numPrice = Number(price || 35);
+          const numMrp = Number(mrp || price || 50);
+          const discount = numMrp > numPrice ? Math.round(((numMrp - numPrice) / numMrp) * 100) : 0;
+
+          const insertedVariant = await db.insert(productVariants).values({
+            productId: targetDbId,
+            variantName: variantName || "500 g",
+            weight: "0.500",
+            unit: unit || "g",
+            mrp: String(numMrp),
+            sellingPrice: String(numPrice),
+            costPrice: String(Math.round(numPrice * 0.7)),
+            discountPercentage: String(discount),
+            isDefault: true,
+            status: "active",
+          }).returning({ id: productVariants.id });
+
+          if (insertedVariant.length > 0 && stock !== undefined) {
+            await db.insert(inventory).values({
+              variantId: insertedVariant[0].id,
+              availableStock: Number(stock),
+            });
+          }
+
+          if (imageUrl) {
+            await db.insert(productImages).values({
+              productId: targetDbId,
+              imageUrl: imageUrl,
+              isPrimary: true,
+            });
+          }
         }
       }
 
@@ -188,40 +329,44 @@ export async function PUT(
           .where(eq(productVariants.productId, targetDbId));
 
         if (variants.length > 0) {
-          const variantId = variants[0].id;
-          const numPrice = Number(price);
-          const numMrp = Number(mrp || price);
-          const discount = numMrp > numPrice ? Math.round(((numMrp - numPrice) / numMrp) * 100) : 0;
+          for (const varRow of variants) {
+            const variantId = varRow.id;
+            const numPrice = Number(price);
+            const numMrp = Number(mrp || price);
+            const discount = numMrp > numPrice ? Math.round(((numMrp - numPrice) / numMrp) * 100) : 0;
 
-          const variantUpdateFields: Record<string, any> = {};
-          if (price !== undefined) variantUpdateFields.sellingPrice = String(numPrice);
-          if (mrp !== undefined) variantUpdateFields.mrp = String(numMrp);
-          variantUpdateFields.discountPercentage = String(discount);
-          if (variantName !== undefined) variantUpdateFields.variantName = variantName;
-          if (unit !== undefined) variantUpdateFields.unit = unit;
+            const variantUpdateFields: Record<string, any> = {};
+            if (price !== undefined) variantUpdateFields.sellingPrice = String(numPrice);
+            if (mrp !== undefined) variantUpdateFields.mrp = String(numMrp);
+            if (price !== undefined || mrp !== undefined) variantUpdateFields.discountPercentage = String(discount);
+            if (variantName !== undefined) variantUpdateFields.variantName = variantName;
+            if (unit !== undefined) variantUpdateFields.unit = unit;
 
-          await db
-            .update(productVariants)
-            .set(variantUpdateFields)
-            .where(eq(productVariants.id, variantId));
-
-          // 4. Update Stock in PostgreSQL DB
-          if (stock !== undefined) {
-            const invRows = await db
-              .select({ id: inventory.id })
-              .from(inventory)
-              .where(eq(inventory.variantId, variantId));
-
-            if (invRows.length > 0) {
+            if (Object.keys(variantUpdateFields).length > 0) {
               await db
-                .update(inventory)
-                .set({ availableStock: Number(stock) })
-                .where(eq(inventory.id, invRows[0].id));
-            } else {
-              await db.insert(inventory).values({
-                variantId,
-                availableStock: Number(stock),
-              });
+                .update(productVariants)
+                .set(variantUpdateFields)
+                .where(eq(productVariants.id, variantId));
+            }
+
+            // 4. Update Stock in PostgreSQL DB
+            if (stock !== undefined) {
+              const invRows = await db
+                .select({ id: inventory.id })
+                .from(inventory)
+                .where(eq(inventory.variantId, variantId));
+
+              if (invRows.length > 0) {
+                await db
+                  .update(inventory)
+                  .set({ availableStock: Number(stock) })
+                  .where(eq(inventory.id, invRows[0].id));
+              } else {
+                await db.insert(inventory).values({
+                  variantId,
+                  availableStock: Number(stock),
+                });
+              }
             }
           }
         }

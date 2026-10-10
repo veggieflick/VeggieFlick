@@ -14,6 +14,10 @@ import type { ProductQuery } from "@/lib/validation";
 import { toNumber } from "@/lib/utils";
 import { getLiveProductsList } from "@/lib/data/all-products";
 
+function isUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
 export type ProductCard = {
   id: string;
   name: string;
@@ -1153,7 +1157,41 @@ export async function getCategoryBySlug(slug: string) {
 }
 
 export async function getProductBySlug(slug: string) {
+  const isUuidSlug = isUUID(slug);
+  const cleanKeyword = slug
+    .replace(/^prod-/, "")
+    .replace(/^whole-/, "")
+    .replace(/^cut-/, "")
+    .replace(/-/g, " ")
+    .trim();
+
+  const liveList = getLiveProductsList();
+  const liveMatch = liveList.find(
+    (l) =>
+      l.id === slug ||
+      l.slug === slug ||
+      l.name.toLowerCase().trim() === slug.replace(/-/g, " ").toLowerCase().trim() ||
+      (cleanKeyword.length > 2 &&
+        (l.id.toLowerCase().includes(cleanKeyword.toLowerCase()) ||
+          l.slug.toLowerCase().includes(cleanKeyword.toLowerCase()) ||
+          l.name.toLowerCase().includes(cleanKeyword.toLowerCase())))
+  );
+
   try {
+    const dbConditions = [
+      eq(products.slug, slug),
+      ilike(products.name, slug.replace(/-/g, " ")),
+    ];
+    if (isUuidSlug) dbConditions.push(eq(products.id, slug));
+    if (liveMatch) {
+      if (liveMatch.slug) dbConditions.push(eq(products.slug, liveMatch.slug));
+      if (liveMatch.name) dbConditions.push(ilike(products.name, liveMatch.name));
+    }
+    if (cleanKeyword.length > 2) {
+      dbConditions.push(ilike(products.slug, `%${cleanKeyword}%`));
+      dbConditions.push(ilike(products.name, `%${cleanKeyword}%`));
+    }
+
     const [row] = await db
       .select({
         product: products,
@@ -1163,7 +1201,7 @@ export async function getProductBySlug(slug: string) {
       })
       .from(products)
       .innerJoin(categories, eq(categories.id, products.categoryId))
-      .where(and(eq(products.slug, slug), eq(products.status, "active")))
+      .where(and(or(...dbConditions), eq(products.status, "active")))
       .limit(1);
 
     if (row) {
@@ -1183,7 +1221,7 @@ export async function getProductBySlug(slug: string) {
         .from(productVariants)
         .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
         .where(and(eq(productVariants.productId, row.product.id), eq(productVariants.status, "active")))
-        .orderBy(asc(productVariants.sellingPrice));
+        .orderBy(desc(productVariants.isDefault), asc(productVariants.sellingPrice));
 
       const images = await db
         .select()
@@ -1207,25 +1245,53 @@ export async function getProductBySlug(slug: string) {
         .orderBy(desc(reviews.createdAt))
         .limit(12);
 
-      return {
-        ...row.product,
-        ratingAverageNumber: toNumber(row.product.ratingAverage, 4.5),
-        categoryName: row.categoryName,
-        categorySlug: row.categorySlug,
-        categoryIcon: row.categoryIcon,
-        variants: variants.map((v) => ({
+      const finalName = liveMatch ? liveMatch.name : row.product.name;
+      const finalTamilName = liveMatch?.tamilName ?? row.product.tamilName;
+      const finalPrice = liveMatch ? Number(liveMatch.price) : undefined;
+      const finalMrp = liveMatch ? Number(liveMatch.mrp) : undefined;
+      const finalStock = liveMatch ? Number(liveMatch.availableStock) : undefined;
+      const finalImage = liveMatch?.imageUrl || (images.length > 0 ? images[0].imageUrl : undefined);
+
+      const formattedVariants = variants.map((v, idx) => {
+        const isFirst = idx === 0 || v.isDefault;
+        const sellingPrice = isFirst && finalPrice !== undefined ? finalPrice : toNumber(v.sellingPrice);
+        const mrp = isFirst && finalMrp !== undefined ? finalMrp : toNumber(v.mrp);
+        const stock = isFirst && finalStock !== undefined ? finalStock : (v.availableStock ?? 0);
+        const discountPercentage = mrp > sellingPrice ? Math.round(((mrp - sellingPrice) / mrp) * 100) : toNumber(v.discountPercentage);
+
+        return {
           id: v.id,
           variantName: v.variantName,
           weight: toNumber(v.weight),
           unit: v.unit,
-          mrp: toNumber(v.mrp),
-          sellingPrice: toNumber(v.sellingPrice),
-          discountPercentage: toNumber(v.discountPercentage),
+          mrp,
+          sellingPrice,
+          discountPercentage,
           taxPercentage: toNumber(v.taxPercentage),
           isDefault: v.isDefault,
-          availableStock: v.availableStock ?? 0,
-        })),
-        images,
+          availableStock: stock,
+        };
+      });
+
+      const finalImages = images.length > 0
+        ? (finalImage ? [{ ...images[0], imageUrl: finalImage }, ...images.slice(1)] : images)
+        : (finalImage ? [{ id: "img-live-1", productId: row.product.id, imageUrl: finalImage, thumbnailUrl: null, displayOrder: 0, isPrimary: true, createdAt: new Date() }] : []);
+
+      return {
+        ...row.product,
+        name: finalName,
+        tamilName: finalTamilName,
+        emoji: liveMatch?.emoji || row.product.emoji,
+        shortDescription: liveMatch?.shortDescription || row.product.shortDescription,
+        isOrganic: liveMatch?.isOrganic !== undefined ? Boolean(liveMatch.isOrganic) : row.product.isOrganic,
+        isBestSeller: liveMatch?.isBestSeller !== undefined ? Boolean(liveMatch.isBestSeller) : row.product.isBestSeller,
+        isFeatured: liveMatch?.isFeatured !== undefined ? Boolean(liveMatch.isFeatured) : row.product.isFeatured,
+        ratingAverageNumber: toNumber(row.product.ratingAverage, 4.5),
+        categoryName: row.categoryName,
+        categorySlug: row.categorySlug,
+        categoryIcon: row.categoryIcon,
+        variants: formattedVariants,
+        images: finalImages,
         reviews: productReviews,
       };
     }
@@ -1233,22 +1299,61 @@ export async function getProductBySlug(slug: string) {
     console.warn("getProductBySlug db error:", err);
   }
 
-  const fb = FALLBACK_PRODUCTS.find((p) => p.slug === slug);
+  const fb =
+    FALLBACK_PRODUCTS.find(
+      (p) =>
+        p.slug === slug ||
+        p.id === slug ||
+        (cleanKeyword.length > 2 && (p.slug.includes(cleanKeyword) || p.id.includes(cleanKeyword)))
+    ) ?? (liveMatch ? ({
+      id: liveMatch.id,
+      name: liveMatch.name,
+      tamilName: liveMatch.tamilName,
+      slug: liveMatch.slug || slug,
+      emoji: liveMatch.emoji || "🥬",
+      shortDescription: liveMatch.shortDescription || "",
+      categoryName: liveMatch.categoryName || "Vegetables Shopping",
+      categorySlug: "vegetables-shopping",
+      variantId: `var-${liveMatch.id}`,
+      variantName: "500 g",
+      unit: "g",
+      mrp: liveMatch.mrp,
+      price: liveMatch.price,
+      discountPercentage: liveMatch.discountPercentage || 20,
+      availableStock: liveMatch.availableStock,
+      isOrganic: liveMatch.isOrganic,
+      isBestSeller: liveMatch.isBestSeller,
+      isFeatured: liveMatch.isFeatured,
+      isFreshToday: liveMatch.isFreshToday,
+      isCutVegetable: liveMatch.isCutVegetable,
+      rating: 4.8,
+      ratingCount: 350,
+      soldCount: 2500,
+      imageUrl: liveMatch.imageUrl,
+    } as any) : null);
+
   if (!fb) return null;
+
+  const finalFbName = liveMatch ? liveMatch.name : fb.name;
+  const finalFbTamil = liveMatch?.tamilName ?? fb.tamilName;
+  const finalFbPrice = liveMatch ? Number(liveMatch.price) : Number(fb.price);
+  const finalFbMrp = liveMatch ? Number(liveMatch.mrp) : Number(fb.mrp);
+  const finalFbStock = liveMatch ? Number(liveMatch.availableStock) : fb.availableStock;
+  const finalFbImage = liveMatch?.imageUrl || fb.imageUrl;
 
   return {
     id: fb.id,
     categoryId: "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380c01",
     subCategoryId: null,
     brandId: null,
-    name: fb.name,
-    tamilName: fb.tamilName,
+    name: finalFbName,
+    tamilName: finalFbTamil,
     slug: fb.slug,
     sku: `VF-${fb.slug}`,
     barcode: "8901000001",
-    emoji: fb.emoji,
-    shortDescription: fb.shortDescription,
-    description: `${fb.shortDescription} Sourced daily from Kovambedu & hill partner farms in Tamil Nadu.`,
+    emoji: liveMatch?.emoji || fb.emoji,
+    shortDescription: liveMatch?.shortDescription || fb.shortDescription,
+    description: `${liveMatch?.shortDescription || fb.shortDescription} Sourced daily from Kovambedu & hill partner farms in Tamil Nadu.`,
     nutrition: [
       { label: "Energy", value: "35 kcal / 100 g" },
       { label: "Protein", value: "1.2 g" },
@@ -1257,17 +1362,17 @@ export async function getProductBySlug(slug: string) {
     ],
     origin: "Ooty & Hosur, Tamil Nadu",
     shelfLife: "4-5 days refrigerated",
-    isFeatured: fb.isFeatured,
-    isBestSeller: fb.isBestSeller,
-    isOrganic: fb.isOrganic,
+    isFeatured: liveMatch?.isFeatured !== undefined ? Boolean(liveMatch.isFeatured) : fb.isFeatured,
+    isBestSeller: liveMatch?.isBestSeller !== undefined ? Boolean(liveMatch.isBestSeller) : fb.isBestSeller,
+    isOrganic: liveMatch?.isOrganic !== undefined ? Boolean(liveMatch.isOrganic) : fb.isOrganic,
     isCutVegetable: fb.isCutVegetable,
     isFreshToday: fb.isFreshToday,
-    ratingAverage: fb.rating.toFixed(2),
-    ratingAverageNumber: fb.rating,
-    ratingCount: fb.ratingCount,
-    soldCount: fb.soldCount,
+    ratingAverage: fb.rating ? fb.rating.toFixed(2) : "4.80",
+    ratingAverageNumber: fb.rating || 4.8,
+    ratingCount: fb.ratingCount || 350,
+    soldCount: fb.soldCount || 2500,
     status: "active" as const,
-    seoTitle: `Buy ${fb.name} Online in Chennai`,
+    seoTitle: `Buy ${finalFbName} Online in Chennai`,
     seoDescription: fb.shortDescription ?? "",
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -1275,48 +1380,21 @@ export async function getProductBySlug(slug: string) {
     categoryName: fb.categoryName,
     categorySlug: fb.categorySlug,
     categoryIcon: "vegetables",
-    variants: fb.slug === "combo-bisibele"
-      ? [
-          {
-            id: "var-bisibele-with-onion",
-            variantName: "With Onion (Serves 4)",
-            weight: 0.5,
-            unit: "pack",
-            mrp: 190,
-            sellingPrice: 139,
-            discountPercentage: 26,
-            taxPercentage: 0,
-            isDefault: true,
-            availableStock: 105,
-          },
-          {
-            id: "var-bisibele-without-onion",
-            variantName: "Without Onion (No Garlic / Sattvic - Serves 4)",
-            weight: 0.5,
-            unit: "pack",
-            mrp: 180,
-            sellingPrice: 129,
-            discountPercentage: 28,
-            taxPercentage: 0,
-            isDefault: false,
-            availableStock: 95,
-          },
-        ]
-      : [
-          {
-            id: fb.variantId,
-            variantName: fb.variantName,
-            weight: 0.5,
-            unit: fb.unit,
-            mrp: fb.mrp,
-            sellingPrice: fb.price,
-            discountPercentage: fb.discountPercentage,
-            taxPercentage: 0,
-            isDefault: true,
-            availableStock: fb.availableStock,
-          },
-        ],
-    images: [{ id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380d01", productId: fb.id, imageUrl: fb.imageUrl ?? "", thumbnailUrl: null, displayOrder: 0, isPrimary: true, createdAt: new Date() }],
+    variants: [
+      {
+        id: fb.variantId || `var-${fb.id}`,
+        variantName: fb.variantName || "500 g",
+        weight: 0.5,
+        unit: fb.unit || "g",
+        mrp: finalFbMrp,
+        sellingPrice: finalFbPrice,
+        discountPercentage: Math.round(((finalFbMrp - finalFbPrice) / (finalFbMrp || 1)) * 100) || 20,
+        taxPercentage: 0,
+        isDefault: true,
+        availableStock: finalFbStock,
+      },
+    ],
+    images: [{ id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380d01", productId: fb.id, imageUrl: finalFbImage ?? "", thumbnailUrl: null, displayOrder: 0, isPrimary: true, createdAt: new Date() }],
     reviews: [
       { id: "b0eebc99-9c0b-4ef8-bb6d-6bb9bd380e01", rating: 5, reviewTitle: "Genuinely fresh", review: "Delivered fast and looks harvest fresh!", isVerifiedPurchase: true, createdAt: new Date(), authorName: "Priya N." },
     ],
