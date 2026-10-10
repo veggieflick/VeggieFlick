@@ -49,7 +49,7 @@ export const ALL_PRODUCTS: ProductItem[] = [
     variantName: "250 g",
     unit: "g",
     mrp: 45,
-    price: 34,
+    price: 35,
     discountPercentage: 24,
     availableStock: 180,
   },
