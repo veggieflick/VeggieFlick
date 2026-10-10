@@ -265,9 +265,9 @@ export const ALL_PRODUCTS: ProductItem[] = [
   },
   {
     id: "prod-whole-onion",
-    name: "Bangalore Onion",
+    name: "Onion Slices",
     tamilName: "வெங்காயம்",
-    slug: "bangalore-onion",
+    slug: "onion-slices",
     emoji: "onion",
     imageUrl: "/images/products/whole-onion.jpg",
     shortDescription: "Crisp, tight-layered onions with great shelf life.",

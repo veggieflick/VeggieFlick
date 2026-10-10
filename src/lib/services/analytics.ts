@@ -201,7 +201,7 @@ export async function getTopProducts(limit = 6) {
 
   return [
     { name: "Country Tomato", emoji: "🍅", units: 1420, revenue: 78100 },
-    { name: "Bangalore Onion", emoji: "🧅", units: 1180, revenue: 44840 },
+    { name: "Onion Slices", emoji: "🧅", units: 1180, revenue: 44840 },
     { name: "Fresh Arai Keerai", emoji: "🥬", units: 890, revenue: 22250 },
     { name: "Cut Sambar Veggie Mix", emoji: "🥕", units: 750, revenue: 33750 },
     { name: "Ooty Carrot", emoji: "🥕", units: 620, revenue: 34100 },

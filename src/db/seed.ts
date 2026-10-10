@@ -91,7 +91,7 @@ const PRODUCTS: ProductSeed[] = [
     variants: [v("500 g", 0.5, "g", 40, 29, 180), v("1 kg", 1, "kg", 78, 55, 140), v("2 kg", 2, "kg", 150, 104, 60)],
   },
   {
-    name: "Bangalore Onion", tamil: "வெங்காயம்", emoji: "onion", category: "Fresh Vegetables", sub: "Daily Essentials",
+    name: "Onion Slices", tamil: "வெங்காயம்", emoji: "onion", category: "Fresh Vegetables", sub: "Daily Essentials",
     short: "Big sized onions with crisp layers and long shelf life.",
     description: "Premium grade Bangalore rose onions, sun-cured for longer shelf life. Uniform bulbs with tight skin — the everyday base for every South Indian kitchen.",
     origin: "Chikkaballapur, Karnataka", shelfLife: "12-15 days in a dry place",

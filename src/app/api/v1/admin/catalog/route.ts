@@ -57,7 +57,7 @@ const DEFAULT_DEMO_INVENTORY = [
   },
   {
     variantId: "v-102",
-    productName: "Bangalore Onion",
+    productName: "Onion Slices",
     emoji: "🧅",
     variantName: "1 kg",
     sku: "VF-0002",
