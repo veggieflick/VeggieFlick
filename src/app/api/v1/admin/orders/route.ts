@@ -17,14 +17,21 @@ const querySchema = z.object({
     .optional(),
 });
 
+const globalForOrders = globalThis as typeof globalThis & {
+  __veggieflickOrderStore?: Map<string, any>;
+};
+
 export async function GET(request: Request) {
   return handle(async () => {
     await requirePermission("orders.read");
     const { page, limit, status } = parseQuery(request, querySchema);
     const where = status ? eq(orders.orderStatus, status) : undefined;
 
+    let dbOrders: any[] = [];
+    let totalCount = 0;
+
     try {
-      const rows = await db
+      dbOrders = await db
         .select({
           id: orders.id,
           orderNumber: orders.orderNumber,
@@ -36,50 +43,57 @@ export async function GET(request: Request) {
           createdAt: orders.createdAt,
         })
         .from(orders)
-        .innerJoin(profiles, eq(profiles.id, orders.profileId))
+        .leftJoin(profiles, eq(profiles.id, orders.profileId))
         .where(where)
         .orderBy(desc(orders.createdAt))
         .limit(limit)
         .offset((page - 1) * limit);
 
       const [{ value: total }] = await db.select({ value: count() }).from(orders).where(where);
-      return ok(rows, paginationMeta(page, limit, Number(total)));
+      totalCount = Number(total);
     } catch (dbErr) {
-      console.warn("admin orders GET DB fallback:", dbErr);
-      const demoRows = [
-        {
-          id: "ord-101",
-          orderNumber: "VF-2026-8812",
-          customerName: "Lakshmi Subramanian",
-          customerPhone: "+91 98401 23456",
-          grandTotal: "680.00",
-          orderStatus: "out_for_delivery",
-          paymentStatus: "paid",
-          createdAt: new Date().toISOString(),
-        },
-        {
-          id: "ord-102",
-          orderNumber: "VF-2026-8811",
-          customerName: "Sundararaman K",
-          customerPhone: "+91 94440 98765",
-          grandTotal: "450.00",
-          orderStatus: "confirmed",
-          paymentStatus: "paid",
-          createdAt: new Date(Date.now() - 40 * 60 * 1000).toISOString(),
-        },
-        {
-          id: "ord-103",
-          orderNumber: "VF-2026-8810",
-          customerName: "Rahul Menon",
-          customerPhone: "+91 98845 67890",
-          grandTotal: "920.00",
-          orderStatus: "delivered",
-          paymentStatus: "paid",
-          createdAt: new Date(Date.now() - 120 * 60 * 1000).toISOString(),
-        },
-      ];
-      return ok(demoRows, paginationMeta(1, 20, 3));
+      console.warn("admin orders GET DB query notice:", dbErr);
     }
+
+    // Also collect memory orders placed during current server session
+    const memoryStore = globalForOrders.__veggieflickOrderStore;
+    const memoryOrdersList: any[] = [];
+    if (memoryStore && memoryStore.size > 0) {
+      for (const order of memoryStore.values()) {
+        if (!status || order.orderStatus === status) {
+          memoryOrdersList.push({
+            id: order.id,
+            orderNumber: order.orderNumber,
+            customerName: order.shippingSnapshot?.contactName || "Customer",
+            customerPhone: order.shippingSnapshot?.contactPhone || "8667038564",
+            grandTotal: String(order.grandTotal),
+            orderStatus: order.orderStatus,
+            paymentStatus: order.paymentStatus,
+            createdAt: order.createdAt instanceof Date ? order.createdAt.toISOString() : order.createdAt,
+          });
+        }
+      }
+    }
+
+    // Combine DB orders & memory orders, deduplicate by ID
+    const combinedMap = new Map();
+    for (const ord of memoryOrdersList) {
+      combinedMap.set(ord.id, ord);
+    }
+    for (const ord of dbOrders) {
+      combinedMap.set(ord.id, {
+        ...ord,
+        customerName: ord.customerName || "Customer",
+        customerPhone: ord.customerPhone || "8667038564",
+        createdAt: ord.createdAt instanceof Date ? ord.createdAt.toISOString() : ord.createdAt,
+      });
+    }
+
+    const finalOrders = Array.from(combinedMap.values()).sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    return ok(finalOrders, paginationMeta(page, limit, Math.max(totalCount, finalOrders.length)));
   });
 }
 
@@ -90,6 +104,7 @@ export async function PATCH(request: Request) {
     const session = await requirePermission("orders.update");
     const { orderId, orderStatus, note } = await parseBody(request, patchSchema);
     let updated: any = null;
+
     try {
       updated = await updateOrderStatus(orderId, orderStatus, note);
       await db.insert(auditLogs).values({
@@ -99,53 +114,17 @@ export async function PATCH(request: Request) {
         entityId: orderId,
         metadata: { orderStatus, note: note ?? null },
       });
-    } catch (e) {
-      console.warn("DB updateOrderStatus error:", e);
-      updated = { id: orderId, orderStatus };
+    } catch (err) {
+      console.warn("Update DB order status notice, updating memory store:", err);
+      const memoryStore = globalForOrders.__veggieflickOrderStore;
+      if (memoryStore && memoryStore.has(orderId)) {
+        const ord = memoryStore.get(orderId);
+        ord.orderStatus = orderStatus;
+        memoryStore.set(orderId, ord);
+        updated = ord;
+      }
     }
 
-    return ok(updated);
+    return ok(updated ?? { id: orderId, orderStatus });
   });
 }
-
-const assignSchema = z.object({ orderId: z.string().trim().min(1) });
-
-export async function POST(request: Request) {
-  return handle(async () => {
-    await requirePermission("orders.update");
-    const { orderId } = await parseBody(request, assignSchema);
-    let updated: any = null;
-    let deliveryOtp: string | null = "4821";
-    try {
-      updated = await updateOrderStatus(orderId, "out_for_delivery");
-      const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-      deliveryOtp = order?.deliveryOtp ?? "4821";
-    } catch (e) {
-      console.warn("DB assign error:", e);
-    }
-    return ok({ updated: updated ?? { id: orderId, orderStatus: "out_for_delivery" }, deliveryOtp });
-  });
-}
-
-export async function DELETE(request: Request) {
-  return handle(async () => {
-    const session = await requirePermission("orders.update");
-    const orderId = new URL(request.url).searchParams.get("orderId") ?? "";
-    let updated: any = null;
-    try {
-      updated = await updateOrderStatus(orderId, "cancelled", "Cancelled by VeggieFlick operations.");
-      await db.insert(auditLogs).values({
-        actorId: session.id,
-        action: "order.cancel",
-        entity: "order",
-        entityId: orderId,
-      });
-    } catch (e) {
-      console.warn("DB cancel error:", e);
-      updated = { id: orderId, orderStatus: "cancelled" };
-    }
-    return ok(updated);
-  });
-}
-
-export const runtime = "nodejs";

@@ -124,7 +124,21 @@ function mapCard(row: CardRow): ProductCard {
 function buildFilters(query: Partial<ProductQuery>) {
   const filters = [eq(products.status, "active"), eq(productVariants.status, "active")];
 
-  if (query.category) filters.push(eq(categories.slug, query.category));
+  if (query.category) {
+    if (query.category === "vegetables-shopping") {
+      filters.push(
+        or(
+          eq(categories.slug, "vegetables-shopping"),
+          eq(categories.slug, "fresh-vegetables"),
+          eq(categories.slug, "cut-vegetables")
+        )!
+      );
+    } else if (query.category === "salad") {
+      filters.push(or(eq(categories.slug, "salad"), eq(categories.slug, "salads"))!);
+    } else {
+      filters.push(eq(categories.slug, query.category));
+    }
+  }
   if (query.subCategory) filters.push(eq(subCategories.slug, query.subCategory));
   if (query.search) {
     const term = `%${query.search}%`;
@@ -953,10 +967,7 @@ export async function listProducts(query: ProductQuery) {
       .from(products)
       .innerJoin(categories, eq(categories.id, products.categoryId))
       .leftJoin(subCategories, eq(subCategories.id, products.subCategoryId))
-      .innerJoin(
-        productVariants,
-        and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
-      )
+      .innerJoin(productVariants, eq(productVariants.productId, products.id))
       .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
       .where(where)
       .orderBy(...orderClause(query.sort))
@@ -968,10 +979,7 @@ export async function listProducts(query: ProductQuery) {
       .from(products)
       .innerJoin(categories, eq(categories.id, products.categoryId))
       .leftJoin(subCategories, eq(subCategories.id, products.subCategoryId))
-      .innerJoin(
-        productVariants,
-        and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
-      )
+      .innerJoin(productVariants, eq(productVariants.productId, products.id))
       .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
       .where(where);
 

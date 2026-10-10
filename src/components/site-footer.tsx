@@ -95,7 +95,7 @@ export function SiteFooter() {
           <h2 className="mb-4 text-[12px] font-bold tracking-widest text-emerald-800 uppercase">Hub & Offers</h2>
           <ul className="grid gap-2.5 text-[13px]">
             {COMPANY_LINKS.map((l) => (
-              <li key={l.href}>
+              <li key={l.label}>
                 <Link href={l.href} className="text-ink transition-colors hover:text-emerald-700">
                   {l.label}
                 </Link>
