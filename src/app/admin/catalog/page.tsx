@@ -45,7 +45,6 @@ type Product = {
 
 const CATEGORIES = [
   "All Categories",
-  "Vegetables Shopping",
   "Fresh Vegetables",
   "Cut Vegetables",
   "Fresh Fruits",
@@ -304,9 +303,9 @@ export default function AdminCatalogPage() {
 
     const matchesCategory =
       selectedCategory === "All Categories" ||
-      p.categoryName.toLowerCase().includes(selectedCategory.toLowerCase()) ||
-      (selectedCategory === "Fresh Vegetables" && p.categoryName === "Vegetables Shopping") ||
-      (selectedCategory === "Vegetables Shopping" && p.categoryName === "Fresh Vegetables");
+      p.categoryName.toLowerCase().trim() === selectedCategory.toLowerCase().trim() ||
+      (selectedCategory === "Fresh Vegetables" && (p.categoryName === "Vegetables Shopping" || p.categoryName === "Fresh Vegetables")) ||
+      (selectedCategory === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable));
 
     return matchesSearch && matchesCategory;
   });
@@ -387,9 +386,9 @@ export default function AdminCatalogPage() {
                   ? products.length
                   : products.filter(
                       (p) =>
-                        p.categoryName.toLowerCase().includes(cat.toLowerCase()) ||
-                        (cat === "Fresh Vegetables" && p.categoryName === "Vegetables Shopping") ||
-                        (cat === "Vegetables Shopping" && p.categoryName === "Fresh Vegetables")
+                        p.categoryName.toLowerCase().trim() === cat.toLowerCase().trim() ||
+                        (cat === "Fresh Vegetables" && (p.categoryName === "Vegetables Shopping" || p.categoryName === "Fresh Vegetables")) ||
+                        (cat === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable))
                     ).length;
 
               return (
