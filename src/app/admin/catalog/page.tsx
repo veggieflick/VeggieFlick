@@ -177,7 +177,9 @@ export default function AdminCatalogPage() {
     }
   };
 
-  // Single Image Upload for a specific product row
+  const [isModalUploading, setIsModalUploading] = useState(false);
+
+  // Single Image Upload for a specific product row (auto-saves to Supabase DB)
   const handleSingleImageUpload = async (productId: string, file: File) => {
     setUploadingImageId(productId);
     const body = new FormData();
@@ -191,7 +193,13 @@ export default function AdminCatalogPage() {
       const data = await res.json();
       if (data.url) {
         handleInlineChange(productId, "imageUrl", data.url);
-        showMessage("Photo uploaded! Click 'Save' to apply to Supabase DB.", "success");
+
+        // Auto-save to Supabase DB immediately
+        const target = products.find((p) => p.id === productId);
+        if (target) {
+          await handleSaveProduct({ ...target, imageUrl: data.url });
+        }
+        showMessage("Photo uploaded & saved to Supabase DB!", "success");
       } else {
         throw new Error(data.error || "Upload failed");
       }
@@ -483,7 +491,9 @@ export default function AdminCatalogPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="relative group flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-slate-50">
-                            {p.imageUrl ? (
+                            {isUploading ? (
+                              <RefreshCw className="h-5 w-5 animate-spin text-emerald-600" />
+                            ) : p.imageUrl ? (
                               <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" />
                             ) : (
                               <span className="text-2xl">{p.emoji || "🥬"}</span>
@@ -701,19 +711,41 @@ export default function AdminCatalogPage() {
 
                   <div className="flex-1 space-y-2">
                     <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow hover:bg-emerald-700 transition w-fit">
-                      <Upload className="h-4 w-4" />
-                      Upload Photo
+                      {isModalUploading ? (
+                        <>
+                          <RefreshCw className="h-4 w-4 animate-spin" />
+                          Uploading Desktop Photo...
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="h-4 w-4" />
+                          Upload Photo from Desktop
+                        </>
+                      )}
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => {
+                        disabled={isModalUploading}
+                        onChange={async (e) => {
                           const f = e.target.files?.[0];
                           if (f) {
-                            const body = new FormData();
-                            body.append("file", f);
-                            fetch("/api/v1/admin/upload", { method: "POST", body })
-                              .then((r) => r.json())
-                              .then((d) => d.url && setFormData((prev) => ({ ...prev, imageUrl: d.url })));
+                            setIsModalUploading(true);
+                            try {
+                              const body = new FormData();
+                              body.append("file", f);
+                              const r = await fetch("/api/v1/admin/upload", { method: "POST", body });
+                              const d = await r.json();
+                              if (d.url) {
+                                setFormData((prev) => ({ ...prev, imageUrl: d.url }));
+                                showMessage("Desktop photo uploaded!", "success");
+                              } else {
+                                throw new Error(d.error || "Upload failed");
+                              }
+                            } catch (err) {
+                              showMessage("Photo upload failed: " + (err as Error).message, "error");
+                            } finally {
+                              setIsModalUploading(false);
+                            }
                           }
                         }}
                         className="hidden"

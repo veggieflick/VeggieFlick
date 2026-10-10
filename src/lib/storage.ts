@@ -11,8 +11,8 @@ export const supabase = createClient(
 );
 
 /**
- * Upload product image file to Supabase Storage bucket 'product-images'.
- * If Supabase storage is not configured/bucket missing, fall back to local public uploads.
+ * Upload product image file (from Desktop / Downloads) to Supabase Storage bucket 'product-images' or local storage.
+ * Ensures 100% success fallback so any image chosen on desktop displays instantly.
  */
 export async function uploadProductImageFile(
   buffer: Buffer,
@@ -20,12 +20,13 @@ export async function uploadProductImageFile(
   contentType: string
 ): Promise<string> {
   const ext = path.extname(originalFilename) || ".jpg";
-  const cleanBaseName = path.basename(originalFilename, ext).toLowerCase().replace(/[^a-z0-9]/g, "-");
+  const cleanBaseName = path.basename(originalFilename, ext).toLowerCase().replace(/[^a-z0-9]/g, "-") || "product";
   const filename = `${cleanBaseName}-${Date.now()}${ext}`;
   const bucketName = "product-images";
 
-  try {
-    if (supabaseAnonKey) {
+  // 1. Attempt Supabase Storage upload if anon key is configured
+  if (supabaseAnonKey && supabaseAnonKey !== "dummy-anon-key-for-build") {
+    try {
       const { data, error } = await supabase.storage
         .from(bucketName)
         .upload(filename, buffer, {
@@ -42,12 +43,12 @@ export async function uploadProductImageFile(
           return publicUrlData.publicUrl;
         }
       }
+    } catch (err) {
+      console.warn("Supabase Storage upload notice, falling back to public disk/data URL:", err);
     }
-  } catch (err) {
-    console.warn("Supabase Storage upload warning, attempting local save fallback:", err);
   }
 
-  // Fallback: Save to local public/images/products directory
+  // 2. Save to local public/images/products directory
   try {
     const localDir = path.join(process.cwd(), "public", "images", "products");
     if (!fs.existsSync(localDir)) {
@@ -57,7 +58,9 @@ export async function uploadProductImageFile(
     fs.writeFileSync(filePath, buffer);
     return `/images/products/${filename}`;
   } catch (err) {
-    console.error("Local file save error:", err);
-    throw new Error("Failed to save image file.");
+    console.warn("Local disk write notice, converting to Data URL fallback:", err);
+    // 3. Fallback to Data URL so desktop upload never fails
+    const mime = contentType || "image/jpeg";
+    return `data:${mime};base64,${buffer.toString("base64")}`;
   }
 }
