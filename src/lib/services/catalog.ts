@@ -12,6 +12,7 @@ import {
 } from "@/db/schema";
 import type { ProductQuery } from "@/lib/validation";
 import { toNumber } from "@/lib/utils";
+import { getLiveProductsList } from "@/lib/data/all-products";
 
 export type ProductCard = {
   id: string;
@@ -984,7 +985,26 @@ export async function listProducts(query: ProductQuery) {
       .where(where);
 
     if (rows && rows.length > 0) {
-      return { items: rows.map(mapCard), total: Number(total) };
+      const items = rows.map(mapCard);
+      const liveList = getLiveProductsList();
+      const updatedItems = items.map((item) => {
+        const live = liveList.find(
+          (l) => l.id === item.id || l.slug === item.slug || l.name.toLowerCase() === item.name.toLowerCase()
+        );
+        if (live) {
+          return {
+            ...item,
+            name: live.name,
+            tamilName: live.tamilName ?? item.tamilName,
+            price: Number(live.price),
+            mrp: Number(live.mrp),
+            discountPercentage: live.discountPercentage ?? item.discountPercentage,
+            availableStock: Number(live.availableStock),
+          };
+        }
+        return item;
+      });
+      return { items: updatedItems, total: Number(total) };
     }
   } catch (err) {
     console.warn("listProducts query error:", err);
@@ -999,34 +1019,48 @@ function getActiveFallbackProducts(): (ProductCard & { imageUrl?: string })[] {
   ) {
     rawList = (globalThis as any).__VF_SAVED_CATALOG__;
   }
+  
+  const liveList = getLiveProductsList();
+  
   return rawList
     .filter((p: any) => p.status !== "deleted" && p.status !== "inactive")
-    .map((p: any) => ({
-      id: p.id,
-      name: p.name,
-      tamilName: p.tamilName ?? null,
-      slug: p.slug,
-      emoji: p.emoji || "🥬",
-      imageUrl: p.imageUrl || (p.images && p.images[0]) || null,
-      shortDescription: p.shortDescription ?? null,
-      isOrganic: Boolean(p.isOrganic),
-      isBestSeller: Boolean(p.isBestSeller),
-      isFeatured: Boolean(p.isFeatured),
-      isFreshToday: true,
-      isCutVegetable: p.categoryName === "Vegetables Shopping",
-      rating: 4.8,
-      ratingCount: 350,
-      soldCount: 2500,
-      categoryName: p.categoryName || "Vegetables Shopping",
-      categorySlug: (p.categoryName || "").toLowerCase().includes("salad") ? "salad" : "vegetables-shopping",
-      variantId: `var-${p.id}`,
-      variantName: p.weight || "250 g",
-      unit: "g",
-      mrp: Number(p.mrp) || 50,
-      price: Number(p.price) || 35,
-      discountPercentage: Math.round(((Number(p.mrp) - Number(p.price)) / (Number(p.mrp) || 1)) * 100) || 20,
-      availableStock: p.stock ?? 100,
-    }));
+    .map((p: any) => {
+      const live = liveList.find(
+        (l) => l.id === p.id || l.slug === p.slug || l.name.toLowerCase() === p.name.toLowerCase()
+      );
+      const price = live ? Number(live.price) : Number(p.price) || 35;
+      const mrp = live ? Number(live.mrp) : Number(p.mrp) || 50;
+      const stock = live ? Number(live.availableStock) : p.stock ?? 100;
+      const name = live ? live.name : p.name;
+      const tamilName = live?.tamilName ?? p.tamilName ?? null;
+
+      return {
+        id: p.id,
+        name,
+        tamilName,
+        slug: p.slug,
+        emoji: p.emoji || "🥬",
+        imageUrl: live?.imageUrl || p.imageUrl || (p.images && p.images[0]) || null,
+        shortDescription: p.shortDescription ?? null,
+        isOrganic: Boolean(live?.isOrganic ?? p.isOrganic),
+        isBestSeller: Boolean(live?.isBestSeller ?? p.isBestSeller),
+        isFeatured: Boolean(live?.isFeatured ?? p.isFeatured),
+        isFreshToday: true,
+        isCutVegetable: p.categoryName === "Vegetables Shopping",
+        rating: 4.8,
+        ratingCount: 350,
+        soldCount: 2500,
+        categoryName: p.categoryName || "Vegetables Shopping",
+        categorySlug: (p.categoryName || "").toLowerCase().includes("salad") ? "salad" : "vegetables-shopping",
+        variantId: `var-${p.id}`,
+        variantName: p.weight || "250 g",
+        unit: "g",
+        mrp,
+        price,
+        discountPercentage: Math.round(((mrp - price) / (mrp || 1)) * 100) || 20,
+        availableStock: stock,
+      };
+    });
 }
 
   // Filter fallback products dynamically

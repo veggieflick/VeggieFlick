@@ -608,3 +608,65 @@ export const ALL_PRODUCTS: ProductItem[] = [
     availableStock: 140,
   },
 ];
+
+/* ------------------------------------------------------------------ */
+/* Live Dynamic Catalog Store (Persists edits across requests)         */
+/* ------------------------------------------------------------------ */
+
+const globalForCatalog = globalThis as typeof globalThis & {
+  __VF_LIVE_PRODUCTS_MAP__?: Map<string, ProductItem>;
+};
+
+export function getLiveProductsList(): ProductItem[] {
+  if (!globalForCatalog.__VF_LIVE_PRODUCTS_MAP__) {
+    const map = new Map<string, ProductItem>();
+    ALL_PRODUCTS.forEach((p) => map.set(p.id, { ...p }));
+    globalForCatalog.__VF_LIVE_PRODUCTS_MAP__ = map;
+  }
+  return Array.from(globalForCatalog.__VF_LIVE_PRODUCTS_MAP__.values());
+}
+
+export function updateLiveProduct(id: string, updates: Partial<ProductItem>): ProductItem | null {
+  const map = globalForCatalog.__VF_LIVE_PRODUCTS_MAP__ || new Map<string, ProductItem>();
+  if (!globalForCatalog.__VF_LIVE_PRODUCTS_MAP__) {
+    ALL_PRODUCTS.forEach((p) => map.set(p.id, { ...p }));
+    globalForCatalog.__VF_LIVE_PRODUCTS_MAP__ = map;
+  }
+
+  // Find by ID or slug or variant ID
+  let target = map.get(id);
+  if (!target) {
+    for (const p of map.values()) {
+      if (
+        p.id === id ||
+        p.slug === id ||
+        (updates.slug && p.slug === updates.slug) ||
+        p.id.includes(id) ||
+        id.includes(p.id)
+      ) {
+        target = p;
+        break;
+      }
+    }
+  }
+
+  if (target) {
+    const updated: ProductItem = {
+      ...target,
+      ...updates,
+      name: updates.name !== undefined ? updates.name : target.name,
+      tamilName: updates.tamilName !== undefined ? updates.tamilName : target.tamilName,
+      price: updates.price !== undefined ? Number(updates.price) : target.price,
+      mrp: updates.mrp !== undefined ? Number(updates.mrp) : target.mrp,
+      availableStock: updates.availableStock !== undefined ? Number(updates.availableStock) : target.availableStock,
+      categoryName: updates.categoryName !== undefined ? updates.categoryName : target.categoryName,
+      imageUrl: updates.imageUrl !== undefined ? updates.imageUrl : target.imageUrl,
+    };
+    if (updated.mrp > updated.price) {
+      updated.discountPercentage = Math.round(((updated.mrp - updated.price) / updated.mrp) * 100);
+    }
+    map.set(target.id, updated);
+    return updated;
+  }
+  return null;
+}

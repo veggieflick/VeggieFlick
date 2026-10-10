@@ -17,6 +17,7 @@ import {
   Clock,
   Scissors,
 } from "lucide-react";
+import { upsertStoredProduct } from "@/lib/catalog-store";
 
 type Product = {
   id: string;
@@ -145,6 +146,23 @@ export default function AdminCatalogPage() {
 
       const data = await res.json();
       if (data.success) {
+        upsertStoredProduct({
+          id: product.id,
+          name: product.name,
+          tamilName: product.tamilName,
+          slug: product.slug,
+          sku: product.sku,
+          emoji: product.emoji,
+          status: product.status || "active",
+          categoryName: product.categoryName,
+          price: String(product.price),
+          mrp: String(product.mrp),
+          stock: product.availableStock,
+          imageUrl: product.imageUrl,
+          isOrganic: product.isOrganic,
+          isBestSeller: product.isBestSeller,
+          isFeatured: product.isFeatured,
+        });
         setSavedSuccessId(product.id);
         setTimeout(() => setSavedSuccessId(null), 3000);
         showMessage(`Saved "${product.name}" to Supabase DB & Server!`, "success");

@@ -8,7 +8,7 @@ import {
   productImages,
 } from "@/db/schema";
 import { eq, desc } from "drizzle-orm";
-import { ALL_PRODUCTS } from "@/lib/data/all-products";
+import { ALL_PRODUCTS, getLiveProductsList, updateLiveProduct } from "@/lib/data/all-products";
 
 function slugify(text: string) {
   return text
@@ -19,7 +19,7 @@ function slugify(text: string) {
     .replace(/-+/g, "-");
 }
 
-// GET /api/v1/admin/products - List all products from Supabase DB (with automatic fallback)
+// GET /api/v1/admin/products - List all products from Supabase DB (with live memory merge)
 export async function GET() {
   try {
     let rawProducts: any[] = [];
@@ -61,11 +61,12 @@ export async function GET() {
       console.warn("Supabase query notice, fallback to static catalog:", dbErr);
     }
 
-    // Deduplicate by product ID
+    // Deduplicate by product ID / Slug
     const productMap = new Map();
     for (const p of rawProducts) {
-      if (!productMap.has(p.id)) {
-        productMap.set(p.id, {
+      const key = p.id;
+      if (!productMap.has(key)) {
+        productMap.set(key, {
           id: p.id,
           name: p.name,
           tamilName: p.tamilName || "",
@@ -121,9 +122,39 @@ export async function GET() {
       });
     }
 
+    // Merge live dynamic in-memory product overrides
+    const liveList = getLiveProductsList();
+    const resultList = Array.from(productMap.values());
+
+    for (const liveItem of liveList) {
+      const matchIdx = resultList.findIndex(
+        (p: any) =>
+          p.id === liveItem.id ||
+          p.slug === liveItem.slug ||
+          p.name.toLowerCase().trim() === liveItem.name.toLowerCase().trim()
+      );
+      if (matchIdx >= 0) {
+        resultList[matchIdx] = {
+          ...resultList[matchIdx],
+          name: liveItem.name,
+          tamilName: liveItem.tamilName || resultList[matchIdx].tamilName,
+          price: Number(liveItem.price),
+          mrp: Number(liveItem.mrp),
+          availableStock: Number(liveItem.availableStock),
+          categoryName: liveItem.categoryName || resultList[matchIdx].categoryName,
+          imageUrl: liveItem.imageUrl || resultList[matchIdx].imageUrl,
+          isOrganic: liveItem.isOrganic,
+          isBestSeller: liveItem.isBestSeller,
+          isFeatured: liveItem.isFeatured,
+          isFreshToday: liveItem.isFreshToday,
+          isCutVegetable: liveItem.isCutVegetable,
+        };
+      }
+    }
+
     return NextResponse.json({
       success: true,
-      products: Array.from(productMap.values()),
+      products: resultList,
     });
   } catch (error) {
     console.error("Failed to fetch admin products:", error);
@@ -245,6 +276,25 @@ export async function POST(request: Request) {
         console.warn("Product DB insert notice:", err);
       }
     }
+
+    // Add to in-memory live catalog
+    updateLiveProduct(newProductId, {
+      name,
+      tamilName,
+      slug,
+      emoji: emoji || "🥬",
+      categoryName: categoryName || "Fresh Vegetables",
+      price: Number(price),
+      mrp: Number(mrp || price),
+      availableStock: Number(stock ?? 100),
+      imageUrl: imageUrl || undefined,
+      shortDescription: shortDescription || undefined,
+      isOrganic: !!isOrganic,
+      isBestSeller: !!isBestSeller,
+      isFeatured: !!isFeatured,
+      isFreshToday: !!isFreshToday,
+      isCutVegetable: !!isCutVegetable,
+    });
 
     return NextResponse.json({
       success: true,
