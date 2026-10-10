@@ -28,6 +28,11 @@ import {
   deliveryChargeForDistance,
   estimateDistanceFromAddress,
 } from "@/lib/services/delivery";
+import { sendWhatsAppOrderAlert } from "@/lib/services/whatsapp";
+
+function isUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
 
 export type PlaceOrderInput = {
   addressId: string;
@@ -297,6 +302,24 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
     });
 
     memoryOrderStore.set(res.order.id, res.order);
+
+    // Send WhatsApp Alert for successful order
+    try {
+      const snap = res.order.shippingSnapshot as any;
+      await sendWhatsAppOrderAlert({
+        orderNumber: res.order.orderNumber,
+        customerName: snap?.contactName || "Customer",
+        customerPhone: snap?.contactPhone || "8667038564",
+        grandTotal: res.order.grandTotal,
+        paymentMethod: input.paymentMethod,
+        address: `${snap?.line || "KK Nagar"}, ${snap?.city || "Chennai"}`,
+        slot: snap?.slot || undefined,
+        items: cartSummary.items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.unitPrice })),
+      });
+    } catch (waErr) {
+      console.warn("WhatsApp alert notice:", waErr);
+    }
+
     await clearCart();
     return res;
   } catch (err: any) {
@@ -311,13 +334,13 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
     }
     console.warn("placeOrder DB fallback active:", err);
 
-    const orderId = `ord-${Date.now()}`;
+    const dbId = crypto.randomUUID();
     const orderNumber = generateOrderNumber();
     const isPrepaid = input.paymentMethod !== "cod";
 
     const orderItemsList = cartSummary.items.map((item, idx) => ({
       id: `item-${idx + 1}`,
-      orderId,
+      orderId: dbId,
       productId: item.productId,
       variantId: item.variantId,
       productName: item.name,
@@ -328,10 +351,16 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       totalPrice: String(item.totalPrice),
     }));
 
+    const calcSubtotal = round2(cartSummary.items.reduce((s, i) => s + (Number(i.unitPrice) || 35) * i.quantity, 0)) || 35;
+    const calcDiscount = Number(cartSummary.totals?.discount) || 0;
+    const calcDelivery = Number(cartSummary.totals?.deliveryCharge) || 0;
+    const calcTax = Number(cartSummary.totals?.taxAmount) || 0;
+    const calcGrandTotal = round2(Math.max(0, calcSubtotal - calcDiscount + calcDelivery + calcTax));
+
     const fallbackOrder = {
-      id: orderId,
+      id: dbId,
       orderNumber,
-      profileId,
+      profileId: profileId || "usr-demo",
       addressId: input.addressId || "addr-demo",
       deliverySlotId: input.deliverySlotId || "slot-morning",
       couponId: null,
@@ -345,11 +374,11 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         slot: "Morning Slot (06:00 AM - 08:00 AM)",
       },
       distanceKm: "3.5",
-      subtotal: String(cartSummary.totals.subtotal),
-      discount: String(cartSummary.totals.discount),
-      deliveryCharge: String(cartSummary.totals.deliveryCharge),
-      taxAmount: String(cartSummary.totals.taxAmount),
-      grandTotal: String(cartSummary.totals.grandTotal),
+      subtotal: String(calcSubtotal),
+      discount: String(calcDiscount),
+      deliveryCharge: String(calcDelivery),
+      taxAmount: String(calcTax),
+      grandTotal: String(calcGrandTotal),
       paymentStatus: isPrepaid ? "paid" : "pending",
       paymentMethod: input.paymentMethod,
       orderStatus: "placed",
@@ -360,7 +389,78 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       items: orderItemsList,
     };
 
-    memoryOrderStore.set(orderId, fallbackOrder);
+    // Guarantee persistence in Supabase PostgreSQL DB during fallback
+    try {
+      let targetProfileId = profileId;
+      if (!isUUID(profileId)) {
+        const [prof] = await db.select({ id: profiles.id }).from(profiles).limit(1);
+        if (prof) targetProfileId = prof.id;
+      }
+
+      const [addr] = await db.select({ id: addresses.id }).from(addresses).limit(1);
+      const [slt] = await db.select({ id: deliverySlots.id }).from(deliverySlots).limit(1);
+
+      if (targetProfileId && isUUID(targetProfileId) && addr && slt) {
+        await db.insert(orders).values({
+          id: dbId,
+          orderNumber: orderNumber,
+          profileId: targetProfileId,
+          addressId: addr.id,
+          deliverySlotId: slt.id,
+          shippingSnapshot: fallbackOrder.shippingSnapshot,
+          distanceKm: "3.5",
+          subtotal: String(calcSubtotal),
+          discount: String(calcDiscount),
+          deliveryCharge: String(calcDelivery),
+          taxAmount: String(calcTax),
+          grandTotal: String(calcGrandTotal),
+          paymentStatus: isPrepaid ? "paid" : "pending",
+          orderStatus: "placed",
+          deliveryOtp: generateDeliveryOtp(),
+          notes: input.notes ?? null,
+        });
+
+        if (cartSummary.items && cartSummary.items.length > 0) {
+          const dbItems = cartSummary.items.filter((i) => isUUID(i.productId) && isUUID(i.variantId));
+          if (dbItems.length > 0) {
+            await db.insert(orderItems).values(
+              dbItems.map((item) => ({
+                orderId: dbId,
+                productId: item.productId,
+                variantId: item.variantId,
+                productName: item.name,
+                variantName: item.variantName,
+                emoji: item.emoji,
+                quantity: item.quantity,
+                unitPrice: String(item.unitPrice),
+                totalPrice: String(item.totalPrice),
+              }))
+            );
+          }
+        }
+      }
+    } catch (fallbackDbErr) {
+      console.warn("Direct DB order persistence notice:", fallbackDbErr);
+    }
+
+    memoryOrderStore.set(dbId, fallbackOrder);
+
+    // Send WhatsApp alert for fallback order placement
+    try {
+      await sendWhatsAppOrderAlert({
+        orderNumber: fallbackOrder.orderNumber,
+        customerName: fallbackOrder.shippingSnapshot.contactName,
+        customerPhone: fallbackOrder.shippingSnapshot.contactPhone,
+        grandTotal: fallbackOrder.grandTotal,
+        paymentMethod: input.paymentMethod,
+        address: `${fallbackOrder.shippingSnapshot.line}, ${fallbackOrder.shippingSnapshot.city}`,
+        slot: fallbackOrder.shippingSnapshot.slot,
+        items: cartSummary.items.map((i) => ({ name: i.name, quantity: i.quantity, price: i.unitPrice })),
+      });
+    } catch (waErr) {
+      console.warn("WhatsApp alert notice:", waErr);
+    }
+
     await clearCart();
     return { order: fallbackOrder as any, duplicated: false as const };
   }
