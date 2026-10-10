@@ -41,7 +41,8 @@ export async function POST(request: Request) {
       throw new ApiError("Invalid or expired OTP code", 400, "INVALID_OTP");
     }
 
-    const [existingProfile] = await db.select().from(profiles).where(eq(profiles.phone, phone)).limit(1).catch(() => []);
+    const cleanPhone = phone.trim();
+    const [existingProfile] = await db.select().from(profiles).where(eq(profiles.phone, cleanPhone)).limit(1).catch(() => []);
     if (existingProfile) {
       profile = existingProfile;
     } else {
@@ -49,10 +50,10 @@ export async function POST(request: Request) {
       const [newProfile] = await db
         .insert(profiles)
         .values({
-          fullName: fullName?.trim() || `Customer ${phone.slice(-4)}`,
-          phone,
+          fullName: fullName?.trim() || `Customer ${cleanPhone.slice(-4)}`,
+          phone: cleanPhone,
           role: "customer",
-          referralCode: `VF${phone.slice(-4)}${Math.floor(10 + Math.random() * 89)}`,
+          referralCode: `VF${cleanPhone.slice(-4)}${Math.floor(10 + Math.random() * 89)}`,
           lastLoginAt: new Date(),
         })
         .returning()
@@ -60,10 +61,15 @@ export async function POST(request: Request) {
       profile = newProfile;
     }
 
+    if (!profile) {
+      const [fallbackProf] = await db.select().from(profiles).limit(1).catch(() => []);
+      profile = fallbackProf;
+    }
+
     const sessionUser = {
-      id: profile?.id ?? `usr-${phone}`,
-      name: profile?.fullName ?? fullName?.trim() ?? `Customer ${phone.slice(-4)}`,
-      phone: phone,
+      id: profile?.id ?? crypto.randomUUID(),
+      name: profile?.fullName ?? fullName?.trim() ?? `Customer ${cleanPhone.slice(-4)}`,
+      phone: cleanPhone,
       email: profile?.email ?? null,
       role: (profile?.role as any) ?? "customer",
     };

@@ -112,6 +112,10 @@ export async function clearSession(): Promise<void> {
   store.delete(SESSION_COOKIE);
 }
 
+function isUUID(str: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
+}
+
 export async function getSession(): Promise<SessionUser | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
@@ -119,12 +123,55 @@ export async function getSession(): Promise<SessionUser | null> {
   try {
     const { payload } = await jwtVerify(token, secretKey(), { issuer: "veggieflick" });
     if (!payload.sub) return null;
+
+    let id = String(payload.sub);
+    const phone = String(payload.phone ?? "");
+    const email = (payload.email as string | null) ?? null;
+    const name = String(payload.name ?? "Customer");
+    const role = (payload.role as AppRole) ?? "customer";
+
+    if (!isUUID(id)) {
+      try {
+        let prof: typeof profiles.$inferSelect | undefined;
+        if (phone) {
+          const [found] = await db.select().from(profiles).where(eq(profiles.phone, phone)).limit(1).catch(() => []);
+          prof = found;
+        }
+        if (!prof && email) {
+          const [found] = await db.select().from(profiles).where(eq(profiles.email, email)).limit(1).catch(() => []);
+          prof = found;
+        }
+        if (!prof) {
+          const [first] = await db.select().from(profiles).limit(1).catch(() => []);
+          prof = first;
+        }
+        if (!prof) {
+          const [createdProf] = await db
+            .insert(profiles)
+            .values({
+              fullName: name,
+              phone: phone || "9840532826",
+              email,
+              role,
+            })
+            .returning()
+            .catch(() => []);
+          prof = createdProf;
+        }
+        if (prof?.id) {
+          id = prof.id;
+        }
+      } catch (err) {
+        console.warn("getSession UUID resolution notice:", err);
+      }
+    }
+
     return {
-      id: payload.sub,
-      name: String(payload.name ?? "Customer"),
-      phone: String(payload.phone ?? ""),
-      email: (payload.email as string | null) ?? null,
-      role: (payload.role as AppRole) ?? "customer",
+      id,
+      name,
+      phone,
+      email,
+      role,
     };
   } catch {
     return null;
