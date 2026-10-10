@@ -452,13 +452,17 @@ const RECIPES = [
 async function main() {
   console.info("Seeding VeggieFlick database…");
 
-  await db.execute(sql`truncate table
-    order_timeline, order_items, payments, delivery_assignments, orders,
-    cart_items, carts, wishlists, reviews, notifications, wallet_transactions, wallets,
-    referrals, gift_cards, audit_logs, newsletter_subscribers, otp_codes,
-    inventory, product_images, product_variants, products, sub_categories, brands, categories,
-    coupons, delivery_slots, delivery_partners, addresses, profiles, blogs, recipes
-    restart identity cascade`);
+  try {
+    await db.execute(sql`TRUNCATE TABLE
+      order_items, payments, delivery_assignments, orders,
+      cart_items, carts, wishlists, reviews, notifications, wallet_transactions, wallets,
+      referrals, gift_cards, audit_logs, newsletter_subscribers, otp_codes,
+      inventory, product_images, product_variants, products, sub_categories, brands, categories,
+      coupons, delivery_slots, delivery_partners, addresses, profiles, blogs, recipes
+      RESTART IDENTITY CASCADE`);
+  } catch (err) {
+    console.warn("Truncate warning (safe to proceed for fresh database):", (err as Error).message);
+  }
 
   const categoryRows = await db
     .insert(schema.categories)
