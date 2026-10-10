@@ -123,69 +123,94 @@ export async function ensureValidProfileUuid(
   email?: string | null,
   name?: string | null,
 ): Promise<string> {
+  // Step 1: Check if supplied ID actually exists in profiles table
   if (id && isUUID(id)) {
     try {
       const [existing] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.id, id)).limit(1);
-      if (existing) return existing.id;
+      if (existing?.id) return existing.id;
     } catch {
       // check below
     }
   }
 
-  const cleanPhone = (phone ?? "").replace(/\D/g, "");
-  const last10 = cleanPhone.slice(-10);
+  // Step 2: Search by phone (safe 10-digit matching)
+  const rawPhone = String(phone ?? "").trim();
+  const cleanDigits = rawPhone.replace(/\D/g, "");
+  const last10 = cleanDigits.slice(-10);
 
   if (last10.length === 10) {
     try {
       const [found] = await db
         .select({ id: profiles.id })
         .from(profiles)
-        .where(
-          or(
-            eq(profiles.phone, phone!),
-            eq(profiles.phone, last10),
-            eq(profiles.phone, `+91${last10}`),
-            eq(profiles.phone, `91${last10}`),
-            like(profiles.phone, `%${last10}`),
-          ),
-        )
+        .where(like(profiles.phone, `%${last10}`))
         .limit(1);
-      if (found) return found.id;
+      if (found?.id) return found.id;
     } catch {
       // check below
     }
   }
 
-  if (email && email.includes("@")) {
+  // Step 3: Search by email if available
+  const cleanEmail = (email ?? "").trim().toLowerCase();
+  if (cleanEmail && cleanEmail.includes("@")) {
     try {
-      const [found] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.email, email)).limit(1);
-      if (found) return found.id;
+      const [found] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.email, cleanEmail)).limit(1);
+      if (found?.id) return found.id;
     } catch {
       // check below
     }
   }
 
-  const targetPhone = last10.length === 10 ? last10 : "9840532826";
+  // Step 4: Insert a new profile into DB with random phone fallback if needed
+  const phoneToInsert = last10.length === 10 ? last10 : `98405${Math.floor(10000 + Math.random() * 89999)}`;
   try {
     const [createdProf] = await db
       .insert(profiles)
       .values({
         fullName: name?.trim() || "Customer",
-        phone: targetPhone,
-        email: email || null,
+        phone: phoneToInsert,
+        email: cleanEmail || null,
         role: "customer",
       })
       .returning();
     if (createdProf?.id) return createdProf.id;
   } catch {
-    // Duplicate phone or insert warning
+    // If phone collision occurred, re-query DB for any matching profile
+    try {
+      const [found] = await db
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(like(profiles.phone, `%${last10}`))
+        .limit(1);
+      if (found?.id) return found.id;
+    } catch {
+      // check below
+    }
   }
 
+  // Step 5: Return any existing profile from DB
   try {
     const [firstProf] = await db.select({ id: profiles.id }).from(profiles).limit(1);
     if (firstProf?.id) return firstProf.id;
   } catch {
-    // fallback
+    // check below
+  }
+
+  // Final fallback: Insert a profile with a fresh random phone to get a real DB UUID
+  try {
+    const randomPhone = `98405${Math.floor(10000 + Math.random() * 89999)}`;
+    const [fresh] = await db
+      .insert(profiles)
+      .values({
+        fullName: "Customer",
+        phone: randomPhone,
+        role: "customer",
+      })
+      .returning();
+    if (fresh?.id) return fresh.id;
+  } catch {
+    // ignore
   }
 
   return "e25f926d-ffa3-4ce8-abfb-9808d2a1aecb";
