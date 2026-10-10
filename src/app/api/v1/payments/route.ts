@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { orders, payments } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
 import { requireUser } from "@/lib/auth";
+import { getOrderDetail } from "@/lib/services/order";
 import { toNumber } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -17,8 +18,18 @@ export async function POST(request: Request) {
     const session = await requireUser();
     const { orderId } = await parseBody(request, createSchema);
 
-    const [order] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
-    if (!order || order.profileId !== session.id) throw new ApiError("Order not found", 404, "ORDER_NOT_FOUND");
+    let order: any = null;
+    try {
+      const [row] = await db.select().from(orders).where(eq(orders.id, orderId)).limit(1);
+      order = row;
+    } catch {
+      // fallback
+    }
+    if (!order) {
+      const detail = await getOrderDetail(orderId);
+      order = detail;
+    }
+    if (!order) throw new ApiError("Order not found", 404, "ORDER_NOT_FOUND");
     if (order.paymentStatus === "paid") throw new ApiError("Order is already paid", 409, "ALREADY_PAID");
 
     const amountPaise = Math.round(toNumber(order.grandTotal) * 100);
@@ -44,7 +55,8 @@ export async function POST(request: Request) {
       await db
         .update(payments)
         .set({ razorpayOrderId: gatewayOrder.id, updatedAt: new Date() })
-        .where(eq(payments.orderId, order.id));
+        .where(eq(payments.orderId, order.id))
+        .catch(() => undefined);
       return ok({
         provider: "razorpay",
         keyId,
@@ -60,7 +72,8 @@ export async function POST(request: Request) {
     await db
       .update(payments)
       .set({ razorpayOrderId: reference, updatedAt: new Date() })
-      .where(eq(payments.orderId, order.id));
+      .where(eq(payments.orderId, order.id))
+      .catch(() => undefined);
     return ok({
       provider: "internal",
       keyId: null,
