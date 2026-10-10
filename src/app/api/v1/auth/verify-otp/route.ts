@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { notifications, otpCodes, profiles, wallets } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
-import { checkOtpInMemory, hashOtp, issueSession, readGuestToken } from "@/lib/auth";
+import { checkOtpInMemory, ensureValidProfileUuid, hashOtp, issueSession, readGuestToken } from "@/lib/auth";
 import { mergeGuestCart } from "@/lib/services/cart";
 import { verifyOtpSchema } from "@/lib/validation";
 
@@ -14,7 +14,6 @@ export async function POST(request: Request) {
   return handle(async () => {
     const { phone, code, fullName, rememberMe } = await parseBody(request, verifyOtpSchema);
 
-    let profile: any = null;
     let isNewCustomer = false;
 
     const [record] = await db
@@ -42,32 +41,12 @@ export async function POST(request: Request) {
     }
 
     const cleanPhone = phone.trim();
-    const [existingProfile] = await db.select().from(profiles).where(eq(profiles.phone, cleanPhone)).limit(1).catch(() => []);
-    if (existingProfile) {
-      profile = existingProfile;
-    } else {
-      isNewCustomer = true;
-      const [newProfile] = await db
-        .insert(profiles)
-        .values({
-          fullName: fullName?.trim() || `Customer ${cleanPhone.slice(-4)}`,
-          phone: cleanPhone,
-          role: "customer",
-          referralCode: `VF${cleanPhone.slice(-4)}${Math.floor(10 + Math.random() * 89)}`,
-          lastLoginAt: new Date(),
-        })
-        .returning()
-        .catch(() => []);
-      profile = newProfile;
-    }
+    const profileId = await ensureValidProfileUuid(null, cleanPhone, null, fullName);
 
-    if (!profile) {
-      const [fallbackProf] = await db.select().from(profiles).limit(1).catch(() => []);
-      profile = fallbackProf;
-    }
+    const [profile] = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1).catch(() => []);
 
     const sessionUser = {
-      id: profile?.id ?? crypto.randomUUID(),
+      id: profileId,
       name: profile?.fullName ?? fullName?.trim() ?? `Customer ${cleanPhone.slice(-4)}`,
       phone: cleanPhone,
       email: profile?.email ?? null,

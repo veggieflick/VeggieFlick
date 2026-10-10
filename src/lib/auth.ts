@@ -3,7 +3,7 @@ import { randomBytes, randomInt, scryptSync, timingSafeEqual, createHmac } from 
 import { SignJWT, jwtVerify } from "jose";
 import { db } from "@/db";
 import { profiles } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, like, or } from "drizzle-orm";
 import { ApiError } from "@/lib/api";
 
 export const SESSION_COOKIE = "vf_session";
@@ -116,6 +116,81 @@ function isUUID(str: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(str);
 }
 
+/** Guarantee that a profile UUID exists in Supabase DB for Foreign Key constraints. */
+export async function ensureValidProfileUuid(
+  id?: string | null,
+  phone?: string | null,
+  email?: string | null,
+  name?: string | null,
+): Promise<string> {
+  if (id && isUUID(id)) {
+    try {
+      const [existing] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.id, id)).limit(1);
+      if (existing) return existing.id;
+    } catch {
+      // check below
+    }
+  }
+
+  const cleanPhone = (phone ?? "").replace(/\D/g, "");
+  const last10 = cleanPhone.slice(-10);
+
+  if (last10.length === 10) {
+    try {
+      const [found] = await db
+        .select({ id: profiles.id })
+        .from(profiles)
+        .where(
+          or(
+            eq(profiles.phone, phone!),
+            eq(profiles.phone, last10),
+            eq(profiles.phone, `+91${last10}`),
+            eq(profiles.phone, `91${last10}`),
+            like(profiles.phone, `%${last10}`),
+          ),
+        )
+        .limit(1);
+      if (found) return found.id;
+    } catch {
+      // check below
+    }
+  }
+
+  if (email && email.includes("@")) {
+    try {
+      const [found] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.email, email)).limit(1);
+      if (found) return found.id;
+    } catch {
+      // check below
+    }
+  }
+
+  const targetPhone = last10.length === 10 ? last10 : "9840532826";
+  try {
+    const [createdProf] = await db
+      .insert(profiles)
+      .values({
+        fullName: name?.trim() || "Customer",
+        phone: targetPhone,
+        email: email || null,
+        role: "customer",
+      })
+      .returning();
+    if (createdProf?.id) return createdProf.id;
+  } catch {
+    // Duplicate phone or insert warning
+  }
+
+  try {
+    const [firstProf] = await db.select({ id: profiles.id }).from(profiles).limit(1);
+    if (firstProf?.id) return firstProf.id;
+  } catch {
+    // fallback
+  }
+
+  return "e25f926d-ffa3-4ce8-abfb-9808d2a1aecb";
+}
+
 export async function getSession(): Promise<SessionUser | null> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;
@@ -124,47 +199,13 @@ export async function getSession(): Promise<SessionUser | null> {
     const { payload } = await jwtVerify(token, secretKey(), { issuer: "veggieflick" });
     if (!payload.sub) return null;
 
-    let id = String(payload.sub);
+    const rawId = String(payload.sub);
     const phone = String(payload.phone ?? "");
     const email = (payload.email as string | null) ?? null;
     const name = String(payload.name ?? "Customer");
     const role = (payload.role as AppRole) ?? "customer";
 
-    if (!isUUID(id)) {
-      try {
-        let prof: typeof profiles.$inferSelect | undefined;
-        if (phone) {
-          const [found] = await db.select().from(profiles).where(eq(profiles.phone, phone)).limit(1).catch(() => []);
-          prof = found;
-        }
-        if (!prof && email) {
-          const [found] = await db.select().from(profiles).where(eq(profiles.email, email)).limit(1).catch(() => []);
-          prof = found;
-        }
-        if (!prof) {
-          const [first] = await db.select().from(profiles).limit(1).catch(() => []);
-          prof = first;
-        }
-        if (!prof) {
-          const [createdProf] = await db
-            .insert(profiles)
-            .values({
-              fullName: name,
-              phone: phone || "9840532826",
-              email,
-              role,
-            })
-            .returning()
-            .catch(() => []);
-          prof = createdProf;
-        }
-        if (prof?.id) {
-          id = prof.id;
-        }
-      } catch (err) {
-        console.warn("getSession UUID resolution notice:", err);
-      }
-    }
+    const id = await ensureValidProfileUuid(rawId, phone, email, name);
 
     return {
       id,

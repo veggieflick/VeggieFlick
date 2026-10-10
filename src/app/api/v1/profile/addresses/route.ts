@@ -3,36 +3,16 @@ import { z } from "zod";
 import { db } from "@/db";
 import { addresses } from "@/db/schema";
 import { ApiError, created, handle, ok, parseBody } from "@/lib/api";
-import { requireUser } from "@/lib/auth";
+import { ensureValidProfileUuid, requireUser } from "@/lib/auth";
 import { estimateDistanceFromAddress, MAX_RADIUS_KM } from "@/lib/services/delivery";
 import { addressSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
-import { profiles } from "@/db/schema";
-
-const isUUID = (val: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val);
-
-async function getProfileUuid(session: { id: string; phone?: string; name?: string }): Promise<string> {
-  if (isUUID(session.id)) return session.id;
-  if (session.phone) {
-    const [prof] = await db.select({ id: profiles.id }).from(profiles).where(eq(profiles.phone, session.phone)).limit(1).catch(() => []);
-    if (prof) return prof.id;
-  }
-  const [firstProf] = await db.select({ id: profiles.id }).from(profiles).limit(1).catch(() => []);
-  if (firstProf) return firstProf.id;
-  const [createdProf] = await db.insert(profiles).values({
-    fullName: session.name || "Customer",
-    phone: session.phone || "9840532826",
-    role: "customer",
-  }).returning().catch(() => []);
-  return createdProf?.id || crypto.randomUUID();
-}
-
 export async function GET() {
   return handle(async () => {
     const session = await requireUser();
-    const profileId = await getProfileUuid(session);
+    const profileId = await ensureValidProfileUuid(session.id, session.phone, session.email, session.name);
     const rows = await db
       .select()
       .from(addresses)
@@ -51,7 +31,7 @@ export async function POST(request: Request) {
   return handle(async () => {
     const session = await requireUser();
     const payload = await parseBody(request, addressSchema);
-    const profileId = await getProfileUuid(session);
+    const profileId = await ensureValidProfileUuid(session.id, session.phone, session.email, session.name);
 
     const distanceKm = estimateDistanceFromAddress(payload);
     if (distanceKm > MAX_RADIUS_KM) {
