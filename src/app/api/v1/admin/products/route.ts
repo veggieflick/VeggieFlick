@@ -122,33 +122,41 @@ export async function GET() {
       });
     }
 
-    // Merge live dynamic in-memory product overrides
-    const liveList = getLiveProductsList();
     const resultList = Array.from(productMap.values());
 
+    // If any product from liveList is not yet in resultList, append it
+    const liveList = getLiveProductsList();
     for (const liveItem of liveList) {
-      const matchIdx = resultList.findIndex(
+      const exists = resultList.some(
         (p: any) =>
           p.id === liveItem.id ||
           p.slug === liveItem.slug ||
           p.name.toLowerCase().trim() === liveItem.name.toLowerCase().trim()
       );
-      if (matchIdx >= 0) {
-        resultList[matchIdx] = {
-          ...resultList[matchIdx],
+      if (!exists) {
+        resultList.push({
+          id: liveItem.id,
           name: liveItem.name,
-          tamilName: liveItem.tamilName || resultList[matchIdx].tamilName,
-          price: Number(liveItem.price),
-          mrp: Number(liveItem.mrp),
-          availableStock: Number(liveItem.availableStock),
-          categoryName: liveItem.categoryName || resultList[matchIdx].categoryName,
-          imageUrl: liveItem.imageUrl || resultList[matchIdx].imageUrl,
-          isOrganic: liveItem.isOrganic,
-          isBestSeller: liveItem.isBestSeller,
-          isFeatured: liveItem.isFeatured,
-          isFreshToday: liveItem.isFreshToday,
-          isCutVegetable: liveItem.isCutVegetable,
-        };
+          tamilName: liveItem.tamilName || "",
+          slug: liveItem.slug,
+          sku: `VF-${liveItem.id.slice(0, 6).toUpperCase()}`,
+          emoji: liveItem.emoji || "🥬",
+          shortDescription: liveItem.shortDescription || "",
+          status: "active",
+          isOrganic: !!liveItem.isOrganic,
+          isBestSeller: !!liveItem.isBestSeller,
+          isFeatured: !!liveItem.isFeatured,
+          isFreshToday: !!liveItem.isFreshToday,
+          isCutVegetable: !!liveItem.isCutVegetable,
+          categoryName: liveItem.categoryName || "Fresh Vegetables",
+          variantId: `var-${liveItem.id}`,
+          variantName: liveItem.variantName || "500 g",
+          unit: liveItem.unit || "g",
+          mrp: liveItem.mrp ? Number(liveItem.mrp) : 40,
+          price: liveItem.price ? Number(liveItem.price) : 30,
+          availableStock: liveItem.availableStock ?? 100,
+          imageUrl: liveItem.imageUrl || null,
+        });
       }
     }
 

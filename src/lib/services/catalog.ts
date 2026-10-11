@@ -43,6 +43,7 @@ export type ProductCard = {
   price: number;
   discountPercentage: number;
   availableStock: number;
+  imageUrl?: string | null;
 };
 
 const cardColumns = {
@@ -70,6 +71,7 @@ const cardColumns = {
   price: productVariants.sellingPrice,
   discountPercentage: productVariants.discountPercentage,
   availableStock: inventory.availableStock,
+  imageUrl: productImages.imageUrl,
 };
 
 type CardRow = {
@@ -96,6 +98,7 @@ type CardRow = {
   price: string;
   discountPercentage: string;
   availableStock: number | null;
+  imageUrl?: string | null;
 };
 
 function mapCard(row: CardRow): ProductCard {
@@ -123,6 +126,7 @@ function mapCard(row: CardRow): ProductCard {
     price: toNumber(row.price),
     discountPercentage: toNumber(row.discountPercentage),
     availableStock: row.availableStock ?? 0,
+    imageUrl: row.imageUrl ?? null,
   };
 }
 
@@ -138,8 +142,12 @@ function buildFilters(query: Partial<ProductQuery>) {
           eq(categories.slug, "cut-vegetables")
         )!
       );
-    } else if (query.category === "salad") {
+    } else if (query.category === "salad" || query.category === "salads") {
       filters.push(or(eq(categories.slug, "salad"), eq(categories.slug, "salads"))!);
+    } else if (query.category === "recipe-combo-kits" || query.category === "ready-to-cook") {
+      filters.push(or(eq(categories.slug, "recipe-combo-kits"), eq(categories.slug, "ready-to-cook"))!);
+    } else if (query.category === "fruits-cutting-combo" || query.category === "fresh-fruits") {
+      filters.push(or(eq(categories.slug, "fruits-cutting-combo"), eq(categories.slug, "fresh-fruits"))!);
     } else {
       filters.push(eq(categories.slug, query.category));
     }
@@ -974,6 +982,7 @@ export async function listProducts(query: ProductQuery) {
       .leftJoin(subCategories, eq(subCategories.id, products.subCategoryId))
       .innerJoin(productVariants, eq(productVariants.productId, products.id))
       .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
+      .leftJoin(productImages, and(eq(productImages.productId, products.id), eq(productImages.isPrimary, true)))
       .where(where)
       .orderBy(...orderClause(query.sort))
       .limit(query.limit)
@@ -990,25 +999,7 @@ export async function listProducts(query: ProductQuery) {
 
     if (rows && rows.length > 0) {
       const items = rows.map(mapCard);
-      const liveList = getLiveProductsList();
-      const updatedItems = items.map((item) => {
-        const live = liveList.find(
-          (l) => l.id === item.id || l.slug === item.slug || l.name.toLowerCase() === item.name.toLowerCase()
-        );
-        if (live) {
-          return {
-            ...item,
-            name: live.name,
-            tamilName: live.tamilName ?? item.tamilName,
-            price: Number(live.price),
-            mrp: Number(live.mrp),
-            discountPercentage: live.discountPercentage ?? item.discountPercentage,
-            availableStock: Number(live.availableStock),
-          };
-        }
-        return item;
-      });
-      return { items: updatedItems, total: Number(total) };
+      return { items, total: Number(total) };
     }
   } catch (err) {
     console.warn("listProducts query error:", err);
@@ -1245,18 +1236,15 @@ export async function getProductBySlug(slug: string) {
         .orderBy(desc(reviews.createdAt))
         .limit(12);
 
-      const finalName = liveMatch ? liveMatch.name : row.product.name;
-      const finalTamilName = liveMatch?.tamilName ?? row.product.tamilName;
-      const finalPrice = liveMatch ? Number(liveMatch.price) : undefined;
-      const finalMrp = liveMatch ? Number(liveMatch.mrp) : undefined;
-      const finalStock = liveMatch ? Number(liveMatch.availableStock) : undefined;
-      const finalImage = liveMatch?.imageUrl || (images.length > 0 ? images[0].imageUrl : undefined);
+      const finalName = row.product.name;
+      const finalTamilName = row.product.tamilName || liveMatch?.tamilName;
+      const finalEmoji = row.product.emoji || liveMatch?.emoji || "🥬";
+      const finalShortDesc = row.product.shortDescription || liveMatch?.shortDescription;
 
-      const formattedVariants = variants.map((v, idx) => {
-        const isFirst = idx === 0 || v.isDefault;
-        const sellingPrice = isFirst && finalPrice !== undefined ? finalPrice : toNumber(v.sellingPrice);
-        const mrp = isFirst && finalMrp !== undefined ? finalMrp : toNumber(v.mrp);
-        const stock = isFirst && finalStock !== undefined ? finalStock : (v.availableStock ?? 0);
+      const formattedVariants = variants.map((v) => {
+        const sellingPrice = toNumber(v.sellingPrice);
+        const mrp = toNumber(v.mrp);
+        const stock = v.availableStock ?? 0;
         const discountPercentage = mrp > sellingPrice ? Math.round(((mrp - sellingPrice) / mrp) * 100) : toNumber(v.discountPercentage);
 
         return {
@@ -1274,18 +1262,18 @@ export async function getProductBySlug(slug: string) {
       });
 
       const finalImages = images.length > 0
-        ? (finalImage ? [{ ...images[0], imageUrl: finalImage }, ...images.slice(1)] : images)
-        : (finalImage ? [{ id: "img-live-1", productId: row.product.id, imageUrl: finalImage, thumbnailUrl: null, displayOrder: 0, isPrimary: true, createdAt: new Date() }] : []);
+        ? images
+        : (liveMatch?.imageUrl ? [{ id: "img-live-1", productId: row.product.id, imageUrl: liveMatch.imageUrl, thumbnailUrl: null, displayOrder: 0, isPrimary: true, createdAt: new Date() }] : []);
 
       return {
         ...row.product,
         name: finalName,
         tamilName: finalTamilName,
-        emoji: liveMatch?.emoji || row.product.emoji,
-        shortDescription: liveMatch?.shortDescription || row.product.shortDescription,
-        isOrganic: liveMatch?.isOrganic !== undefined ? Boolean(liveMatch.isOrganic) : row.product.isOrganic,
-        isBestSeller: liveMatch?.isBestSeller !== undefined ? Boolean(liveMatch.isBestSeller) : row.product.isBestSeller,
-        isFeatured: liveMatch?.isFeatured !== undefined ? Boolean(liveMatch.isFeatured) : row.product.isFeatured,
+        emoji: finalEmoji,
+        shortDescription: finalShortDesc,
+        isOrganic: row.product.isOrganic,
+        isBestSeller: row.product.isBestSeller,
+        isFeatured: row.product.isFeatured,
         ratingAverageNumber: toNumber(row.product.ratingAverage, 4.5),
         categoryName: row.categoryName,
         categorySlug: row.categorySlug,
