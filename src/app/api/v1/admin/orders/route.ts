@@ -41,6 +41,7 @@ export async function GET(request: Request) {
           orderStatus: orders.orderStatus,
           paymentStatus: orders.paymentStatus,
           createdAt: orders.createdAt,
+          shippingSnapshot: orders.shippingSnapshot,
         })
         .from(orders)
         .leftJoin(profiles, eq(profiles.id, orders.profileId))
@@ -61,14 +62,18 @@ export async function GET(request: Request) {
     if (memoryStore && memoryStore.size > 0) {
       for (const order of memoryStore.values()) {
         if (!status || order.orderStatus === status) {
+          const snap = (order.shippingSnapshot || {}) as Record<string, any>;
           memoryOrdersList.push({
             id: order.id,
             orderNumber: order.orderNumber,
-            customerName: order.shippingSnapshot?.contactName || "Customer",
-            customerPhone: order.shippingSnapshot?.contactPhone || "9840532826",
+            customerName: snap.contactName || "Customer",
+            customerPhone: snap.contactPhone || "9840532826",
             grandTotal: String(order.grandTotal),
             orderStatus: order.orderStatus,
             paymentStatus: order.paymentStatus,
+            deliverySlot: snap.slot || "Morning Slot",
+            deliveryAddress: snap.line ? `${snap.line}, ${snap.city || "Chennai"}` : "Chennai",
+            shippingSnapshot: order.shippingSnapshot,
             createdAt: order.createdAt instanceof Date ? order.createdAt.toISOString() : order.createdAt,
           });
         }
@@ -81,10 +86,13 @@ export async function GET(request: Request) {
       combinedMap.set(ord.id, ord);
     }
     for (const ord of dbOrders) {
+      const snap = (ord.shippingSnapshot || {}) as Record<string, any>;
       combinedMap.set(ord.id, {
         ...ord,
-        customerName: ord.customerName || "Customer",
-        customerPhone: ord.customerPhone || "9840532826",
+        customerName: snap.contactName || ord.customerName || "Customer",
+        customerPhone: snap.contactPhone || ord.customerPhone || "9840532826",
+        deliverySlot: snap.slot || "Morning Slot",
+        deliveryAddress: snap.line ? `${snap.line}, ${snap.city || "Chennai"}` : "Chennai",
         createdAt: ord.createdAt instanceof Date ? ord.createdAt.toISOString() : ord.createdAt,
       });
     }

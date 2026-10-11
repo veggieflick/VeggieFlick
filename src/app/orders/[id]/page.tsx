@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Circle, MapPin, Phone, Star, Truck, XCircle } from "lucide-react";
+import { CheckCircle2, Circle, MapPin, MessageCircle, Phone, Star, Truck, XCircle } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABEL, formatDateTimeIST, formatINR } from "@/lib/utils";
 import { Breadcrumb, StatusPill } from "@/components/ui/primitives";
@@ -110,6 +110,25 @@ export default function OrderDetailPage() {
   const currentIndex = ORDER_STATUS_FLOW.indexOf(order.orderStatus as (typeof ORDER_STATUS_FLOW)[number]);
   const canCancel = ["placed", "confirmed", "packed"].includes(order.orderStatus);
 
+  const itemsText = (order.items || [])
+    .map((i) => `• ${i.productName} (${i.variantName}) x ${i.quantity} = ${formatINR(i.totalPrice, true)}`)
+    .join("\n");
+  const addressText = order.shippingSnapshot
+    ? `${order.shippingSnapshot.line || ""}, ${order.shippingSnapshot.city || ""}`
+    : "Chennai";
+  const waMessage =
+    `🛒 *VeggieFlick Order Update*\n\n` +
+    `*Order Number:* ${order.orderNumber}\n` +
+    `*Customer:* ${order.shippingSnapshot?.contactName || order.customerName}\n` +
+    `*Phone:* ${order.shippingSnapshot?.contactPhone || order.customerPhone}\n` +
+    `*Delivery Slot:* ${order.slotName || "Morning Slot"}\n` +
+    `*Address:* ${addressText}\n` +
+    `*Payment:* ${(order.payment?.paymentMethod || "COD").toUpperCase()} (${order.paymentStatus})\n` +
+    `*Total:* ${formatINR(order.grandTotal, true)}\n\n` +
+    `*Items:*\n${itemsText || "• Veggie Mix"}\n\n` +
+    `Please confirm my delivery!`;
+  const whatsappUrl = `https://wa.me/919840532826?text=${encodeURIComponent(waMessage)}`;
+
   return (
     <div className="container-page py-6 md:py-10">
       <Breadcrumb
@@ -125,6 +144,32 @@ export default function OrderDetailPage() {
           <StatusPill status={order.orderStatus} />
           <StatusPill status={order.paymentStatus} />
         </div>
+      </div>
+
+      {/* WhatsApp Notification Card */}
+      <div className="mb-6 rounded-2xl border-2 border-emerald-500 bg-emerald-50/80 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="h-11 w-11 shrink-0 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-xl shadow">
+            <MessageCircle className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-base font-bold text-emerald-950">
+              Send Order to VeggieFlick WhatsApp
+            </p>
+            <p className="text-xs text-emerald-800">
+              Official WhatsApp & Care: <span className="font-bold">+91 98405 32826</span>. Click to notify admin & get updates.
+            </p>
+          </div>
+        </div>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-3 text-sm shadow transition-all active:scale-95"
+        >
+          <MessageCircle className="h-4 w-4" />
+          <span>Send to WhatsApp (+91 98405 32826)</span>
+        </a>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1fr_22rem]">
@@ -283,6 +328,14 @@ export default function OrderDetailPage() {
               {busy ? "Cancelling…" : "Cancel this order"}
             </button>
           )}
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn w-full py-3 text-sm bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 font-bold shadow transition-all"
+          >
+            <MessageCircle className="h-4 w-4" /> Send to WhatsApp (+91 98405 32826)
+          </a>
           <Link href="/shop" className="btn btn-primary w-full py-3 text-sm">
             Shop again
           </Link>

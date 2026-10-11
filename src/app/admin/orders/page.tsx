@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { Loader2, RefreshCcw } from "lucide-react";
+import { ExternalLink, Loader2, MessageCircle, RefreshCcw } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatDateTimeIST, formatINR, ORDER_STATUS_LABEL } from "@/lib/utils";
 import { StatusPill } from "@/components/ui/primitives";
@@ -14,6 +14,8 @@ type AdminOrder = {
   grandTotal: string;
   orderStatus: string;
   paymentStatus: string;
+  deliverySlot?: string;
+  deliveryAddress?: string;
   createdAt: string;
 };
 
@@ -123,11 +125,36 @@ export default function AdminOrdersPage() {
             </thead>
             <tbody>
               {orders.map((order) => (
-                <tr key={order.id} className="border-t border-line">
-                  <td className="px-4 py-3 font-semibold">{order.orderNumber}</td>
+                <tr key={order.id} className="border-t border-line hover:bg-surface/50 transition-colors">
+                  <td className="px-4 py-3 font-semibold">
+                    <a
+                      href={`/orders/${order.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-700 hover:underline inline-flex items-center gap-1 font-bold"
+                    >
+                      {order.orderNumber} <ExternalLink className="h-3 w-3 text-muted" />
+                    </a>
+                    {order.deliverySlot && (
+                      <p className="text-[11px] font-normal text-muted mt-0.5">🕒 {order.deliverySlot}</p>
+                    )}
+                  </td>
                   <td className="px-4 py-3">
-                    <p className="font-medium">{order.customerName}</p>
+                    <p className="font-medium text-ink">{order.customerName}</p>
                     <p className="text-xs text-muted">+91 {order.customerPhone}</p>
+                    <div className="mt-1 flex items-center gap-2">
+                      <a
+                        href={`https://wa.me/91${order.customerPhone.replace(/\D/g, "")}?text=${encodeURIComponent(
+                          `வணக்கம் ${order.customerName}, உங்கள் VeggieFlick ஆர்டர் #${order.orderNumber} (₹${order.grandTotal}) பெறப்பட்டது. நாங்கள் விரைவில் டெலிவரிக்கு ஏற்பாடு செய்கிறோம்!`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                        title="Chat on WhatsApp"
+                      >
+                        <MessageCircle className="h-3 w-3" /> WhatsApp
+                      </a>
+                    </div>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted">{formatDateTimeIST(order.createdAt)}</td>
                   <td className="px-4 py-3">

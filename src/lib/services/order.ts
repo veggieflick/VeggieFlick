@@ -468,6 +468,37 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
     const calcTax = Number(cartSummary.totals?.taxAmount) || 0;
     const calcGrandTotal = round2(Math.max(0, calcSubtotal - calcDiscount + calcDelivery + calcTax));
 
+    let custName = "Customer";
+    let custPhone = "9840532826";
+    let custAddressLine = "No 12, Main Street, KK Nagar";
+    let custCity = "Chennai";
+    let custPostalCode = "600042";
+    let custSlot = "Morning Slot (06:00 AM - 08:00 AM)";
+
+    try {
+      if (input.addressId && isUUID(input.addressId)) {
+        const [a] = await db.select().from(addresses).where(eq(addresses.id, input.addressId)).limit(1);
+        if (a) {
+          custName = a.contactName || custName;
+          custPhone = a.contactPhone || custPhone;
+          custAddressLine = `${a.doorNo}, ${a.street}, ${a.area}`;
+          custCity = a.city;
+          custPostalCode = a.postalCode;
+        }
+      }
+      if (isUUID(profileId)) {
+        const [p] = await db.select().from(profiles).where(eq(profiles.id, profileId)).limit(1);
+        if (p) {
+          if (p.fullName) custName = p.fullName;
+          if (p.phone) custPhone = p.phone;
+        }
+      }
+      if (input.deliverySlotId && isUUID(input.deliverySlotId)) {
+        const [s] = await db.select().from(deliverySlots).where(eq(deliverySlots.id, input.deliverySlotId)).limit(1);
+        if (s) custSlot = s.slotName;
+      }
+    } catch {}
+
     const fallbackOrder = {
       id: dbId,
       orderNumber,
@@ -476,13 +507,13 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       deliverySlotId: input.deliverySlotId || "slot-morning",
       couponId: null,
       shippingSnapshot: {
-        contactName: "Customer",
-        contactPhone: "9840532826",
-        line: "No 12, Main Street, KK Nagar",
-        city: "Chennai",
+        contactName: custName,
+        contactPhone: custPhone,
+        line: custAddressLine,
+        city: custCity,
         state: "Tamil Nadu",
-        postalCode: "600042",
-        slot: "Morning Slot (06:00 AM - 08:00 AM)",
+        postalCode: custPostalCode,
+        slot: custSlot,
       },
       distanceKm: "3.5",
       subtotal: String(calcSubtotal),
@@ -516,8 +547,8 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
           id: dbId,
           orderNumber: orderNumber,
           profileId: targetProfileId,
-          addressId: addr.id,
-          deliverySlotId: slt.id,
+          addressId: (input.addressId && isUUID(input.addressId)) ? input.addressId : addr.id,
+          deliverySlotId: (input.deliverySlotId && isUUID(input.deliverySlotId)) ? input.deliverySlotId : slt.id,
           shippingSnapshot: fallbackOrder.shippingSnapshot,
           distanceKm: "3.5",
           subtotal: String(calcSubtotal),
@@ -532,22 +563,37 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         });
 
         if (cartSummary.items && cartSummary.items.length > 0) {
-          const dbItems = cartSummary.items.filter((i) => isUUID(i.productId) && isUUID(i.variantId));
-          if (dbItems.length > 0) {
-            await db.insert(orderItems).values(
-              dbItems.map((item) => ({
-                orderId: dbId,
-                productId: item.productId,
-                variantId: item.variantId,
-                productName: item.name,
-                variantName: item.variantName,
-                emoji: item.emoji,
-                quantity: item.quantity,
-                unitPrice: String(item.unitPrice),
-                totalPrice: String(item.totalPrice),
-              }))
-            );
-          }
+          let defaultProd: { id: string; variantId: string } | null = null;
+          try {
+            const [pRow] = await db
+              .select({ id: products.id, variantId: productVariants.id })
+              .from(products)
+              .innerJoin(productVariants, eq(productVariants.productId, products.id))
+              .limit(1);
+            if (pRow) defaultProd = pRow;
+          } catch {}
+
+          const itemsToInsert = cartSummary.items.map((item) => {
+            const validPid = isUUID(item.productId)
+              ? item.productId
+              : (defaultProd?.id || "4d075c8d-1a21-4988-81e2-f8490d40d6fa");
+            const validVid = isUUID(item.variantId)
+              ? item.variantId
+              : (defaultProd?.variantId || "66e8c782-3e98-4d1a-97b0-b503f7302579");
+            return {
+              orderId: dbId,
+              productId: validPid,
+              variantId: validVid,
+              productName: item.name,
+              variantName: item.variantName,
+              emoji: item.emoji || "🥬",
+              quantity: item.quantity,
+              unitPrice: String(item.unitPrice),
+              totalPrice: String(item.totalPrice),
+            };
+          });
+
+          await db.insert(orderItems).values(itemsToInsert);
         }
       }
     } catch (fallbackDbErr) {
