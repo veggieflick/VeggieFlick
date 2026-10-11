@@ -41,15 +41,30 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<AdminOrder[]>([]);
   const [filter, setFilter] = useState<(typeof STATUS_FILTERS)[number]>("all");
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const query = filter === "all" ? "" : `?status=${filter}`;
-    const response = await fetch(`/api/v1/admin/orders${query}`, { cache: "no-store" });
-    const json = await response.json();
-    if (json?.success) setOrders(json.data as AdminOrder[]);
-    setLoading(false);
+    setErrorMsg(null);
+    try {
+      const query = filter === "all" ? "" : `?status=${filter}`;
+      const response = await fetch(`/api/v1/admin/orders${query}`, { cache: "no-store" });
+      if (response.status === 401) {
+        window.location.href = "/admin/login";
+        return;
+      }
+      const json = await response.json();
+      if (json?.success) {
+        setOrders(json.data as AdminOrder[]);
+      } else {
+        setErrorMsg(json?.error?.message || "Failed to load orders");
+      }
+    } catch (e: any) {
+      setErrorMsg(e?.message || "Failed to connect to order server");
+    } finally {
+      setLoading(false);
+    }
   }, [filter]);
 
   useEffect(() => {
@@ -107,6 +122,17 @@ export default function AdminOrdersPage() {
         {loading ? (
           <div className="flex items-center justify-center gap-2 py-16 text-sm text-muted">
             <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Loading orders…
+          </div>
+        ) : errorMsg ? (
+          <div className="py-16 text-center text-sm text-red-600">
+            <p className="font-semibold">{errorMsg}</p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-3 btn btn-outline px-4 py-1.5 text-xs inline-flex items-center gap-1"
+            >
+              <RefreshCcw className="h-3.5 w-3.5" /> Try again
+            </button>
           </div>
         ) : orders.length === 0 ? (
           <p className="py-16 text-center text-sm text-muted">No orders in this view.</p>

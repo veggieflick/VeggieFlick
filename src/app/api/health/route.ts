@@ -5,9 +5,9 @@ export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    await db.execute(sql`select 1`);
-    return Response.json({ ok: true });
-  } catch {
-    return Response.json({ ok: false }, { status: 500 });
+    const res = await db.execute(sql`select count(*) from orders`);
+    return Response.json({ ok: true, ordersCount: (res as any)?.rows?.[0]?.count ?? 0 });
+  } catch (err: any) {
+    return Response.json({ ok: false, error: err?.message || String(err) }, { status: 500 });
   }
 }
