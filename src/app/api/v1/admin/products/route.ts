@@ -7,7 +7,7 @@ import {
   inventory,
   productImages,
 } from "@/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import { ALL_PRODUCTS, getLiveProductsList, updateLiveProduct } from "@/lib/data/all-products";
 
 function slugify(text: string) {
@@ -55,8 +55,12 @@ export async function GET() {
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(productVariants, eq(productVariants.productId, products.id))
         .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
-        .leftJoin(productImages, eq(productImages.productId, products.id))
-        .orderBy(desc(productVariants.isDefault), desc(products.createdAt));
+        .leftJoin(
+          productImages,
+          and(eq(productImages.productId, products.id), eq(productImages.isPrimary, true))
+        )
+        .where(eq(products.status, "active"))
+        .orderBy(asc(categories.name), asc(products.name));
     } catch (dbErr) {
       console.warn("Supabase query notice, fallback to static catalog:", dbErr);
     }
@@ -124,16 +128,10 @@ export async function GET() {
 
     const resultList = Array.from(productMap.values());
 
-    // If any product from liveList is not yet in resultList, append it
-    const liveList = getLiveProductsList();
-    for (const liveItem of liveList) {
-      const exists = resultList.some(
-        (p: any) =>
-          p.id === liveItem.id ||
-          p.slug === liveItem.slug ||
-          p.name.toLowerCase().trim() === liveItem.name.toLowerCase().trim()
-      );
-      if (!exists) {
+    // Fallback only if database returned 0 products
+    if (resultList.length === 0) {
+      const liveList = getLiveProductsList();
+      for (const liveItem of liveList) {
         resultList.push({
           id: liveItem.id,
           name: liveItem.name,

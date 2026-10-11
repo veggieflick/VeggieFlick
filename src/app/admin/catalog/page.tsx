@@ -46,14 +46,11 @@ type Product = {
 
 const CATEGORIES = [
   "All Categories",
-  "Fresh Vegetables",
   "Cut Vegetables",
-  "Fresh Fruits",
-  "Leafy Vegetables",
-  "Organic",
-  "Exotic Vegetables",
-  "Salads",
-  "Ready To Cook",
+  "Fresh Vegetables",
+  "Salad",
+  "Fruits Cutting & Combo Pack",
+  "Recipe Combo Kits",
 ];
 
 export default function AdminCatalogPage() {
@@ -330,8 +327,11 @@ export default function AdminCatalogPage() {
     const matchesCategory =
       selectedCategory === "All Categories" ||
       p.categoryName.toLowerCase().trim() === selectedCategory.toLowerCase().trim() ||
+      (selectedCategory === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable)) ||
       (selectedCategory === "Fresh Vegetables" && (p.categoryName === "Vegetables Shopping" || p.categoryName === "Fresh Vegetables")) ||
-      (selectedCategory === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable));
+      (selectedCategory === "Salad" && (p.categoryName === "Salad" || p.categoryName === "Salads")) ||
+      (selectedCategory === "Fruits Cutting & Combo Pack" && (p.categoryName === "Fruits Cutting & Combo Pack" || p.categoryName === "Fresh Fruits")) ||
+      (selectedCategory === "Recipe Combo Kits" && (p.categoryName === "Recipe Combo Kits" || p.categoryName === "Ready To Cook"));
 
     return matchesSearch && matchesCategory;
   });
@@ -413,8 +413,11 @@ export default function AdminCatalogPage() {
                   : products.filter(
                       (p) =>
                         p.categoryName.toLowerCase().trim() === cat.toLowerCase().trim() ||
+                        (cat === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable)) ||
                         (cat === "Fresh Vegetables" && (p.categoryName === "Vegetables Shopping" || p.categoryName === "Fresh Vegetables")) ||
-                        (cat === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable))
+                        (cat === "Salad" && (p.categoryName === "Salad" || p.categoryName === "Salads")) ||
+                        (cat === "Fruits Cutting & Combo Pack" && (p.categoryName === "Fruits Cutting & Combo Pack" || p.categoryName === "Fresh Fruits")) ||
+                        (cat === "Recipe Combo Kits" && (p.categoryName === "Recipe Combo Kits" || p.categoryName === "Ready To Cook"))
                     ).length;
 
               return (
