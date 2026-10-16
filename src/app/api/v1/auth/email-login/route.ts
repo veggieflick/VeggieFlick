@@ -23,6 +23,15 @@ export async function POST(request: Request) {
     try {
       const [existingProfile] = await db.select().from(profiles).where(eq(profiles.email, email.toLowerCase())).limit(1);
       if (existingProfile) {
+        if (existingProfile.role !== "customer") {
+          return {
+            success: false,
+            error: {
+              code: "FORBIDDEN",
+              message: "Staff and administrative accounts must log in through the Staff Portal (/admin/login) with credentials.",
+            },
+          };
+        }
         profile = existingProfile;
       } else {
         isNewCustomer = true;
@@ -48,7 +57,7 @@ export async function POST(request: Request) {
       name: profile?.fullName ?? fullName?.trim() ?? email.split("@")[0],
       phone: profile?.phone ?? "9876543210",
       email: email.toLowerCase(),
-      role: (profile?.role as any) ?? "customer",
+      role: "customer" as const,
     };
 
     const guestToken = await readGuestToken().catch(() => null);

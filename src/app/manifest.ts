@@ -15,7 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "en-IN",
     categories: ["shopping", "food", "lifestyle"],
     icons: [
-      { src: "/images/hero-basket.jpg", sizes: "512x512", type: "image/jpeg", purpose: "any" },
+      { src: "/logo.png", sizes: "512x512", type: "image/png", purpose: "any" },
     ],
     shortcuts: [
       { name: "Shop", url: "/shop" },

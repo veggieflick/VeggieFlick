@@ -51,7 +51,7 @@ export function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const { cart, user, logout, setDrawerOpen } = useApp();
-  const { isStoreOpen, toggleStoreStatus } = useStoreStatus();
+  const { isStoreOpen } = useStoreStatus();
   const { lang, setLang, t } = useLanguage();
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -135,19 +135,16 @@ export function SiteHeader() {
         <div className="container-page flex h-10 items-center justify-between gap-3 text-xs overflow-x-auto scrollbar-hide">
           <div className="flex items-center gap-3 shrink-0">
             {/* Operational Hours & Store Status */}
-            <button
-              type="button"
-              onClick={toggleStoreStatus}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold transition-all shadow-md ${
+            <div
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold shadow-md ${
                 isStoreOpen
-                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-500/50 hover:bg-emerald-500/40"
-                  : "bg-rose-500/30 text-rose-200 border border-rose-400 hover:bg-rose-500/40 animate-pulse"
+                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-500/50"
+                  : "bg-rose-500/30 text-rose-200 border border-rose-400 animate-pulse"
               }`}
-              title="Click to toggle Store Live / Store Offline mode"
             >
               <span className={`h-2.5 w-2.5 rounded-full ${isStoreOpen ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
-              {isStoreOpen ? "🟢 STORE LIVE (CLICK TO TURN OFF)" : "🔴 STORE OFFLINE (CLICK TO TURN ON)"}
-            </button>
+              <span>{isStoreOpen ? "🟢 KK Nagar Hub · Taking Orders (6 AM – 9 PM)" : "🔴 Store Offline"}</span>
+            </div>
 
             {/* Per-Order Delivery Charge Notice */}
             <div className="hidden sm:flex items-center gap-1 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-amber-200">

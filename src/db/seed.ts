@@ -596,14 +596,14 @@ async function main() {
       {
         fullName: "Divya Raman",
         email: "manager@veggieflick.in",
-        phone: "9840532826",
+        phone: "9840532827",
         role: "manager",
         passwordHash: hashPassword("Manager@12345"),
       },
       {
         fullName: "Suresh Babu",
         email: "warehouse@veggieflick.in",
-        phone: "9840532826",
+        phone: "9840532828",
         role: "warehouse_staff",
         passwordHash: hashPassword("Warehouse@12345"),
       },

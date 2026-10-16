@@ -45,7 +45,7 @@ export default function AboutPage() {
         </div>
         <div className="relative aspect-[4/3] overflow-hidden rounded-[20px] shadow-lg">
           <Image
-            src="/images/hero-basket.jpg"
+            src="/images/chopped-veggies-board.jpg"
             alt="Fresh produce sorted at the VeggieFlick Chennai hub"
             fill
             sizes="(max-width: 1024px) 100vw, 560px"

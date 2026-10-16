@@ -11,6 +11,8 @@ import { CustomIngredientModal, COMBO_INGREDIENTS } from "@/components/custom-in
 
 type ComboKit = {
   id: string;
+  productId: string;
+  variantId: string;
   name: string;
   description: string;
   price: number;
@@ -24,41 +26,53 @@ type ComboKit = {
 const COMBO_KITS: ComboKit[] = [
   {
     id: "combo-pulav",
+    productId: "4ca45f80-fa02-4eff-9c3b-d070c1182325",
+    variantId: "4627cd7c-7cd7-4e56-a976-395e1a03693b",
     name: "Pulav Special Veggie Combo Kit",
     description: "Chopped Ooty Carrots, French Beans, Tender Green Peas, Potatoes & aromatic whole spices pouch.",
     price: 129,
     originalPrice: 180,
     emoji: "🍲",
+    imageUrl: "/images/products/pulav-special-veggie-combo-kit.png",
     items: ["Chopped Carrot 250g", "French Beans 250g", "Green Peas 200g", "Whole Spices Pouch"],
     badge: "SAVE ₹51",
   },
   {
     id: "combo-biryani",
+    productId: "4a088110-5ba9-4ce2-915d-466ef4a46576",
+    variantId: "a9d99e65-f0f0-48ea-b09d-3dd867b58b10",
     name: "Vegetables Biriyani Special Kit",
     description: "Cleaned Cauliflower florets, Ooty Carrots, French Beans, Fresh Mint, Coriander & Birista fried onions.",
     price: 179,
     originalPrice: 240,
     emoji: "🍚",
+    imageUrl: "/images/products/vegetables-biryani-special-kit.png",
     items: ["Cauliflower Florets 300g", "Cut Veggies 500g", "Fresh Mint & Coriander", "Biryani Spice Pack"],
     badge: "SAVE ₹61",
   },
   {
     id: "combo-aviyal",
+    productId: "b0a06688-d930-4fdf-9aab-98cc89fc806f",
+    variantId: "e07c2b17-802e-4db6-966f-67ce6b382d47",
     name: "Aviyal Combo (Traditional 7-Veg Cut Mix)",
     description: "Plantain, Drumstick, Senai Yam, Beans, Carrot, Yellow Pumpkin & Kovakkai cut mix with Grated Coconut.",
     price: 125,
     originalPrice: 170,
     emoji: "🥗",
+    imageUrl: "/images/products/traditional-aviyal-7-veggie-cut-mix.png",
     items: ["7-Veg Aviyal Cut Mix 500g", "Grated Coconut 100g", "Curry Leaves Bundle", "Green Chillies"],
     badge: "SAVE ₹45",
   },
   {
     id: "combo-bisibele",
+    productId: "3b478555-9b16-4f14-a92b-364d4858e8cc",
+    variantId: "2f996fc0-6d23-4592-8c95-68d1728164df",
     name: "Bisi Bele Bath Combo (With / Without Onion)",
     description: "Sambar-style cubed vegetables, toor dal, and stone-ground authentic Bisi Bele Bath masala powder.",
     price: 139,
     originalPrice: 190,
     emoji: "🍛",
+    imageUrl: "/images/products/bisi-bele-bath-kit.png",
     items: ["Cut Sambar Veggies 500g", "Shallots (Optional)", "Stone-ground Masala 50g", "Ghee Tempering Pack"],
     badge: "SAVE ₹51",
   },
@@ -70,9 +84,7 @@ export function ComboKitsSection() {
 
   const handleConfirmCombo = async (kit: ComboKit, data: { weight: "250g" | "500g"; price: number; ingredients: string[] }) => {
     try {
-      const prodId = `prod-${kit.id}`;
-      const varId = `var-${kit.id}`;
-      await addItem(prodId, varId, 1);
+      await addItem(kit.productId, kit.variantId, 1);
       setDrawerOpen(true);
       notify(`Added ${kit.name} (${data.weight}) with ${data.ingredients.slice(0, 3).join(", ")}`);
     } catch {

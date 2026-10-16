@@ -85,7 +85,7 @@ export default function HelpPage() {
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 h-4 w-4 text-brand-600" aria-hidden />
                 <span>
-                  <span className="block font-semibold">+91 44 4000 2200</span>
+                  <span className="block font-semibold">+91 98405 32826</span>
                   <span className="text-xs text-muted">6 AM – 9 PM, all days</span>
                 </span>
               </li>
@@ -93,7 +93,7 @@ export default function HelpPage() {
                 <MessageCircle className="mt-0.5 h-4 w-4 text-brand-600" aria-hidden />
                 <span>
                   <a
-                    href="https://wa.me/914440002200"
+                    href="https://wa.me/919840532826"
                     className="block font-semibold underline"
                     target="_blank"
                     rel="noopener noreferrer"

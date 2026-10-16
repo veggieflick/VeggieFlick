@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { ALL_PRODUCTS, getLiveProductsList, updateLiveProduct } from "@/lib/data/all-products";
+import { getSession, BACK_OFFICE_ROLES } from "@/lib/auth";
 
 function slugify(text: string) {
   return text
@@ -22,6 +23,11 @@ function slugify(text: string) {
 // GET /api/v1/admin/products - List all products from Supabase DB (with live memory merge)
 export async function GET() {
   try {
+    const session = await getSession();
+    if (!session || !BACK_OFFICE_ROLES.includes(session.role)) {
+      return NextResponse.json({ error: "Unauthorized: Staff portal access required" }, { status: 403 });
+    }
+
     let rawProducts: any[] = [];
     try {
       rawProducts = await db
@@ -174,6 +180,11 @@ export async function GET() {
 // POST /api/v1/admin/products - Create a new product in Supabase DB
 export async function POST(request: Request) {
   try {
+    const session = await getSession();
+    if (!session || !BACK_OFFICE_ROLES.includes(session.role)) {
+      return NextResponse.json({ error: "Unauthorized: Staff portal access required" }, { status: 403 });
+    }
+
     const body = await request.json();
     const {
       name,

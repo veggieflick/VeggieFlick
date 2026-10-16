@@ -4,7 +4,7 @@ import * as schema from "./schema";
 
 const databaseUrl =
   process.env.DATABASE_URL ||
-  "postgresql://postgres.qteotyhogcsucfumsbxr:veggieflick%402026@aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres";
+  "postgresql://postgres:postgres@localhost:5432/veggieflick";
 
 const globalForDb = globalThis as typeof globalThis & {
   __veggieflickPostgresqlPool?: Pool;

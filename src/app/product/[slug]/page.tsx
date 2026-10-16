@@ -91,6 +91,7 @@ export default async function ProductPage({ params }: { params: Params }) {
         emoji={product.emoji}
         categorySlug={product.categorySlug}
         variants={product.variants}
+        imageUrl={product.images?.[0]?.imageUrl ?? (product as any).imageUrl}
       />
 
       <section className="mt-12 grid gap-6 lg:grid-cols-3">
