@@ -9,6 +9,7 @@ import {
 } from "@/db/schema";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { ALL_PRODUCTS, getLiveProductsList, updateLiveProduct } from "@/lib/data/all-products";
+import { getPersistedCatalog } from "@/app/api/v1/admin/catalog/save/route";
 import { getSession, BACK_OFFICE_ROLES } from "@/lib/auth";
 
 function slugify(text: string) {
@@ -120,9 +121,10 @@ export async function GET() {
           isFeatured: p.isFeatured,
           isFreshToday: p.isFreshToday,
           isCutVegetable: p.isCutVegetable,
-          categoryName: p.categoryName || "Fresh Vegetables",
+          isPreOrder: p.isPreOrder,
+          categoryName: p.categoryName || "Chopped Vegetable",
           variantId: p.variantId || `var-${p.id}`,
-          variantName: p.variantName || "500 g",
+          variantName: p.variantName || "250 g",
           unit: p.unit || "g",
           mrp: p.mrp || 40,
           price: p.price || 30,
@@ -130,6 +132,23 @@ export async function GET() {
           imageUrl: p.imageUrl || null,
         });
       });
+    }
+
+    // Merge persisted catalog changes so admin updates reflect instantly
+    try {
+      const persisted = getPersistedCatalog();
+      if (Array.isArray(persisted) && persisted.length > 0) {
+        persisted.forEach((item: any) => {
+          if (productMap.has(item.id)) {
+            const existing = productMap.get(item.id);
+            productMap.set(item.id, { ...existing, ...item });
+          } else if (item.id && item.name) {
+            productMap.set(item.id, item);
+          }
+        });
+      }
+    } catch (e) {
+      console.warn("Failed to merge persisted catalog:", e);
     }
 
     const resultList = Array.from(productMap.values());

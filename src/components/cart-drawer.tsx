@@ -168,6 +168,12 @@ export function CartDrawer() {
                     <dd className="text-emerald-800">{formatINR(cart.totals.grandTotal > 0 ? cart.totals.grandTotal : cart.totals.subtotal + 30 - cart.totals.discount, true)}</dd>
                   </div>
                 </dl>
+                {cart.items.some((item) => item.name.toLowerCase().includes("sprout") || item.slug.includes("sprout")) && (
+                  <div className="mb-3 rounded-xl border border-teal-300 bg-teal-50/90 p-2.5 text-[11px] font-bold text-teal-950 flex items-start gap-2 shadow-2xs">
+                    <span className="text-sm shrink-0">🌱</span>
+                    <span><strong>Sprouts Pre-Order Item:</strong> Requires 24-hr germination time. Delivery will be scheduled for tomorrow.</span>
+                  </div>
+                )}
                 {!isStoreOpen ? (
                   <div className="mb-3 rounded-xl border border-rose-300 bg-rose-50 p-2.5 text-[11px] font-bold text-rose-900 flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse shrink-0" />

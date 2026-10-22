@@ -3,28 +3,26 @@ import { Bike, Leaf, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 const SHOP_LINKS = [
-  { label: "Vegetables Shopping", href: "/shop?category=vegetables-shopping" },
-  { label: "Chopped & Cut Vegetables", href: "/shop?category=vegetables-shopping&cut=true" },
-  { label: "Salad (Main Category)", href: "/shop?category=salad" },
-  { label: "Fruit Salad", href: "/shop?category=salad&subCategory=fruit-salad" },
-  { label: "Sprouts Salad", href: "/shop?category=salad&subCategory=sprouts-salad" },
-  { label: "Vegetable Salad", href: "/shop?category=salad&subCategory=vegetable-salad" },
-  { label: "Recipe Combo Kits", href: "/#combo-kits" },
+  { label: "Chopped Vegetable", href: "/shop?category=chopped-vegetable" },
+  { label: "Fruits", href: "/shop?category=fruits" },
+  { label: "Sprouts (Pre-Order)", href: "/shop?category=sprouts" },
+  { label: "Vegetable Salad & Fruit Salad", href: "/shop?category=vegetable-salad-fruit-salad" },
+  { label: "Sprouts Combo", href: "/shop?category=sprouts-combo" },
+  { label: "Vegetable Rice & Aviyal Combo", href: "/shop?category=vegetable-rice-aviyal-combo" },
 ];
 
 const COMPANY_LINKS = [
+  { label: "Offers & Coupons", href: "/offers" },
   { label: "About Us", href: "/about" },
-  { label: "KK Nagar Hub Process", href: "/about" },
-  { label: "Quality & Prep Promise", href: "/about" },
-  { label: "Subscription Offers", href: "/subscriptions" },
-  { label: "Journal & Tips", href: "/blog" },
-  { label: "Recipes", href: "/recipes" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "KK Nagar Hub Quality Promise", href: "/about" },
+  { label: "Weekly Subscriptions", href: "/subscriptions" },
 ];
 
 const HELP_LINKS = [
-  { label: "FAQ", href: "/help" },
-  { label: "Contact KK Nagar Hub", href: "/help#contact" },
-  { label: "Track Order", href: "/orders" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Help & FAQ Centre", href: "/help" },
+  { label: "Track Your Order", href: "/orders" },
   { label: "Privacy Policy", href: "/legal/privacy" },
   { label: "Terms & Conditions", href: "/legal/terms" },
 ];

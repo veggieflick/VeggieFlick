@@ -46,11 +46,12 @@ type Product = {
 
 const CATEGORIES = [
   "All Categories",
-  "Cut Vegetables",
-  "Fresh Vegetables",
-  "Salad",
-  "Fruits Cutting & Combo Pack",
-  "Recipe Combo Kits",
+  "Chopped Vegetable",
+  "Fruits",
+  "Sprouts",
+  "Vegetable Salad & Fruit Salad",
+  "Sprouts Combo",
+  "Vegetable Rice & Aviyal Combo",
 ];
 
 export default function AdminCatalogPage() {

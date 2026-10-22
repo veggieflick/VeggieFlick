@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Check, X, Sparkles, AlertCircle, ShoppingBag, Scale } from "lucide-react";
+import { Check, X, Sparkles, AlertCircle, ShoppingBag, Scale, MessageCircle } from "lucide-react";
 import { formatINR } from "@/lib/utils";
 
 export type CustomIngredient = {
@@ -50,36 +50,55 @@ export const VEGETABLE_SALAD_INGREDIENTS: CustomIngredient[] = [
   { id: "mango", name: "Mango", emoji: "🥭" },
 ];
 
+// 4. Exact Combo Pack Ingredients
 export const COMBO_INGREDIENTS: Record<string, CustomIngredient[]> = {
-  "combo-pulav": [
-    { id: "carrots", name: "Chopped Ooty Carrots 250g", emoji: "🥕" },
-    { id: "beans", name: "French Beans 250g", emoji: "🫛" },
-    { id: "peas", name: "Tender Green Peas 200g", emoji: "🟢" },
-    { id: "spices", name: "Whole Spices Pouch", emoji: "🧄" },
-    { id: "potatoes", name: "Peeled Baby Potatoes 200g", emoji: "🥔" },
-    { id: "mint", name: "Fresh Mint & Coriander Pack", emoji: "🌿" },
-  ],
+  // Vegetable Biriyani Cutted Vegetable Combo
   "combo-biryani": [
-    { id: "cauliflower", name: "Cauliflower Florets 300g", emoji: "🥦" },
-    { id: "carrots", name: "Ooty Carrots 250g", emoji: "🥕" },
-    { id: "beans", name: "French Beans 250g", emoji: "🫛" },
-    { id: "onions", name: "Birista Fried Onions 100g", emoji: "🧅" },
-    { id: "spices", name: "Biryani Spice Pack", emoji: "🧂" },
-    { id: "mint", name: "Fresh Mint & Coriander", emoji: "🌿" },
+    { id: "onion", name: "Big Onion slices", emoji: "🧅" },
+    { id: "tomato", name: "Tomato", emoji: "🍅" },
+    { id: "chilli", name: "Chilli", emoji: "🌶️" },
+    { id: "carrot", name: "Carrot", emoji: "🥕" },
+    { id: "beans", name: "Beans", emoji: "🫛" },
+    { id: "peas", name: "Peas", emoji: "🟢" },
+    { id: "potato", name: "Potato", emoji: "🥔" },
+    { id: "ginger", name: "Ginger", emoji: "🫚" },
+    { id: "garlic", name: "Garlic", emoji: "🧄" },
   ],
+  // Aviyal
   "combo-aviyal": [
-    { id: "mix", name: "7-Veg Aviyal Cut Mix 500g", emoji: "🥗" },
-    { id: "coconut", name: "Grated Fresh Coconut 100g", emoji: "🥥" },
-    { id: "curryleaves", name: "Curry Leaves Bundle", emoji: "🍃" },
-    { id: "chillies", name: "Green Chillies 50g", emoji: "🌶️" },
-    { id: "yam", name: "Senai Yam Chunks 150g", emoji: "🥔" },
+    { id: "yam", name: "Elephant Foot Yam", emoji: "🥔" },
+    { id: "drumstick", name: "Drumstick", emoji: "🥢" },
+    { id: "carrot", name: "Carrot", emoji: "🥕" },
+    { id: "beans", name: "Beans", emoji: "🫛" },
+    { id: "pusanikai", name: "Pusanikai", emoji: "🎃" },
+    { id: "valaikai", name: "Valaikai", emoji: "🍌" },
+    { id: "avaraikai", name: "Avaraikai", emoji: "🫛" },
   ],
+  // Bisibella Bath
   "combo-bisibele": [
-    { id: "sambar", name: "Cut Sambar Veggies 500g", emoji: "🍲" },
-    { id: "shallots", name: "Peeled Small Onions 100g", emoji: "🧅" },
-    { id: "masala", name: "Stone-ground Masala 50g", emoji: "🥘" },
-    { id: "ghee", name: "Ghee Tempering Pack", emoji: "🧈" },
-    { id: "toordal", name: "Cleaned Toor Dal 200g", emoji: "🫘" },
+    { id: "small_onion", name: "Small Onion", emoji: "🧅" },
+    { id: "drumstick", name: "Drumstick", emoji: "🥢" },
+    { id: "carrot", name: "Carrot", emoji: "🥕" },
+    { id: "beans", name: "Beans", emoji: "🫛" },
+    { id: "capsicum", name: "Capsicum", emoji: "🫑" },
+    { id: "peas", name: "Peas", emoji: "🟢" },
+    { id: "pusanikai", name: "Pusanikai (White or Yellow)", emoji: "🎃" },
+    { id: "tomato", name: "Tomato", emoji: "🍅" },
+    { id: "potato", name: "Potato", emoji: "🥔" },
+    { id: "brinjal", name: "Brinjal", emoji: "🍆" },
+  ],
+  // White Pulav Cutted Vegetable Combo
+  "combo-pulav": [
+    { id: "onion", name: "Big Onion slices", emoji: "🧅" },
+    { id: "tomato", name: "Tomato", emoji: "🍅" },
+    { id: "chilli", name: "Chilli", emoji: "🌶️" },
+    { id: "coconut", name: "Grated Coconut", emoji: "🥥" },
+    { id: "carrot", name: "Carrot", emoji: "🥕" },
+    { id: "beans", name: "Beans", emoji: "🫛" },
+    { id: "peas", name: "Peas", emoji: "🟢" },
+    { id: "potato", name: "Potato", emoji: "🥔" },
+    { id: "ginger", name: "Ginger", emoji: "🫚" },
+    { id: "garlic", name: "Garlic", emoji: "🧄" },
   ],
 };
 
@@ -94,7 +113,7 @@ type CustomIngredientModalProps = {
   categorySlug?: string;
   subCategorySlug?: SaladSubcategory;
   customIngredientsList?: CustomIngredient[];
-  onConfirm: (data: { weight: "250g" | "500g"; price: number; ingredients: string[] }) => void;
+  onConfirm: (data: { weight: string; price: number; ingredients: string[] }) => void;
 };
 
 export function CustomIngredientModal({
@@ -107,60 +126,98 @@ export function CustomIngredientModal({
   customIngredientsList,
   onConfirm,
 }: CustomIngredientModalProps) {
+  const normName = productName.toLowerCase();
+  const isComboKit =
+    categorySlug.includes("combo") ||
+    categorySlug.includes("rice-aviyal") ||
+    normName.includes("biriyani") ||
+    normName.includes("biryani") ||
+    normName.includes("aviyal") ||
+    normName.includes("pulav") ||
+    normName.includes("bisibele") ||
+    normName.includes("bath kit");
+
   // Determine subcategory & ingredient pool
-  const effectiveSubCat = (subCategorySlug || categorySlug || "").toLowerCase();
-  
   let ingredients: CustomIngredient[] = FRUIT_SALAD_INGREDIENTS;
   let isFruitSalad = false;
 
-  if (effectiveSubCat.includes("sprouts")) {
-    ingredients = SPROUTS_SALAD_INGREDIENTS;
-  } else if (effectiveSubCat.includes("veg")) {
-    ingredients = VEGETABLE_SALAD_INGREDIENTS;
-  } else if (effectiveSubCat.includes("fruit")) {
-    ingredients = FRUIT_SALAD_INGREDIENTS;
-    isFruitSalad = true;
-  } else if (customIngredientsList) {
-    ingredients = customIngredientsList;
+  if (isComboKit) {
+    if (normName.includes("biriyani") || normName.includes("biryani")) {
+      ingredients = COMBO_INGREDIENTS["combo-biryani"];
+    } else if (normName.includes("aviyal")) {
+      ingredients = COMBO_INGREDIENTS["combo-aviyal"];
+    } else if (normName.includes("bisibele") || normName.includes("bath")) {
+      ingredients = COMBO_INGREDIENTS["combo-bisibele"];
+    } else if (normName.includes("pulav")) {
+      ingredients = COMBO_INGREDIENTS["combo-pulav"];
+    } else if (customIngredientsList && customIngredientsList.length > 0) {
+      ingredients = customIngredientsList;
+    } else {
+      ingredients = COMBO_INGREDIENTS["combo-pulav"];
+    }
+  } else {
+    const effectiveSubCat = (subCategorySlug || categorySlug || "").toLowerCase();
+    if (effectiveSubCat.includes("sprouts")) {
+      ingredients = SPROUTS_SALAD_INGREDIENTS;
+    } else if (effectiveSubCat.includes("veg")) {
+      ingredients = VEGETABLE_SALAD_INGREDIENTS;
+    } else if (effectiveSubCat.includes("fruit")) {
+      ingredients = FRUIT_SALAD_INGREDIENTS;
+      isFruitSalad = true;
+    } else if (customIngredientsList && customIngredientsList.length > 0) {
+      ingredients = customIngredientsList;
+    }
   }
 
-  // Weight Selection State: "250g" | "500g"
-  const [selectedWeight, setSelectedWeight] = useState<"250g" | "500g">("250g");
+  // Weight Selection State
+  // For Combos: "500g" | "1kg" | "2kg"
+  // For Salads: "250g" | "500g"
+  const [comboWeight, setComboWeight] = useState<"500g" | "1kg" | "2kg">("1kg");
+  const [saladWeight, setSaladWeight] = useState<"250g" | "500g">("250g");
 
-  // Selection Limits calculation
-  const minRequired = 5; // All salad types require minimum 5 ingredients
-  const maxAllowed =
-    selectedWeight === "250g"
-      ? 5 // 250g: Exactly 5 items
-      : isFruitSalad
-      ? 8 // 500g Fruit Salad: Up to 8 items
-      : 7; // 500g Sprouts/Veg Salad: Up to 7 items
-
-  // Price Calculation (500g = 1.75x base 250g price rounded)
-  const currentPrice = selectedWeight === "500g" ? Math.round(price * 1.75) : price;
-
-  // Selected Item IDs state
-  const defaultSelected = ingredients.slice(0, 5).map((i) => i.id);
+  // Selected Item IDs state (Default: all selected for combo, 5 selected for salad)
+  const defaultSelected = isComboKit ? ingredients.map((i) => i.id) : ingredients.slice(0, 5).map((i) => i.id);
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelected);
 
-  // Validate on weight change: if switching to 250g and currently selected > 5, trim to 5
-  const handleWeightChange = (newWeight: "250g" | "500g") => {
-    setSelectedWeight(newWeight);
-    const newMax = newWeight === "250g" ? 5 : isFruitSalad ? 8 : 7;
-    if (selectedIds.length > newMax) {
-      setSelectedIds(selectedIds.slice(0, newMax));
-    }
-  };
+  useEffect(() => {
+    setSelectedIds(isComboKit ? ingredients.map((i) => i.id) : ingredients.slice(0, 5).map((i) => i.id));
+  }, [productName, isComboKit]);
 
   if (!isOpen) return null;
 
+  // Price Calculation
+  let currentPrice = price;
+  let activeWeightLabel = "1kg";
+
+  if (isComboKit) {
+    activeWeightLabel = comboWeight;
+    if (comboWeight === "500g") currentPrice = Math.round(price * 0.6);
+    else if (comboWeight === "1kg") currentPrice = price;
+    else if (comboWeight === "2kg") currentPrice = Math.round(price * 1.95);
+  } else {
+    activeWeightLabel = saladWeight;
+    currentPrice = saladWeight === "500g" ? Math.round(price * 1.75) : price;
+  }
+
+  // Selection Limits calculation for salads
+  const minRequired = isComboKit ? 1 : 5;
+  const maxAllowed = isComboKit
+    ? ingredients.length
+    : saladWeight === "250g"
+    ? 5
+    : isFruitSalad
+    ? 8
+    : 7;
+
   const count = selectedIds.length;
   const isTooFew = count < minRequired;
-  const isMaxReached = count >= maxAllowed;
+  const isMaxReached = !isComboKit && count >= maxAllowed;
 
   const toggleItem = (id: string) => {
     if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((item) => item !== id));
+      if (selectedIds.length > 1) {
+        setSelectedIds(selectedIds.filter((item) => item !== id));
+      }
     } else {
       if (!isMaxReached) {
         setSelectedIds([...selectedIds, id]);
@@ -169,37 +226,40 @@ export function CustomIngredientModal({
   };
 
   const handleConfirm = () => {
-    if (isTooFew || count > maxAllowed) return;
+    if (isTooFew) return;
 
     const selectedNames = ingredients
       .filter((i) => selectedIds.includes(i.id))
       .map((i) => i.name);
 
     onConfirm({
-      weight: selectedWeight,
+      weight: activeWeightLabel,
       price: currentPrice,
       ingredients: selectedNames,
     });
     onClose();
   };
 
+  const whatsAppMessage = encodeURIComponent(
+    `Hi VeggieFlick! I would like to order / customize the "${productName}" (${activeWeightLabel}) with specific vegetable quantities:\nIncluded: ${ingredients
+      .filter((i) => selectedIds.includes(i.id))
+      .map((i) => i.name)
+      .join(", ")}`
+  );
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="card w-full max-w-lg overflow-hidden bg-white p-5 shadow-2xl rounded-3xl border border-slate-200">
+      <div className="card w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden bg-white p-5 shadow-2xl rounded-3xl border border-slate-200">
         {/* Modal Header */}
-        <div className="flex items-start justify-between border-b border-line pb-3.5">
+        <div className="flex items-start justify-between border-b border-line pb-3.5 shrink-0">
           <div>
             <div className="flex items-center gap-2">
               <span className="chip bg-emerald-100 text-emerald-900 border border-emerald-300 font-extrabold text-[10px] tracking-wider uppercase">
                 <Sparkles size={11} className="inline mr-1 text-emerald-700" />
-                Custom Salad Mix
+                {isComboKit ? "Recipe Combo Pack" : "Custom Salad Mix"}
               </span>
               <span className="chip bg-amber-100 text-amber-900 border border-amber-300 font-extrabold text-[10px] tracking-wider">
-                {effectiveSubCat.includes("sprouts")
-                  ? "Sprouts Salad"
-                  : effectiveSubCat.includes("veg")
-                  ? "Vegetable Salad"
-                  : "Fruit Salad"}
+                {isComboKit ? "Select Option kg-wise" : "Custom Pack"}
               </span>
             </div>
             <h3 className="text-lg font-black text-ink mt-1 tracking-tight">{productName}</h3>
@@ -215,148 +275,174 @@ export function CustomIngredientModal({
           </button>
         </div>
 
-        {/* 1. Pack Quantity Selection Toggle (250g vs 500g) */}
-        <div className="mt-4">
-          <label className="text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
-            <Scale size={13} className="text-emerald-700" /> Choose Pack Quantity:
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleWeightChange("250g")}
-              className={`flex items-center justify-between rounded-xl border p-3 text-left transition-all ${
-                selectedWeight === "250g"
-                  ? "border-emerald-600 bg-emerald-50/80 ring-2 ring-emerald-500/20 font-bold text-emerald-950"
-                  : "border-line bg-white hover:border-slate-300 text-slate-600"
-              }`}
-            >
-              <div>
-                <span className="block text-sm font-extrabold">250g Pack</span>
-                <span className="block text-[11px] text-muted">Req: Exactly 5 items</span>
+        <div className="overflow-y-auto flex-1 pr-1 mt-3">
+          {/* 1. Pack Quantity Selection Toggle (Kg-wise for Combos, 250g/500g for Salad) */}
+          <div className="mb-3.5">
+            <label className="text-xs font-bold text-slate-700 mb-1.5 flex items-center gap-1">
+              <Scale size={13} className="text-emerald-700" />
+              {isComboKit ? "Please Select Option (kg-wise):" : "Choose Pack Quantity:"}
+            </label>
+
+            {isComboKit ? (
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { key: "500g", label: "500 g Pack", desc: "Small (Half kg)", p: Math.round(price * 0.6) },
+                  { key: "1kg", label: "1 kg Pack", desc: "Standard Family", p: price },
+                  { key: "2kg", label: "2 kg Pack", desc: "Feast / Double", p: Math.round(price * 1.95) },
+                ].map((opt) => (
+                  <button
+                    key={opt.key}
+                    type="button"
+                    onClick={() => setComboWeight(opt.key as any)}
+                    className={`flex flex-col items-center justify-center rounded-xl border p-2.5 text-center transition-all ${
+                      comboWeight === opt.key
+                        ? "border-emerald-600 bg-emerald-50/90 ring-2 ring-emerald-500/20 font-bold text-emerald-950"
+                        : "border-line bg-white hover:border-slate-300 text-slate-600"
+                    }`}
+                  >
+                    <span className="block text-xs font-black">{opt.label}</span>
+                    <span className="block text-[10px] text-muted">{opt.desc}</span>
+                    <span className="mt-1 text-xs font-bold text-emerald-800">{formatINR(opt.p)}</span>
+                  </button>
+                ))}
               </div>
-              <span className="text-sm font-bold text-emerald-800">{formatINR(price)}</span>
-            </button>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSaladWeight("250g")}
+                  className={`flex items-center justify-between rounded-xl border p-3 text-left transition-all ${
+                    saladWeight === "250g"
+                      ? "border-emerald-600 bg-emerald-50/80 ring-2 ring-emerald-500/20 font-bold text-emerald-950"
+                      : "border-line bg-white hover:border-slate-300 text-slate-600"
+                  }`}
+                >
+                  <div>
+                    <span className="block text-sm font-extrabold">250g Pack</span>
+                    <span className="block text-[11px] text-muted">Req: Exactly 5 items</span>
+                  </div>
+                  <span className="text-sm font-bold text-emerald-800">{formatINR(price)}</span>
+                </button>
 
-            <button
-              type="button"
-              onClick={() => handleWeightChange("500g")}
-              className={`flex items-center justify-between rounded-xl border p-3 text-left transition-all ${
-                selectedWeight === "500g"
-                  ? "border-emerald-600 bg-emerald-50/80 ring-2 ring-emerald-500/20 font-bold text-emerald-950"
-                  : "border-line bg-white hover:border-slate-300 text-slate-600"
-              }`}
-            >
-              <div>
-                <span className="block text-sm font-extrabold">500g Pack</span>
-                <span className="block text-[11px] text-muted">
-                  Req: 5 to {isFruitSalad ? 8 : 7} items
-                </span>
+                <button
+                  type="button"
+                  onClick={() => setSaladWeight("500g")}
+                  className={`flex items-center justify-between rounded-xl border p-3 text-left transition-all ${
+                    saladWeight === "500g"
+                      ? "border-emerald-600 bg-emerald-50/80 ring-2 ring-emerald-500/20 font-bold text-emerald-950"
+                      : "border-line bg-white hover:border-slate-300 text-slate-600"
+                  }`}
+                >
+                  <div>
+                    <span className="block text-sm font-extrabold">500g Pack</span>
+                    <span className="block text-[11px] text-muted">Req: 5 to {isFruitSalad ? 8 : 7} items</span>
+                  </div>
+                  <span className="text-sm font-bold text-emerald-800">{formatINR(Math.round(price * 1.75))}</span>
+                </button>
               </div>
-              <span className="text-sm font-bold text-emerald-800">
-                {formatINR(Math.round(price * 1.75))}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* 2. Counter & Dynamic Validation Banner */}
-        <div className="mt-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 p-3.5 border border-emerald-200/80">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-800">
-              Selection Limit for <strong className="text-emerald-950 font-black">{selectedWeight}</strong>:
-            </span>
-            <span
-              className={`chip font-extrabold text-[11px] tracking-wide transition-all ${
-                isTooFew
-                  ? "bg-amber-600 text-white"
-                  : isMaxReached
-                  ? "bg-emerald-700 text-white shadow-xs"
-                  : "bg-white text-emerald-900 border border-emerald-300"
-              }`}
-            >
-              {count} / {maxAllowed} Ingredients Selected
-            </span>
+            )}
           </div>
 
-          {/* Validation Status Messages */}
-          {isTooFew ? (
-            <p className="mt-2 text-[11px] font-bold text-amber-900 flex items-center gap-1">
-              <AlertCircle size={13} className="text-amber-700 shrink-0" />
-              Select at least {minRequired} ingredients ({minRequired - count} more required) for the {selectedWeight} pack.
-            </p>
-          ) : isMaxReached ? (
-            <p className="mt-2 text-[11px] font-bold text-emerald-900 flex items-center gap-1">
-              <Check size={13} className="text-emerald-700 shrink-0 stroke-[3]" />
-              Maximum {maxAllowed} ingredients selected for {selectedWeight} pack! Other options are disabled.
-            </p>
-          ) : (
-            <p className="mt-2 text-[11px] font-medium text-emerald-800">
-              You can select up to {maxAllowed - count} more ingredient(s) for your {selectedWeight} salad.
-            </p>
-          )}
-        </div>
-
-        {/* 3. Ingredients Selection Grid */}
-        <div className="mt-4 max-h-[44vh] overflow-y-auto pr-1 grid gap-2 sm:grid-cols-2">
-          {ingredients.map((item) => {
-            const isChecked = selectedIds.includes(item.id);
-            const isDisabled = !isChecked && isMaxReached;
-
-            return (
-              <label
-                key={item.id}
-                className={`flex items-center gap-3 rounded-xl border p-2.5 cursor-pointer transition-all ${
-                  isChecked
-                    ? "border-emerald-600 bg-emerald-50/70 ring-1 ring-emerald-500/30 font-bold text-ink shadow-2xs"
-                    : isDisabled
-                    ? "border-slate-200 bg-slate-100/70 opacity-40 cursor-not-allowed text-slate-400"
-                    : "border-line bg-white hover:border-emerald-300 hover:bg-surface text-slate-700"
-                }`}
-              >
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  disabled={isDisabled}
-                  onChange={() => toggleItem(item.id)}
-                  className="h-4 w-4 rounded accent-emerald-700 cursor-pointer disabled:cursor-not-allowed"
-                />
-                <span className="text-xl">{item.emoji}</span>
-                <span className="text-xs flex-1 truncate">{item.name}</span>
-                {isChecked && (
-                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-700 text-white shrink-0">
-                    <Check size={12} strokeWidth={3} />
-                  </span>
+          {/* 2. Ingredients Banner */}
+          <div className="mb-3 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 p-3 border border-emerald-200/80">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-800">
+                {isComboKit ? (
+                  <>Exact Combo Ingredients (<strong className="text-emerald-950 font-black">{activeWeightLabel}</strong>)</>
+                ) : (
+                  <>Selection for <strong className="text-emerald-950 font-black">{activeWeightLabel}</strong>:</>
                 )}
-              </label>
-            );
-          })}
+              </span>
+              <span className="chip font-extrabold text-[11px] bg-white text-emerald-900 border border-emerald-300">
+                {count} / {ingredients.length} Included
+              </span>
+            </div>
+            {isComboKit ? (
+              <p className="mt-1.5 text-[11px] text-slate-600">
+                All pre-measured ingredients are freshly chopped and washed. Click to uncheck any item you don&apos;t want.
+              </p>
+            ) : isTooFew ? (
+              <p className="mt-1.5 text-[11px] font-bold text-amber-900 flex items-center gap-1">
+                <AlertCircle size={13} className="text-amber-700 shrink-0" />
+                Select at least {minRequired} ingredients ({minRequired - count} more needed).
+              </p>
+            ) : (
+              <p className="mt-1.5 text-[11px] font-medium text-emerald-800">
+                {isMaxReached ? "Maximum ingredients reached!" : `You can select up to ${maxAllowed - count} more.`}
+              </p>
+            )}
+          </div>
+
+          {/* 3. Ingredients Selection Grid */}
+          <div className="grid gap-2 sm:grid-cols-2">
+            {ingredients.map((item) => {
+              const selected = selectedIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => toggleItem(item.id)}
+                  className={`flex items-center justify-between p-2.5 rounded-xl border text-left text-xs transition-all ${
+                    selected
+                      ? "border-emerald-600 bg-emerald-50/70 font-bold text-emerald-950 shadow-xs"
+                      : "border-slate-200 bg-white hover:bg-slate-50 text-slate-600"
+                  }`}
+                >
+                  <span className="flex items-center gap-2 truncate">
+                    <span className="text-base">{item.emoji}</span>
+                    <span className="truncate">{item.name}</span>
+                  </span>
+                  <span
+                    className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${
+                      selected
+                        ? "border-emerald-600 bg-emerald-600 text-white"
+                        : "border-slate-300 bg-white"
+                    }`}
+                  >
+                    {selected && <Check size={12} strokeWidth={3} />}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* 4. WhatsApp Customization Button Requirement 4 */}
+          <div className="mt-4 pt-3 border-t border-slate-100">
+            <a
+              href={`https://wa.me/919840532826?text=${whatsAppMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 rounded-xl border border-emerald-500/80 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-900 hover:bg-emerald-100 transition-colors shadow-xs"
+            >
+              <MessageCircle size={15} className="text-emerald-700" />
+              <span>Please connect with WhatsApp for custom proportions</span>
+            </a>
+          </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-line">
+        {/* Modal Actions */}
+        <div className="mt-4 flex items-center justify-between gap-3 pt-3 border-t border-line shrink-0">
           <div>
-            <span className="block text-[10px] font-bold uppercase tracking-wider text-muted">
-              {selectedWeight} Pack Total
-            </span>
+            <span className="block text-[10px] uppercase font-bold text-muted">Total Price</span>
             <span className="text-xl font-black text-ink">{formatINR(currentPrice)}</span>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="btn btn-outline px-4 py-2.5 text-xs font-semibold"
+              className="btn btn-outline btn-sm text-slate-600 border-slate-300 text-xs px-3"
             >
               Cancel
             </button>
             <button
               type="button"
-              disabled={isTooFew || count > maxAllowed}
+              disabled={isTooFew}
               onClick={handleConfirm}
-              className="btn btn-primary px-5 py-2.5 text-xs font-bold bg-emerald-800 hover:bg-emerald-900 text-white shadow-md disabled:opacity-50 inline-flex items-center gap-1.5"
+              className="btn btn-primary btn-sm bg-emerald-800 text-white font-extrabold text-xs px-4 shadow-md hover:bg-emerald-900 disabled:opacity-50 flex items-center gap-1.5"
             >
               <ShoppingBag size={14} />
-              Confirm & Add ({selectedWeight})
+              <span>Add to Basket ({activeWeightLabel})</span>
             </button>
           </div>
         </div>

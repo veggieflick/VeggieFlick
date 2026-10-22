@@ -339,40 +339,42 @@ export function SiteHeader() {
 
       {/* Navigation Bar */}
       <nav aria-label="Main Navigation" className="hidden border-t border-line/70 lg:block bg-surface/40">
-        <div className="container-page flex items-center gap-1 py-2 overflow-x-auto scrollbar-hide text-[13px] font-semibold">
-          <Link href="/" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Home
-          </Link>
-          <Link href="/shop?category=vegetables-shopping" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-emerald-900 font-bold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Vegetables Shopping
-          </Link>
-          <Link href="/shop?category=salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-emerald-950 font-extrabold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Salad
-          </Link>
-          <Link href="/shop?category=salad&subCategory=fruit-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-700 font-semibold hover:bg-emerald-50">
-            Fruit Salad
-          </Link>
-          <Link href="/shop?category=salad&subCategory=sprouts-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-700 font-semibold hover:bg-emerald-50">
-            Sprouts Salad
-          </Link>
-          <Link href="/shop?category=salad&subCategory=vegetable-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-700 font-semibold hover:bg-emerald-50">
-            Vegetable Salad
-          </Link>
-          <Link href="/#combo-kits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-amber-900 bg-amber-50/80 border border-amber-200/60 font-bold hover:bg-amber-100">
-            Recipe Combo Kits
-          </Link>
-          <Link href="/subscriptions" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 hover:bg-emerald-50">
-            Subscriptions
-          </Link>
-          <Link href="/shop?sort=discount" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-emerald-800 font-bold hover:bg-emerald-50">
-            Offers
-          </Link>
-          <Link href="/about" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            About
-          </Link>
-          <Link href="/help#contact" className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-            Contact
-          </Link>
+        <div className="container-page flex items-center justify-between gap-1 py-2 overflow-x-auto scrollbar-hide text-[13px] font-semibold">
+          <div className="flex items-center gap-1 shrink-0">
+            <Link href="/" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              Home
+            </Link>
+            <Link href="/shop?category=chopped-vegetable" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-emerald-950 font-bold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              🥦 Chopped Vegetable
+            </Link>
+            <Link href="/shop?category=fruits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              🍎 Fruits
+            </Link>
+            <Link href="/shop?category=sprouts" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-teal-900 bg-teal-50 border border-teal-200/60 font-bold hover:bg-teal-100">
+              🌱 Sprouts (Pre-Order)
+            </Link>
+            <Link href="/shop?category=vegetable-salad-fruit-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
+              🥗 Salads
+            </Link>
+            <Link href="/shop?category=sprouts-combo" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
+              🫘 Sprouts Combo
+            </Link>
+            <Link href="/shop?category=vegetable-rice-aviyal-combo" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-amber-900 bg-amber-50/80 border border-amber-200/60 font-bold hover:bg-amber-100">
+              🍲 Combos (kg-wise)
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-1 shrink-0 border-l border-slate-200 pl-2">
+            <Link href="/offers" className="flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-rose-700 bg-rose-50 border border-rose-200 font-black hover:bg-rose-100 shadow-2xs">
+              <span>🏷️ Offers</span>
+            </Link>
+            <Link href="/about" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              About Us
+            </Link>
+            <Link href="/contact" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              Contact Us
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -399,17 +401,17 @@ export function SiteHeader() {
             </div>
             <div className="grid gap-1 text-sm font-semibold text-slate-800">
               <Link href="/" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Home</Link>
-              <Link href="/shop?category=vegetables-shopping" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-extrabold hover:bg-emerald-50">Vegetables Shopping</Link>
-              <Link href="/shop?category=vegetables-shopping&cut=true" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-amber-800 bg-amber-50 font-bold ml-2">↳ Chopped & Cut Vegetables</Link>
-              <Link href="/shop?category=salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-900 font-black hover:bg-emerald-50">Salad (Main Category)</Link>
-              <Link href="/shop?category=salad&subCategory=fruit-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold ml-3">↳ Fruit Salad</Link>
-              <Link href="/shop?category=salad&subCategory=sprouts-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold ml-3">↳ Sprouts Salad</Link>
-              <Link href="/shop?category=salad&subCategory=vegetable-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2 text-xs text-slate-700 font-semibold ml-3">↳ Vegetable Salad</Link>
-              <Link href="/#combo-kits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">Recipe Meal Kits</Link>
-              <Link href="/subscriptions" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Subscriptions</Link>
-              <Link href="/shop?sort=discount" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-800 font-bold">Special Offers</Link>
+              <Link href="/shop?category=chopped-vegetable" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-900 font-bold hover:bg-emerald-50">🥦 Chopped Vegetable</Link>
+              <Link href="/shop?category=fruits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">🍎 Fruits</Link>
+              <Link href="/shop?category=sprouts" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-teal-900 bg-teal-50 font-extrabold">🌱 Sprouts (Pre-Order 1 Day Before)</Link>
+              <Link href="/shop?category=vegetable-salad-fruit-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">🥗 Vegetable Salad & Fruit Salad</Link>
+              <Link href="/shop?category=sprouts-combo" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">🫘 Sprouts Combo</Link>
+              <Link href="/shop?category=vegetable-rice-aviyal-combo" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">🍲 Vegetable Rice & Aviyal Combo (kg-wise)</Link>
+              
+              <div className="my-2 border-t border-slate-200" />
+              <Link href="/offers" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-rose-700 bg-rose-50 font-black">🏷️ Offers & Deals</Link>
               <Link href="/about" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">About Us</Link>
-              <Link href="/help#contact" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Contact KK Nagar Hub</Link>
+              <Link href="/contact" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Contact Us</Link>
             </div>
           </div>
         </div>

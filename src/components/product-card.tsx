@@ -26,6 +26,8 @@ export type ProductCardData = {
   isBestSeller: boolean;
   isFreshToday: boolean;
   isCutVegetable?: boolean;
+  isPreOrder?: boolean;
+  customIngredients?: string[];
   rating: number;
   ratingCount: number;
   categorySlug: string;
@@ -96,11 +98,16 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
   const imageSrc = cardData.imageUrl;
   const discountPct = Math.round(cardData.discountPercentage);
 
+  const isPreOrder = Boolean(cardData.isPreOrder || cardData.categorySlug === "sprouts" || cardData.name.toLowerCase().includes("sprout"));
+
   const isCustomizable =
     cardData.categorySlug === "salad" ||
-    cardData.categorySlug === "fruit-salads" ||
-    cardData.categorySlug === "veg-salads" ||
-    cardData.categorySlug === "recipe-meal-kits" ||
+    cardData.categorySlug === "vegetable-salad-fruit-salad" ||
+    cardData.categorySlug === "vegetable-rice-aviyal-combo" ||
+    cardData.categorySlug === "sprouts-combo" ||
+    cardData.categorySlug === "recipe-combo-kits" ||
+    cardData.categorySlug.includes("combo") ||
+    !!cardData.customIngredients?.length ||
     !!cardData.subCategorySlug;
 
   const handleAddClick = () => {
@@ -108,12 +115,13 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
       notify("🔴 கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது (Store is Offline)", "error");
       return;
     }
-    if (cardData.categorySlug === "vegetables-shopping" && !cardData.isCutVegetable) {
-      setCutModalOpen(true);
-    } else if (isCustomizable) {
+    if (isCustomizable) {
       setCustomModalOpen(true);
     } else {
       void addItem(cardData.id, cardData.variantId, 1);
+      if (isPreOrder) {
+        notify(`🌱 Added ${cardData.name} to basket. (Pre-Order: requires 1-day advance germination time)`);
+      }
     }
   };
 
@@ -189,6 +197,11 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none z-10">
             {discountPct > 0 && (
               <span className="chip bg-emerald-800 text-white font-extrabold text-[10px] tracking-wider shadow-sm">{discountPct}% OFF</span>
+            )}
+            {isPreOrder && (
+              <span className="chip bg-teal-800 text-teal-100 font-extrabold text-[10px] tracking-wide shadow-sm border border-teal-600/50">
+                🌱 Pre-Order (1 Day Before)
+              </span>
             )}
             {cardData.isCutVegetable ? (
               <span className="chip bg-amber-700 text-white font-bold text-[10px] tracking-wide shadow-xs">Pre-Cut</span>
@@ -293,9 +306,13 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                 whileTap={{ scale: 0.95 }}
                 type="button"
                 onClick={handleAddClick}
-                className="btn btn-outline btn-sm border-emerald-800 font-bold text-emerald-800 hover:bg-emerald-800 hover:text-white"
+                className={`btn btn-sm font-bold ${
+                  isPreOrder
+                    ? "bg-teal-800 text-white hover:bg-teal-900 border-none shadow-xs text-[11px] px-2.5"
+                    : "btn-outline border-emerald-800 text-emerald-800 hover:bg-emerald-800 hover:text-white"
+                }`}
               >
-                Add
+                {isPreOrder ? "🌱 Pre-Order" : "Add"}
               </motion.button>
             )}
           </div>
