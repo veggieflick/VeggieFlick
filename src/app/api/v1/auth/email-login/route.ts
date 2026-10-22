@@ -1,6 +1,6 @@
 import { db } from "@/db";
 import { profiles } from "@/db/schema";
-import { handle, ok, parseBody } from "@/lib/api";
+import { forbidden, handle, ok, parseBody } from "@/lib/api";
 import { issueSession, readGuestToken } from "@/lib/auth";
 import { mergeGuestCart } from "@/lib/services/cart";
 import { eq } from "drizzle-orm";
@@ -24,13 +24,7 @@ export async function POST(request: Request) {
       const [existingProfile] = await db.select().from(profiles).where(eq(profiles.email, email.toLowerCase())).limit(1);
       if (existingProfile) {
         if (existingProfile.role !== "customer") {
-          return {
-            success: false,
-            error: {
-              code: "FORBIDDEN",
-              message: "Staff and administrative accounts must log in through the Staff Portal (/admin/login) with credentials.",
-            },
-          };
+          return forbidden("Staff and administrative accounts must log in through the Staff Portal (/admin/login) with credentials.");
         }
         profile = existingProfile;
       } else {

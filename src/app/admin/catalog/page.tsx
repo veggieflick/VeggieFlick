@@ -86,8 +86,12 @@ export default function AdminCatalogPage() {
     isCutVegetable: false,
   });
 
+  const showMessage = useCallback((text: string, type: "success" | "error") => {
+    setStatusMessage({ text, type });
+    setTimeout(() => setStatusMessage(null), 4000);
+  }, []);
+
   const fetchProducts = useCallback(async () => {
-    setLoading(true);
     try {
       const res = await fetch("/api/v1/admin/products");
       const data = await res.json();
@@ -100,16 +104,32 @@ export default function AdminCatalogPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [showMessage]);
 
   useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
-
-  const showMessage = (text: string, type: "success" | "error") => {
-    setStatusMessage({ text, type });
-    setTimeout(() => setStatusMessage(null), 4000);
-  };
+    let active = true;
+    fetch("/api/v1/admin/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (active && data.products && Array.isArray(data.products)) {
+          setProducts(data.products);
+        }
+      })
+      .catch((err) => {
+        if (active) {
+          console.error("Failed to load products:", err);
+          showMessage("Notice: Syncing products with Supabase DB...", "error");
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setLoading(false);
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [showMessage]);
 
   // Inline edit handlers
   const handleInlineChange = (id: string, field: keyof Product, value: any) => {
@@ -464,8 +484,8 @@ export default function AdminCatalogPage() {
       ) : filteredProducts.length === 0 ? (
         <div className="flex h-64 flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
           <Boxes className="h-10 w-10 text-slate-300" />
-          <h3 className="mt-2 text-base font-bold text-slate-800">No products found in "{selectedCategory}"</h3>
-          <p className="text-sm text-slate-500">Click "Add New Product" to add items to this category.</p>
+          <h3 className="mt-2 text-base font-bold text-slate-800">No products found in &quot;{selectedCategory}&quot;</h3>
+          <p className="text-sm text-slate-500">Click &quot;Add New Product&quot; to add items to this category.</p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
