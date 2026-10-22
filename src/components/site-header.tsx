@@ -134,21 +134,9 @@ export function SiteHeader() {
       <div className="border-b border-line/60 bg-gradient-to-r from-emerald-950 via-slate-900 to-teal-950 text-white">
         <div className="container-page flex h-10 items-center justify-between gap-3 text-xs overflow-x-auto scrollbar-hide">
           <div className="flex items-center gap-3 shrink-0">
-            {/* Operational Hours & Store Status */}
-            <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold shadow-md ${
-                isStoreOpen
-                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-500/50"
-                  : "bg-rose-500/30 text-rose-200 border border-rose-400 animate-pulse"
-              }`}
-            >
-              <span className={`h-2.5 w-2.5 rounded-full ${isStoreOpen ? "bg-emerald-400 animate-pulse" : "bg-rose-400"}`} />
-              <span>{isStoreOpen ? "🟢 KK Nagar Hub · Taking Orders (6 AM – 9 PM)" : "🔴 Store Offline"}</span>
-            </div>
-
             {/* Per-Order Delivery Charge Notice */}
-            <div className="hidden sm:flex items-center gap-1 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-full text-[11px] font-bold text-amber-200">
-              <Bike size={12} className="text-amber-400" />
+            <div className="flex items-center gap-1.5 bg-amber-500/15 border border-amber-500/30 px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-200">
+              <Bike size={13} className="text-amber-400 shrink-0" />
               <span>Per-Order Delivery: ₹30 – ₹100 by distance (No Free Delivery)</span>
             </div>
           </div>
