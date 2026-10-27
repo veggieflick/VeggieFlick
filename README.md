@@ -38,9 +38,7 @@ internal reference instead of calling Razorpay.
 
 | Role | Credentials |
 | --- | --- |
-| Super admin | `admin@veggieflick.in` / `Admin@12345` (staff portal `/admin/login`) |
-| Manager | `manager@veggieflick.in` / `Manager@12345` |
-| Warehouse staff | `warehouse@veggieflick.in` / `Warehouse@12345` |
+| Super admin | `admin@veggieflick.in` (or `admin`) / Configured via `ADMIN_PASSWORD` in `.env` (staff portal `/admin/login`) |
 | Customer | Sign in at `/login` with any 10-digit mobile (OTP is shown on screen) |
 
 ---

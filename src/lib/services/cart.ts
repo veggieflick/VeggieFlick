@@ -5,6 +5,7 @@ import { ApiError } from "@/lib/api";
 import { getOrCreateGuestToken, getSession, readGuestToken } from "@/lib/auth";
 import { round2, toNumber } from "@/lib/utils";
 import { deliveryChargeForDistance } from "@/lib/services/delivery";
+import { FALLBACK_COUPONS } from "@/lib/data/fallback-content";
 
 export type CartLine = {
   id: string;
@@ -148,11 +149,28 @@ export async function loadCartLines(cartId: string): Promise<CartLine[]> {
 }
 
 export async function validateCoupon(code: string, subtotal: number) {
-  const [coupon] = await db
-    .select()
-    .from(coupons)
-    .where(and(eq(coupons.couponCode, code.toUpperCase()), eq(coupons.status, "active")))
-    .limit(1);
+  let coupon: any = null;
+  try {
+    const [row] = await db
+      .select()
+      .from(coupons)
+      .where(and(eq(coupons.couponCode, code.toUpperCase()), eq(coupons.status, "active")))
+      .limit(1);
+    coupon = row;
+  } catch (err) {
+    console.warn("validateCoupon db error:", err);
+  }
+
+  if (!coupon) {
+    const fb = FALLBACK_COUPONS.find((c) => c.couponCode === code.toUpperCase());
+    if (fb) {
+      coupon = {
+        ...fb,
+        usedCount: 0,
+        usageLimit: 10000,
+      };
+    }
+  }
 
   if (!coupon) throw new ApiError("This coupon code is not valid", 404, "COUPON_NOT_FOUND");
   if (coupon.expiryDate.getTime() < Date.now())
@@ -231,6 +249,7 @@ async function persistTotals(cartId: string, totals: CartTotals) {
 
 const globalForCartMemory = globalThis as typeof globalThis & {
   __veggieflickMemoryCart?: Map<string, CartLine>;
+  __veggieflickMemoryCoupon?: any;
 };
 
 const memoryCartMap =
@@ -242,7 +261,8 @@ if (process.env.NODE_ENV !== "production") {
 
 function getMemoryCartSummary(): CartSummary {
   const items = Array.from(memoryCartMap.values());
-  const totals = computeTotals(items, null, null);
+  const appliedCoupon = globalForCartMemory.__veggieflickMemoryCoupon ?? null;
+  const totals = computeTotals(items, appliedCoupon, appliedCoupon?.couponCode ?? null);
   return {
     cartId: "guest-demo-cart-id",
     items,
@@ -448,6 +468,7 @@ export async function removeCartItem(itemId: string) {
 
 export async function clearCart() {
   memoryCartMap.clear();
+  globalForCartMemory.__veggieflickMemoryCoupon = null;
   try {
     const cart = await findCartRow(false);
     if (cart) {
@@ -464,14 +485,25 @@ export async function applyCouponToCart(code: string) {
   const summary = await getCartSummary(true);
   if (summary.items.length === 0) throw new ApiError("Your cart is empty", 400, "CART_EMPTY");
   const coupon = await validateCoupon(code, summary.totals.subtotal);
-  await db.update(carts).set({ couponCode: coupon.couponCode }).where(eq(carts.id, summary.cartId));
+  globalForCartMemory.__veggieflickMemoryCoupon = coupon;
+  try {
+    await db.update(carts).set({ couponCode: coupon.couponCode }).where(eq(carts.id, summary.cartId));
+  } catch (err) {
+    console.warn("applyCouponToCart db error:", err);
+  }
   return getCartSummary(false);
 }
 
 export async function removeCouponFromCart() {
-  const cart = await findCartRow(false);
-  if (!cart) return EMPTY_CART;
-  await db.update(carts).set({ couponCode: null }).where(eq(carts.id, cart.id));
+  globalForCartMemory.__veggieflickMemoryCoupon = null;
+  try {
+    const cart = await findCartRow(false);
+    if (cart) {
+      await db.update(carts).set({ couponCode: null }).where(eq(carts.id, cart.id));
+    }
+  } catch (err) {
+    console.warn("removeCouponFromCart db error:", err);
+  }
   return getCartSummary(false);
 }
 

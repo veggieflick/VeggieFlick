@@ -20,8 +20,8 @@ export const verifyOtpSchema = z.object({
 });
 
 export const adminLoginSchema = z.object({
-  email: z.string().trim().email("Enter a valid email"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  email: z.string().trim().min(3, "Enter a valid username or email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   totp: z.string().trim().optional(),
 });
 

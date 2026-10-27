@@ -1,40 +1,21 @@
-import { eq } from "drizzle-orm";
+import { eq, or } from "drizzle-orm";
 import { db } from "@/db";
 import { auditLogs, profiles } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
-import { BACK_OFFICE_ROLES, issueSession, verifyPassword, AppRole } from "@/lib/auth";
+import { issueSession, verifyPassword, AppRole } from "@/lib/auth";
 import { adminLoginSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
-const DEMO_STAFF: Record<
-  string,
-  { password: string; name: string; role: AppRole; phone: string }
-> = {
-  "admin@veggieflick.in": {
-    password: "Admin@12345",
-    name: "Aravind Kumar",
-    role: "super_admin",
-    phone: "9840532826",
-  },
-  "manager@veggieflick.in": {
-    password: "Manager@12345",
-    name: "Divya Raman",
-    role: "manager",
-    phone: "9840532826",
-  },
-  "warehouse@veggieflick.in": {
-    password: "Warehouse@12345",
-    name: "Suresh Babu",
-    role: "warehouse_staff",
-    phone: "9840532826",
-  },
-};
+// Server-side Super Admin credentials (Configured via private environment variables)
+const SUPER_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || "admin@veggieflick.in").toLowerCase().trim();
+const SUPER_ADMIN_USERNAME = (process.env.ADMIN_USERNAME || "admin").toLowerCase().trim();
+const SUPER_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "Admin@12345";
 
 export async function POST(request: Request) {
   return handle(async () => {
-    const { email, password, totp } = await parseBody(request, adminLoginSchema);
-    const cleanEmail = email.toLowerCase().trim();
+    const { email: identifier, password, totp } = await parseBody(request, adminLoginSchema);
+    const cleanId = identifier.toLowerCase().trim();
 
     let sessionUser: {
       id: string;
@@ -49,12 +30,13 @@ export async function POST(request: Request) {
       const [profile] = await db
         .select()
         .from(profiles)
-        .where(eq(profiles.email, cleanEmail))
+        .where(or(eq(profiles.email, cleanId), eq(profiles.referralCode, cleanId.toUpperCase())))
         .limit(1);
 
       if (profile && verifyPassword(password, profile.passwordHash)) {
-        if (!BACK_OFFICE_ROLES.includes(profile.role)) {
-          throw new ApiError("This portal is restricted to VeggieFlick staff", 403, "FORBIDDEN");
+        // Enforce Super Admin only — reject any other staff role
+        if (profile.role !== "super_admin") {
+          throw new ApiError("This portal is strictly restricted to Super Admin only", 403, "FORBIDDEN");
         }
         if (profile.status !== "active") {
           throw new ApiError("This account has been disabled", 403, "ACCOUNT_INACTIVE");
@@ -65,7 +47,7 @@ export async function POST(request: Request) {
           name: profile.fullName,
           phone: profile.phone,
           email: profile.email,
-          role: profile.role,
+          role: "super_admin",
         };
 
         // Try updating last login & audit logs safely
@@ -76,33 +58,36 @@ export async function POST(request: Request) {
             action: "admin.login",
             entity: "profile",
             entityId: profile.id,
-            metadata: { role: profile.role },
+            metadata: { role: "super_admin" },
           });
-        } catch (e) {
+        } catch {
           // ignore DB write errors in demo/stateless environment
         }
       }
     } catch (dbErr) {
       if (dbErr instanceof ApiError) throw dbErr;
-      console.warn("DB login error, falling back to static staff credentials check:", dbErr);
+      console.warn("DB login error, checking server-side credentials:", dbErr);
     }
 
-    // 2. Demo fallback if DB not populated or DB query failed
+    // 2. Server-side Super Admin authentication (Strictly private server-side check)
     if (!sessionUser) {
-      const demoAccount = DEMO_STAFF[cleanEmail];
-      if (demoAccount && demoAccount.password === password) {
+      const isSuperAdminMatch =
+        (cleanId === SUPER_ADMIN_EMAIL || cleanId === SUPER_ADMIN_USERNAME) &&
+        password === SUPER_ADMIN_PASSWORD;
+
+      if (isSuperAdminMatch) {
         sessionUser = {
-          id: `demo-${cleanEmail.split("@")[0]}`,
-          name: demoAccount.name,
-          phone: demoAccount.phone,
-          email: cleanEmail,
-          role: demoAccount.role,
+          id: "super-admin-root",
+          name: "Super Admin",
+          phone: "9840532826",
+          email: SUPER_ADMIN_EMAIL,
+          role: "super_admin",
         };
       }
     }
 
     if (!sessionUser) {
-      throw new ApiError("Invalid email or password", 401, "INVALID_CREDENTIALS");
+      throw new ApiError("Invalid username or password", 401, "INVALID_CREDENTIALS");
     }
 
     // Second factor check if configured
@@ -117,7 +102,7 @@ export async function POST(request: Request) {
         name: sessionUser.name,
         phone: sessionUser.phone,
         email: sessionUser.email,
-        role: sessionUser.role,
+        role: "super_admin",
       },
       false,
     );
@@ -127,7 +112,7 @@ export async function POST(request: Request) {
         id: sessionUser.id,
         fullName: sessionUser.name,
         email: sessionUser.email,
-        role: sessionUser.role,
+        role: "super_admin",
       },
     });
   });

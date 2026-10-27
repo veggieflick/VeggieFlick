@@ -7,6 +7,8 @@ import { recipes } from "@/db/schema";
 import { Breadcrumb, SectionHeading } from "@/components/ui/primitives";
 import { lookupIcon } from "@/lib/icons";
 
+import { FALLBACK_RECIPES } from "@/lib/data/fallback-content";
+
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -17,7 +19,15 @@ export const metadata: Metadata = {
 };
 
 export default async function RecipesPage() {
-  const rows = await db.select().from(recipes).where(eq(recipes.status, "active")).orderBy(desc(recipes.createdAt));
+  let rows: any[] = [];
+  try {
+    rows = await db.select().from(recipes).where(eq(recipes.status, "active")).orderBy(desc(recipes.createdAt));
+  } catch (err) {
+    console.warn("RecipesPage db error:", err);
+  }
+  if (!rows || rows.length === 0) {
+    rows = FALLBACK_RECIPES;
+  }
 
   return (
     <div className="container-page py-6 md:py-10">

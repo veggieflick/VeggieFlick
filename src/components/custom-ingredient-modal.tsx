@@ -178,10 +178,12 @@ export function CustomIngredientModal({
   // Selected Item IDs state (Default: all selected for combo, 5 selected for salad)
   const defaultSelected = isComboKit ? ingredients.map((i) => i.id) : ingredients.slice(0, 5).map((i) => i.id);
   const [selectedIds, setSelectedIds] = useState<string[]>(defaultSelected);
+  const [prevProductKey, setPrevProductKey] = useState(`${productName}-${isComboKit}`);
 
-  useEffect(() => {
+  if (prevProductKey !== `${productName}-${isComboKit}`) {
+    setPrevProductKey(`${productName}-${isComboKit}`);
     setSelectedIds(isComboKit ? ingredients.map((i) => i.id) : ingredients.slice(0, 5).map((i) => i.id));
-  }, [productName, isComboKit]);
+  }
 
   if (!isOpen) return null;
 

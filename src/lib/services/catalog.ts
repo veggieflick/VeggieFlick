@@ -663,7 +663,7 @@ export async function searchSuggestions(term: string, limit = 8) {
   if (!term.trim()) return [];
   const like = `%${term.trim()}%`;
   try {
-    return await db
+    const results = await db
       .select({
         name: products.name,
         slug: products.slug,
@@ -690,10 +690,29 @@ export async function searchSuggestions(term: string, limit = 8) {
       )
       .orderBy(desc(products.soldCount))
       .limit(limit);
+    if (results && results.length > 0) return results;
   } catch (err) {
     console.warn("searchSuggestions db error:", err);
-    return [];
   }
+
+  const q = term.toLowerCase().trim();
+  const liveList = getLiveProductsList();
+  return liveList
+    .filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        (p.tamilName && p.tamilName.includes(q)) ||
+        p.slug.toLowerCase().includes(q) ||
+        p.categoryName.toLowerCase().includes(q)
+    )
+    .slice(0, limit)
+    .map((p) => ({
+      name: p.name,
+      slug: p.slug,
+      emoji: p.emoji || "🥬",
+      categoryName: p.categoryName,
+      price: String(p.price),
+    }));
 }
 
 export async function catalogCounts() {

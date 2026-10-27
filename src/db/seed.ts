@@ -582,7 +582,7 @@ async function main() {
     }
   }
 
-  const [admin, manager, warehouse, customer] = await db
+  const [admin, customer] = await db
     .insert(schema.profiles)
     .values([
       {
@@ -590,22 +590,8 @@ async function main() {
         email: "admin@veggieflick.in",
         phone: "9840532826",
         role: "super_admin",
-        passwordHash: hashPassword("Admin@12345"),
+        passwordHash: hashPassword(process.env.ADMIN_PASSWORD || "Admin@12345"),
         referralCode: "VFADMIN",
-      },
-      {
-        fullName: "Divya Raman",
-        email: "manager@veggieflick.in",
-        phone: "9840532827",
-        role: "manager",
-        passwordHash: hashPassword("Manager@12345"),
-      },
-      {
-        fullName: "Suresh Babu",
-        email: "warehouse@veggieflick.in",
-        phone: "9840532828",
-        role: "warehouse_staff",
-        passwordHash: hashPassword("Warehouse@12345"),
       },
       {
         fullName: "Priya Narayanan",
@@ -764,7 +750,7 @@ async function main() {
   });
 
   console.info(
-    `Seed complete → ${CATEGORIES.length} categories, ${PRODUCTS.length} products, ${manager.fullName} & ${warehouse.fullName} staff accounts ready.`,
+    `Seed complete → ${CATEGORIES.length} categories, ${PRODUCTS.length} products, Super Admin (${admin.email}) ready.`,
   );
   await pool.end();
 }

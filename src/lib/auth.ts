@@ -98,10 +98,11 @@ export async function issueSession(user: SessionUser, remember = false): Promise
     .sign(secretKey());
 
   const store = await cookies();
+  const isHttps = process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://") ?? false;
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && isHttps,
     path: "/",
     maxAge,
   });
@@ -272,10 +273,11 @@ export async function getOrCreateGuestToken(): Promise<string> {
   const existing = store.get(GUEST_CART_COOKIE)?.value;
   if (existing) return existing;
   const token = randomBytes(24).toString("hex");
+  const isHttps = process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://") ?? false;
   store.set(GUEST_CART_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: process.env.NODE_ENV === "production" && isHttps,
     path: "/",
     maxAge: 60 * 60 * 24 * 60,
   });

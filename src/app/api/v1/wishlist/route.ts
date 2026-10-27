@@ -10,30 +10,35 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   return handle(async () => {
     const session = await requireUser();
-    const rows = await db
-      .select({
-        id: wishlists.id,
-        productId: products.id,
-        name: products.name,
-        slug: products.slug,
-        emoji: products.emoji,
-        shortDescription: products.shortDescription,
-        variantId: productVariants.id,
-        variantName: productVariants.variantName,
-        price: productVariants.sellingPrice,
-        mrp: productVariants.mrp,
-        availableStock: inventory.availableStock,
-      })
-      .from(wishlists)
-      .innerJoin(products, eq(products.id, wishlists.productId))
-      .innerJoin(
-        productVariants,
-        and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
-      )
-      .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
-      .where(eq(wishlists.profileId, session.id))
-      .orderBy(desc(wishlists.createdAt));
-    return ok(rows);
+    try {
+      const rows = await db
+        .select({
+          id: wishlists.id,
+          productId: products.id,
+          name: products.name,
+          slug: products.slug,
+          emoji: products.emoji,
+          shortDescription: products.shortDescription,
+          variantId: productVariants.id,
+          variantName: productVariants.variantName,
+          price: productVariants.sellingPrice,
+          mrp: productVariants.mrp,
+          availableStock: inventory.availableStock,
+        })
+        .from(wishlists)
+        .innerJoin(products, eq(products.id, wishlists.productId))
+        .innerJoin(
+          productVariants,
+          and(eq(productVariants.productId, products.id), eq(productVariants.isDefault, true)),
+        )
+        .leftJoin(inventory, eq(inventory.variantId, productVariants.id))
+        .where(eq(wishlists.profileId, session.id))
+        .orderBy(desc(wishlists.createdAt));
+      return ok(rows);
+    } catch (err) {
+      console.warn("wishlist GET db error:", err);
+      return ok([]);
+    }
   });
 }
 

@@ -2,13 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Carrot, KeyRound, Loader2, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { KeyRound, Loader2, ShieldCheck } from "lucide-react";
 import { useApp } from "@/components/providers";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { refreshUser } = useApp();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [totp, setTotp] = useState("");
   const [busy, setBusy] = useState(false);
@@ -21,7 +22,7 @@ export default function AdminLoginPage() {
     const response = await fetch("/api/v1/auth/admin-login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, totp: totp || undefined }),
+      body: JSON.stringify({ email: identifier, password, totp: totp || undefined }),
     });
     const json = await response.json();
     setBusy(false);
@@ -38,22 +39,22 @@ export default function AdminLoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4 py-12">
       <div className="w-full max-w-md rounded-[20px] bg-white p-8 shadow-2xl">
         <div className="mb-6 flex items-center gap-3">
-          <img src="/logo.png" alt="VeggieFlick Logo" className="h-12 w-auto object-contain" />
+          <Image src="/logo.png" alt="VeggieFlick Logo" width={48} height={48} className="h-12 w-auto object-contain" />
           <div>
-            <h1 className="text-xl font-bold">VeggieFlick staff portal</h1>
-            <p className="text-xs text-muted">Role-based access · audit logged · 2FA ready</p>
+            <h1 className="text-xl font-bold">VeggieFlick Super Admin</h1>
+            <p className="text-xs text-muted">Authorized administrative access only</p>
           </div>
         </div>
 
         <form onSubmit={submit} className="grid gap-4">
           <label className="grid gap-1.5">
-            <span className="text-sm font-semibold">Work email</span>
+            <span className="text-sm font-semibold">Username or Email</span>
             <input
-              type="email"
+              type="text"
               required
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              placeholder="admin@veggieflick.in"
+              value={identifier}
+              onChange={(event) => setIdentifier(event.target.value)}
+              placeholder="Username or admin email"
               className="field"
               autoComplete="username"
             />
@@ -96,13 +97,11 @@ export default function AdminLoginPage() {
           </p>
         )}
 
-        <div className="mt-6 rounded-xl bg-surface p-3 text-xs text-muted">
-          <p className="flex items-center gap-1.5 font-semibold text-ink">
-            <ShieldCheck className="h-3.5 w-3.5 text-brand-600" aria-hidden /> Seeded demo credentials
+        <div className="mt-6 rounded-xl bg-slate-50 border border-slate-200/80 p-3 text-xs text-slate-500 text-center">
+          <p className="flex items-center justify-center gap-1.5 font-semibold text-slate-700">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden /> Super Admin Portal
           </p>
-          <p className="mt-1">Super admin · admin@veggieflick.in / Admin@12345</p>
-          <p>Manager · manager@veggieflick.in / Manager@12345</p>
-          <p>Warehouse · warehouse@veggieflick.in / Warehouse@12345</p>
+          <p className="mt-1 text-[11px] text-slate-400">Strictly restricted to authorized Super Admin.</p>
         </div>
       </div>
     </div>

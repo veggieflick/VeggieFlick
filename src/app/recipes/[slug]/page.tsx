@@ -13,9 +13,16 @@ export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
 
+import { FALLBACK_RECIPES } from "@/lib/data/fallback-content";
+
 async function loadRecipe(slug: string) {
-  const [recipe] = await db.select().from(recipes).where(and(eq(recipes.slug, slug), eq(recipes.status, "active"))).limit(1);
-  return recipe ?? null;
+  try {
+    const [recipe] = await db.select().from(recipes).where(and(eq(recipes.slug, slug), eq(recipes.status, "active"))).limit(1);
+    if (recipe) return recipe;
+  } catch (err) {
+    console.warn("loadRecipe db error:", err);
+  }
+  return FALLBACK_RECIPES.find((r) => r.slug === slug) ?? null;
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {

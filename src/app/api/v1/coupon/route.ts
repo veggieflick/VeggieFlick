@@ -7,24 +7,31 @@ import { and, eq, gt } from "drizzle-orm";
 
 export const dynamic = "force-dynamic";
 
+import { FALLBACK_COUPONS } from "@/lib/data/fallback-content";
+
 /** GET /api/v1/coupon — active offers a shopper can apply. */
 export async function GET() {
   return handle(async () => {
-    const rows = await db
-      .select({
-        couponCode: coupons.couponCode,
-        title: coupons.title,
-        description: coupons.description,
-        discountType: coupons.discountType,
-        discountValue: coupons.discountValue,
-        minimumOrderAmount: coupons.minimumOrderAmount,
-        maximumDiscount: coupons.maximumDiscount,
-        expiryDate: coupons.expiryDate,
-      })
-      .from(coupons)
-      .where(and(eq(coupons.status, "active"), gt(coupons.expiryDate, new Date())))
-      .orderBy(coupons.minimumOrderAmount);
-    return ok(rows);
+    try {
+      const rows = await db
+        .select({
+          couponCode: coupons.couponCode,
+          title: coupons.title,
+          description: coupons.description,
+          discountType: coupons.discountType,
+          discountValue: coupons.discountValue,
+          minimumOrderAmount: coupons.minimumOrderAmount,
+          maximumDiscount: coupons.maximumDiscount,
+          expiryDate: coupons.expiryDate,
+        })
+        .from(coupons)
+        .where(and(eq(coupons.status, "active"), gt(coupons.expiryDate, new Date())))
+        .orderBy(coupons.minimumOrderAmount);
+      if (rows && rows.length > 0) return ok(rows);
+    } catch (err) {
+      console.warn("api/v1/coupon GET error:", err);
+    }
+    return ok(FALLBACK_COUPONS);
   });
 }
 

@@ -10,13 +10,18 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   return handle(async () => {
     const session = await requireUser();
-    const rows = await db
-      .select()
-      .from(notifications)
-      .where(eq(notifications.profileId, session.id))
-      .orderBy(desc(notifications.createdAt))
-      .limit(30);
-    return ok({ items: rows, unread: rows.filter((row) => !row.isRead).length });
+    try {
+      const rows = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.profileId, session.id))
+        .orderBy(desc(notifications.createdAt))
+        .limit(30);
+      return ok({ items: rows, unread: rows.filter((row) => !row.isRead).length });
+    } catch (err) {
+      console.warn("notifications GET db error:", err);
+      return ok({ items: [], unread: 0 });
+    }
   });
 }
 

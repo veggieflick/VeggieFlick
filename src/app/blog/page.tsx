@@ -7,6 +7,8 @@ import { Breadcrumb, SectionHeading } from "@/components/ui/primitives";
 import { formatDateIST } from "@/lib/utils";
 import { lookupIcon } from "@/lib/icons";
 
+import { FALLBACK_BLOGS } from "@/lib/data/fallback-content";
+
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
@@ -17,7 +19,15 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogListPage() {
-  const posts = await db.select().from(blogs).where(eq(blogs.status, "active")).orderBy(desc(blogs.publishedAt));
+  let posts: any[] = [];
+  try {
+    posts = await db.select().from(blogs).where(eq(blogs.status, "active")).orderBy(desc(blogs.publishedAt));
+  } catch (err) {
+    console.warn("BlogListPage db error:", err);
+  }
+  if (!posts || posts.length === 0) {
+    posts = FALLBACK_BLOGS;
+  }
 
   return (
     <div className="container-page py-6 md:py-10">

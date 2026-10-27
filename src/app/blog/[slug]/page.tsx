@@ -12,13 +12,20 @@ export const dynamic = "force-dynamic";
 
 type Params = Promise<{ slug: string }>;
 
+import { FALLBACK_BLOGS } from "@/lib/data/fallback-content";
+
 async function loadPost(slug: string) {
-  const [post] = await db
-    .select()
-    .from(blogs)
-    .where(and(eq(blogs.slug, slug), eq(blogs.status, "active")))
-    .limit(1);
-  return post ?? null;
+  try {
+    const [post] = await db
+      .select()
+      .from(blogs)
+      .where(and(eq(blogs.slug, slug), eq(blogs.status, "active")))
+      .limit(1);
+    if (post) return post;
+  } catch (err) {
+    console.warn("loadPost db error:", err);
+  }
+  return FALLBACK_BLOGS.find((b) => b.slug === slug) ?? null;
 }
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
@@ -39,12 +46,25 @@ export default async function BlogDetailPage({ params }: { params: Params }) {
   if (!post) notFound();
 
   const icon = post.emoji;
-  const related = await db
-    .select({ id: blogs.id, title: blogs.title, slug: blogs.slug, emoji: blogs.emoji })
-    .from(blogs)
-    .where(and(eq(blogs.status, "active"), ne(blogs.id, post.id)))
-    .orderBy(desc(blogs.publishedAt))
-    .limit(3);
+  let related: { id: string; title: string; slug: string; emoji: string }[] = [];
+  try {
+    related = await db
+      .select({ id: blogs.id, title: blogs.title, slug: blogs.slug, emoji: blogs.emoji })
+      .from(blogs)
+      .where(and(eq(blogs.status, "active"), ne(blogs.id, post.id)))
+      .orderBy(desc(blogs.publishedAt))
+      .limit(3);
+  } catch (err) {
+    console.warn("related blogs db error:", err);
+  }
+  if (!related || related.length === 0) {
+    related = FALLBACK_BLOGS.filter((b) => b.slug !== slug).slice(0, 3).map((b) => ({
+      id: b.id,
+      title: b.title,
+      slug: b.slug,
+      emoji: b.emoji,
+    }));
+  }
 
   return (
     <article className="container-page py-6 md:py-10">
