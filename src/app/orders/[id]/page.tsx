@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Circle, MapPin, MessageCircle, Phone, Star, Truck, XCircle } from "lucide-react";
+import { CheckCircle2, Circle, CreditCard, MapPin, MessageCircle, Phone, Star, Truck, XCircle } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABEL, formatDateTimeIST, formatINR } from "@/lib/utils";
 import { Breadcrumb, StatusPill } from "@/components/ui/primitives";
@@ -77,6 +77,88 @@ export default function OrderDetailPage() {
       clearInterval(interval);
     };
   }, [user, load]);
+
+  function loadRazorpayScript(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (typeof window === "undefined") return resolve(false);
+      if ((window as any).Razorpay) return resolve(true);
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  }
+
+  async function payNow() {
+    if (!order) return;
+    setBusy(true);
+    try {
+      const res = await fetch("/api/v1/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      const json = await res.json();
+      if (!json?.success) {
+        setBusy(false);
+        notify(json?.error?.message || "Could not initiate payment", "error");
+        return;
+      }
+
+      if (json.data?.keyId) {
+        await loadRazorpayScript();
+        const options = {
+          key: json.data.keyId,
+          amount: json.data.amount,
+          currency: json.data.currency || "INR",
+          name: "VeggieFlick",
+          description: `Order #${order.orderNumber} Payment`,
+          order_id: json.data.razorpayOrderId,
+          prefill: {
+            name: order.customerName,
+            contact: order.customerPhone,
+          },
+          theme: { color: "#059669" },
+          handler: async function (response: any) {
+            const verifyRes = await fetch("/api/v1/payments", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                orderId: order.id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+            const verifyJson = await verifyRes.json();
+            setBusy(false);
+            if (verifyJson?.success) {
+              notify("Payment verified successfully!");
+              void load();
+            } else {
+              notify("Verification failed. Please contact support.", "error");
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              setBusy(false);
+            },
+          },
+        };
+        const rzp = new (window as any).Razorpay(options);
+        rzp.open();
+      } else {
+        setBusy(false);
+        notify("Demo mode: Order payment simulated!");
+        void load();
+      }
+    } catch {
+      setBusy(false);
+      notify("Network error while starting payment", "error");
+    }
+  }
 
   async function cancelOrder() {
     setBusy(true);
@@ -301,6 +383,22 @@ export default function OrderDetailPage() {
               <p className="mt-3 text-xs text-muted capitalize">
                 Paid via {order.payment.paymentMethod} · {order.payment.paymentStatus}
               </p>
+            )}
+            {order.paymentStatus !== "paid" && !cancelled && (
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-amber-900">
+                  <span>Payment Pending:</span>
+                  <span>{formatINR(order.grandTotal, true)}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void payNow()}
+                  disabled={busy}
+                  className="btn btn-primary w-full py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <CreditCard size={14} /> Pay Now with Razorpay
+                </button>
+              </div>
             )}
           </div>
 

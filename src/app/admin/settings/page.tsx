@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Building2,
   FileCheck2,
@@ -20,6 +20,17 @@ import {
   Power,
   IndianRupee,
   Sliders,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Key,
+  Webhook,
+  Copy,
+  Check,
+  ExternalLink,
+  Loader2,
+  HelpCircle,
+  Info,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
@@ -128,7 +139,9 @@ const INITIAL_REVIEWS: PendingReview[] = [
 
 export default function AdminStoreSettingsPage() {
   const { notify } = useApp();
-  const [activeTab, setActiveTab] = useState<"general" | "pricing" | "partners" | "whatsapp" | "reviews">("general");
+  const [activeTab, setActiveTab] = useState<
+    "general" | "pricing" | "partners" | "payments" | "whatsapp" | "reviews"
+  >("general");
 
   // Operational Store State
   const [isStoreOpen, setIsStoreOpen] = useState(true);
@@ -157,9 +170,117 @@ export default function AdminStoreSettingsPage() {
   // Reviews State
   const [reviews, setReviews] = useState<PendingReview[]>(INITIAL_REVIEWS);
 
-  // Gateway Toggles
+  // Gateway Toggles & Razorpay State
   const [razorpayLive, setRazorpayLive] = useState(true);
   const [codEnabled, setCodEnabled] = useState(true);
+
+  const [razorpayKeyId, setRazorpayKeyId] = useState("");
+  const [razorpayKeySecret, setRazorpayKeySecret] = useState("");
+  const [razorpayWebhookSecret, setRazorpayWebhookSecret] = useState("");
+  const [showSecret, setShowSecret] = useState(false);
+  const [hasExistingSecret, setHasExistingSecret] = useState(false);
+  const [hasExistingWebhook, setHasExistingWebhook] = useState(false);
+  const [gatewayMode, setGatewayMode] = useState<"live" | "test">("test");
+  const [gatewayConfigured, setGatewayConfigured] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState("http://localhost:3000/api/webhooks/razorpay");
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [savingPayment, setSavingPayment] = useState(false);
+  const [testResult, setTestResult] = useState<{ connected: boolean; message: string } | null>(null);
+  const [copiedWebhook, setCopiedWebhook] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/v1/admin/settings/payment")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data) {
+          setRazorpayKeyId(res.data.keyId || "");
+          setHasExistingSecret(Boolean(res.data.hasSecret));
+          setHasExistingWebhook(Boolean(res.data.hasWebhookSecret));
+          setGatewayMode(res.data.mode || "test");
+          setGatewayConfigured(Boolean(res.data.isConfigured));
+          setWebhookUrl(res.data.webhookUrl || "");
+          setRazorpayLive(Boolean(res.data.isEnabled));
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    setTestResult(null);
+    try {
+      const res = await fetch("/api/v1/admin/settings/payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "test",
+          keyId: razorpayKeyId,
+          keySecret: razorpayKeySecret,
+        }),
+      });
+      const json = await res.json();
+      setTestingConnection(false);
+      if (json.success && json.data) {
+        setTestResult({
+          connected: json.data.connected,
+          message: json.data.message,
+        });
+        notify(
+          json.data.connected ? "Razorpay API Connection Successful!" : json.data.message,
+          json.data.connected ? "success" : "error"
+        );
+      } else {
+        setTestResult({
+          connected: false,
+          message: json.error?.message || "Failed to test connection",
+        });
+      }
+    } catch (err: any) {
+      setTestingConnection(false);
+      setTestResult({ connected: false, message: err?.message || "Network error" });
+    }
+  };
+
+  const handleSavePaymentSettings = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingPayment(true);
+    try {
+      const res = await fetch("/api/v1/admin/settings/payment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save",
+          keyId: razorpayKeyId,
+          keySecret: razorpayKeySecret || undefined,
+          webhookSecret: razorpayWebhookSecret || undefined,
+        }),
+      });
+      const json = await res.json();
+      setSavingPayment(false);
+      if (json.success) {
+        setHasExistingSecret(true);
+        if (razorpayWebhookSecret) setHasExistingWebhook(true);
+        setGatewayConfigured(Boolean(razorpayKeyId));
+        setGatewayMode(razorpayKeyId.startsWith("rzp_live_") ? "live" : "test");
+        setRazorpayKeySecret(""); // Clear secret input from memory for security
+        notify("Razorpay credentials saved and activated successfully on server!");
+      } else {
+        notify(json.error?.message || "Failed to save payment settings", "error");
+      }
+    } catch {
+      setSavingPayment(false);
+      notify("Failed to save credentials", "error");
+    }
+  };
+
+  const copyWebhookUrl = () => {
+    if (typeof navigator !== "undefined" && navigator.clipboard) {
+      navigator.clipboard.writeText(webhookUrl);
+      setCopiedWebhook(true);
+      setTimeout(() => setCopiedWebhook(false), 2500);
+      notify("Webhook URL copied to clipboard!");
+    }
+  };
 
   // Staff State & Modal
   const [staff, setStaff] = useState<StaffMember[]>(INITIAL_STAFF);
@@ -288,6 +409,7 @@ export default function AdminStoreSettingsPage() {
       <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2 text-xs font-extrabold">
         {[
           { id: "general", label: "Business & Legal Profile", icon: Building2 },
+          { id: "payments", label: "Razorpay Gateway", icon: CreditCard },
           { id: "pricing", label: "Rate & Fee Structure", icon: IndianRupee },
           { id: "partners", label: "Delivery Partners", icon: Truck },
           { id: "whatsapp", label: "WhatsApp & Payment QR", icon: QrCode },
@@ -402,22 +524,46 @@ export default function AdminStoreSettingsPage() {
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
-              <CreditCard className="h-5 w-5 text-emerald-700" />
-              <h2 className="font-extrabold text-slate-900 text-sm">Payment Gateways</h2>
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-emerald-700" />
+                <h2 className="font-extrabold text-slate-900 text-sm">Payment Gateways</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("payments")}
+                className="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline"
+              >
+                Configure Keys →
+              </button>
             </div>
             <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
-                <div>
-                  <p className="font-extrabold text-slate-900">Razorpay Direct UPI & Cards</p>
-                  <p className="text-[11px] text-slate-500">Live Merchant Account</p>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-extrabold text-slate-900">Razorpay Payment Gateway</p>
+                    <p className="text-[11px] text-slate-500">
+                      {gatewayConfigured
+                        ? gatewayMode === "live"
+                          ? "🟢 Live Production Account"
+                          : "🟡 Test Sandbox Account"
+                        : "⚪ Keys Pending Configuration"}
+                    </p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={razorpayLive}
+                    onChange={(e) => setRazorpayLive(e.target.checked)}
+                    className="h-4 w-4 rounded accent-emerald-600 cursor-pointer"
+                  />
                 </div>
-                <input
-                  type="checkbox"
-                  checked={razorpayLive}
-                  onChange={(e) => setRazorpayLive(e.target.checked)}
-                  className="h-4 w-4 rounded accent-emerald-600 cursor-pointer"
-                />
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("payments")}
+                  className="w-full text-center py-1.5 px-3 rounded-lg bg-emerald-50 text-emerald-800 font-bold text-xs border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                >
+                  Manage API Keys & Webhook →
+                </button>
               </div>
 
               <div className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100">
@@ -431,6 +577,330 @@ export default function AdminStoreSettingsPage() {
                   onChange={(e) => setCodEnabled(e.target.checked)}
                   className="h-4 w-4 rounded accent-emerald-600 cursor-pointer"
                 />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: RAZORPAY GATEWAY & PAYMENTS */}
+      {activeTab === "payments" && (
+        <div className="space-y-6">
+          {/* Top Status Cards */}
+          <div className="grid gap-4 sm:grid-cols-3 text-xs">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Gateway Status</span>
+              <div className="mt-2 flex items-center gap-2">
+                <span
+                  className={`inline-block h-3 w-3 rounded-full ${
+                    gatewayConfigured
+                      ? gatewayMode === "live"
+                        ? "bg-emerald-500 animate-pulse"
+                        : "bg-amber-500"
+                      : "bg-slate-400"
+                  }`}
+                />
+                <span className="text-sm font-black text-slate-900">
+                  {gatewayConfigured
+                    ? gatewayMode === "live"
+                      ? "Live Production"
+                      : "Test / Sandbox"
+                    : "Not Configured"}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">
+                {gatewayConfigured
+                  ? gatewayMode === "live"
+                    ? "Real bank transactions active"
+                    : "Test mode for simulated cards & UPI"
+                  : "Add Key ID and Secret below"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Key Secret Status</span>
+              <div className="mt-2 flex items-center gap-2">
+                <ShieldCheck size={18} className={hasExistingSecret ? "text-emerald-600" : "text-amber-500"} />
+                <span className="text-sm font-black text-slate-900">
+                  {hasExistingSecret ? "Server Secret Active" : "Secret Missing"}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">
+                {hasExistingSecret ? "Encrypted on server (.env), hidden from F12" : "Required for signature verification"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Webhook Integration</span>
+              <div className="mt-2 flex items-center gap-2">
+                <Webhook size={18} className={hasExistingWebhook ? "text-emerald-600" : "text-slate-400"} />
+                <span className="text-sm font-black text-slate-900">
+                  {hasExistingWebhook ? "Webhook Verified" : "Webhook Ready"}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 mt-1">
+                Auto-confirms order status when customer completes payment
+              </p>
+            </div>
+          </div>
+
+          {/* Credentials Form */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="font-extrabold text-slate-900 flex items-center gap-2 text-sm">
+                  <Key className="text-emerald-700" size={18} /> Razorpay API Credentials
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Enter Key ID and Secret from Razorpay Dashboard → Settings → API Keys.
+                </p>
+              </div>
+              <a
+                href="https://dashboard.razorpay.com/app/keys"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl border border-emerald-200 transition-colors"
+              >
+                Open Razorpay Dashboard <ExternalLink size={13} />
+              </a>
+            </div>
+
+            <form onSubmit={handleSavePaymentSettings} className="space-y-4 text-xs">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Razorpay Key ID *
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="rzp_test_... or rzp_live_..."
+                    value={razorpayKeyId}
+                    onChange={(e) => setRazorpayKeyId(e.target.value.trim())}
+                    className="w-full rounded-xl border border-slate-200 px-3 py-2 font-mono font-bold text-slate-900 focus:border-emerald-600 focus:outline-none"
+                    required
+                  />
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Prefix <code className="text-amber-700">rzp_test_</code> triggers Test Mode. Prefix <code className="text-emerald-700">rzp_live_</code> enables real customer payments.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-slate-700 mb-1">
+                    Razorpay Key Secret *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showSecret ? "text" : "password"}
+                      placeholder={
+                        hasExistingSecret
+                          ? "•••••••••••••••• (Secret saved on server)"
+                          : "Enter Razorpay Key Secret"
+                      }
+                      value={razorpayKeySecret}
+                      onChange={(e) => setRazorpayKeySecret(e.target.value.trim())}
+                      className="w-full rounded-xl border border-slate-200 px-3 py-2 pr-10 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowSecret((v) => !v)}
+                      className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600"
+                      title={showSecret ? "Hide secret" : "Show secret"}
+                    >
+                      {showSecret ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Leave blank to keep existing secret. Stored strictly server-side in .env.
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Razorpay Webhook Secret (Optional)
+                </label>
+                <input
+                  type="password"
+                  placeholder={
+                    hasExistingWebhook
+                      ? "•••••••••••••••• (Webhook secret saved)"
+                      : "Secret entered when creating webhook"
+                  }
+                  value={razorpayWebhookSecret}
+                  onChange={(e) => setRazorpayWebhookSecret(e.target.value.trim())}
+                  className="w-full sm:w-1/2 rounded-xl border border-slate-200 px-3 py-2 font-mono text-slate-900 focus:border-emerald-600 focus:outline-none"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Used to verify signature on incoming webhook events from Razorpay.
+                </p>
+              </div>
+
+              {/* Test Result Message Banner */}
+              {testResult && (
+                <div
+                  className={`p-3.5 rounded-xl border text-xs font-semibold flex items-start gap-2.5 ${
+                    testResult.connected
+                      ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+                      : "bg-rose-50 border-rose-200 text-rose-900"
+                  }`}
+                >
+                  {testResult.connected ? (
+                    <CheckCircle2 size={18} className="text-emerald-700 shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle size={18} className="text-rose-700 shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <p className="font-extrabold">{testResult.connected ? "Connection Verified!" : "Connection Error"}</p>
+                    <p className="mt-0.5 opacity-90">{testResult.message}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="pt-2 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={handleTestConnection}
+                  disabled={testingConnection}
+                  className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition shadow-xs disabled:opacity-50"
+                >
+                  {testingConnection ? (
+                    <Loader2 size={14} className="animate-spin text-emerald-600" />
+                  ) : (
+                    <ShieldCheck size={14} className="text-emerald-700" />
+                  )}
+                  <span>Test Razorpay Connection</span>
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={savingPayment}
+                  className="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2 text-xs font-bold text-white hover:bg-slate-800 transition shadow-xs disabled:opacity-50"
+                >
+                  {savingPayment ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />}
+                  <span>Save Gateway Credentials</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Webhook Configuration Card */}
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
+            <div className="border-b border-slate-100 pb-3">
+              <h2 className="font-extrabold text-slate-900 flex items-center gap-2 text-sm">
+                <Webhook className="text-emerald-700" size={18} /> Webhook Endpoint Configuration
+              </h2>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Razorpay uses this URL to notify VeggieFlick automatically when a customer completes their payment.
+              </p>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  VeggieFlick Webhook URL
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={webhookUrl}
+                    className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 font-mono text-slate-800 select-all"
+                  />
+                  <button
+                    type="button"
+                    onClick={copyWebhookUrl}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3.5 py-2 font-bold text-emerald-800 hover:bg-emerald-100 transition-colors shrink-0"
+                  >
+                    {copiedWebhook ? <Check size={14} className="text-emerald-700" /> : <Copy size={14} />}
+                    <span>{copiedWebhook ? "Copied!" : "Copy URL"}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-xl bg-slate-50 border border-slate-200 p-4 space-y-2">
+                <p className="font-bold text-slate-800">Events to Select in Razorpay Dashboard:</p>
+                <ul className="grid gap-1.5 text-slate-600">
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-600" />
+                    <code className="font-mono font-bold text-slate-900">payment.captured</code>
+                    <span>— Automatically updates order status to <span className="font-bold text-emerald-700">&quot;Paid&quot;</span></span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-rose-600" />
+                    <code className="font-mono font-bold text-slate-900">payment.failed</code>
+                    <span>— Marks failed payment and allows customer to retry</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+                    <code className="font-mono font-bold text-slate-900">order.paid</code>
+                    <span>— Confirms order payment capture</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {/* Comprehensive Merchant Setup Guide in Tamil & English */}
+          <div className="rounded-2xl border border-emerald-200 bg-linear-to-b from-emerald-50/50 to-white p-6 shadow-xs space-y-4">
+            <div className="border-b border-emerald-200/60 pb-3">
+              <h2 className="font-black text-slate-900 flex items-center gap-2 text-base">
+                <HelpCircle className="text-emerald-700" size={20} /> Razorpay அமைவு வழிகாட்டி (Merchant Onboarding Guide)
+              </h2>
+              <p className="text-xs text-slate-600 mt-1">
+                Razorpay அக்கவுண்ட் தொடங்கி, கீ (API Key) பெற்று வெப்சைட்டில் இணைக்கும் எளிய 5 படிகள்:
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 text-xs">
+              <div className="card p-4 bg-white border border-slate-200 space-y-1.5">
+                <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[10px]">
+                  STEP 1 / படி 1
+                </span>
+                <h3 className="font-extrabold text-slate-900 text-sm">அக்கவுண்ட் உருவாக்குதல் (Signup)</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  <strong>https://razorpay.com</strong> தளத்திற்குச் சென்று உங்கள் மொபைல் எண் / ஜிமெயில் மூலம் லாகின் செய்யவும். வணிக வகையை (Individual / Proprietorship / Pvt Ltd) தேர்ந்தெடுக்கவும்.
+                </p>
+              </div>
+
+              <div className="card p-4 bg-white border border-slate-200 space-y-1.5">
+                <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[10px]">
+                  STEP 2 / படி 2
+                </span>
+                <h3 className="font-extrabold text-slate-900 text-sm">KYC விவரங்கள் சமர்ப்பித்தல்</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  வணிக PAN அட்டை, ஆதார் அட்டை, வணிக முகவரி சான்று மற்றும் வாடிக்கையாளர் பணம் வந்து சேர வேண்டிய <strong>வங்கி கணக்கு எண் (Bank Account &amp; IFSC)</strong> பதிவேற்றவும்.
+                </p>
+              </div>
+
+              <div className="card p-4 bg-white border border-slate-200 space-y-1.5">
+                <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[10px]">
+                  STEP 3 / படி 3
+                </span>
+                <h3 className="font-extrabold text-slate-900 text-sm">API Keys உருவாக்குதல் (Generate Key)</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  Razorpay டாஷ்போர்டில் <strong>Settings → API Keys</strong> செல்லவும். <strong>Generate Key</strong> கிளிக் செய்து <strong>Key ID</strong> மற்றும் <strong>Key Secret</strong> இரண்டையும் காப்பி செய்யவும்.
+                </p>
+              </div>
+
+              <div className="card p-4 bg-white border border-slate-200 space-y-1.5">
+                <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[10px]">
+                  STEP 4 / படி 4
+                </span>
+                <h3 className="font-extrabold text-slate-900 text-sm">வெப்ஹூக் செட்டப் (Webhook Setup)</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  Razorpay டாஷ்போர்டில் <strong>Settings → Webhooks</strong> சென்று, மேலே உள்ள <strong>VeggieFlick Webhook URL</strong>-ஐ பேஸ்ட் செய்து, <code>payment.captured</code> நிகழ்வை ஆன் செய்யவும்.
+                </p>
+              </div>
+
+              <div className="card p-4 bg-white border border-slate-200 space-y-1.5 sm:col-span-2">
+                <span className="inline-block px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 font-black text-[10px]">
+                  STEP 5 / படி 5
+                </span>
+                <h3 className="font-extrabold text-slate-900 text-sm">டெஸ்ட் மோடு &amp; லைவ் மோடு இயக்கம்</h3>
+                <p className="text-slate-600 leading-relaxed">
+                  முதலில் <code>rzp_test_...</code> கீ மூலம் சோதனை செய்து பார்க்கலாம். KYC முடிந்ததும், டாஷ்போர்டில் <strong>Test Mode</strong>-லிருந்து <strong>Live Mode</strong>-க்கு மாற்றி, லைவ் கீ <code>rzp_live_...</code>-ஐ இந்த அட்மின் பக்கத்தில் பதிவு செய்து &quot;Save Gateway Credentials&quot; கொடுத்தால், உடனடியாக நேரடி பேமெண்ட் இயங்கத் தொடங்கும்!
+                </p>
               </div>
             </div>
           </div>

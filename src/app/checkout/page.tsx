@@ -245,6 +245,19 @@ export default function CheckoutPage() {
     }
   }
 
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === "undefined") return resolve(false);
+    if ((window as any).Razorpay) return resolve(true);
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
   async function placeOrder() {
     let activeAddressId = addressId;
 
@@ -286,14 +299,94 @@ export default function CheckoutPage() {
         return;
       }
 
-      if (method !== "cod") {
-        await fetch("/api/v1/payments", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ orderId: json.data.orderId }),
-        }).catch(() => undefined);
+      if (method === "cod") {
+        await refreshCart();
+        notify(`Order ${json.data.orderNumber} placed successfully with Cash on Delivery!`);
+        router.push(`/orders/${json.data.orderId}?placed=1`);
+        return;
       }
 
+      // Prepaid (UPI / Card / Netbanking): Initiate Razorpay Checkout
+      const payRes = await fetch("/api/v1/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId: json.data.orderId }),
+      });
+      const payJson = await payRes.json();
+
+      if (payJson?.success && payJson.data?.keyId) {
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          setBusy(false);
+          setError("Could not load Razorpay payment gateway. Please check your internet connection.");
+          return;
+        }
+
+        const options = {
+          key: payJson.data.keyId,
+          amount: payJson.data.amount,
+          currency: payJson.data.currency || "INR",
+          name: "VeggieFlick",
+          description: `Order #${json.data.orderNumber} — Fresh Cut Veggies`,
+          order_id: payJson.data.razorpayOrderId,
+          prefill: {
+            name: form.contactName || user?.fullName || "Customer",
+            contact: form.contactPhone || user?.phone || "9840532826",
+            email: user?.email || "customer@veggieflick.in",
+          },
+          notes: {
+            orderId: json.data.orderId,
+            hub: "K.K. Nagar Central Hub",
+          },
+          theme: {
+            color: "#059669",
+          },
+          handler: async function (paymentResponse: any) {
+            try {
+              setBusy(true);
+              const verifyRes = await fetch("/api/v1/payments", {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  orderId: json.data.orderId,
+                  razorpayOrderId: paymentResponse.razorpay_order_id,
+                  razorpayPaymentId: paymentResponse.razorpay_payment_id,
+                  razorpaySignature: paymentResponse.razorpay_signature,
+                }),
+              });
+              const verifyJson = await verifyRes.json();
+              if (verifyJson?.success) {
+                await refreshCart();
+                notify(`Payment received (${paymentResponse.razorpay_payment_id})! Order confirmed.`);
+                router.push(`/orders/${json.data.orderId}?placed=1`);
+              } else {
+                setBusy(false);
+                setError(verifyJson?.error?.message || "Payment signature verification failed. Please contact support.");
+              }
+            } catch (err: any) {
+              setBusy(false);
+              setError("Payment verification error: " + (err?.message || "Please check order details."));
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              setBusy(false);
+              notify("Payment window closed. Order created — you can complete payment from your orders page.");
+              router.push(`/orders/${json.data.orderId}`);
+            },
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function (failResponse: any) {
+          setBusy(false);
+          setError(failResponse.error?.description || "Payment failed. Please try a different payment method.");
+        });
+        rzp.open();
+        return;
+      }
+
+      // Fallback if Razorpay API keys are not yet configured in admin panel
       await refreshCart();
       notify(`Order ${json.data.orderNumber} placed successfully!`);
       router.push(`/orders/${json.data.orderId}?placed=1`);

@@ -1,7 +1,7 @@
 import { count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { auditLogs, orders, profiles } from "@/db/schema";
+import { auditLogs, orders, payments, profiles } from "@/db/schema";
 import { handle, ok, paginationMeta, parseBody, parseQuery } from "@/lib/api";
 import { requirePermission } from "@/lib/auth";
 import { updateOrderStatus } from "@/lib/services/order";
@@ -40,11 +40,14 @@ export async function GET(request: Request) {
           grandTotal: orders.grandTotal,
           orderStatus: orders.orderStatus,
           paymentStatus: orders.paymentStatus,
+          paymentMethod: payments.paymentMethod,
+          transactionId: payments.transactionId,
           createdAt: orders.createdAt,
           shippingSnapshot: orders.shippingSnapshot,
         })
         .from(orders)
         .leftJoin(profiles, eq(profiles.id, orders.profileId))
+        .leftJoin(payments, eq(payments.orderId, orders.id))
         .where(where)
         .orderBy(desc(orders.createdAt))
         .limit(limit)
@@ -71,6 +74,8 @@ export async function GET(request: Request) {
             grandTotal: String(order.grandTotal),
             orderStatus: order.orderStatus,
             paymentStatus: order.paymentStatus,
+            paymentMethod: order.paymentMethod || order.payment?.paymentMethod || "upi",
+            transactionId: order.transactionId || order.payment?.transactionId || null,
             deliverySlot: snap.slot || "Morning Slot",
             deliveryAddress: snap.line ? `${snap.line}, ${snap.city || "Chennai"}` : "Chennai",
             shippingSnapshot: order.shippingSnapshot,
@@ -93,6 +98,8 @@ export async function GET(request: Request) {
         customerPhone: snap.contactPhone || ord.customerPhone || "9840532826",
         deliverySlot: snap.slot || "Morning Slot",
         deliveryAddress: snap.line ? `${snap.line}, ${snap.city || "Chennai"}` : "Chennai",
+        paymentMethod: ord.paymentMethod || "upi",
+        transactionId: ord.transactionId || null,
         createdAt: ord.createdAt instanceof Date ? ord.createdAt.toISOString() : ord.createdAt,
       });
     }

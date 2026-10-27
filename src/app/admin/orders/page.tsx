@@ -14,6 +14,8 @@ type AdminOrder = {
   grandTotal: string;
   orderStatus: string;
   paymentStatus: string;
+  paymentMethod?: string;
+  transactionId?: string;
   deliverySlot?: string;
   deliveryAddress?: string;
   createdAt: string;
@@ -185,6 +187,16 @@ export default function AdminOrdersPage() {
                   <td className="px-4 py-3 text-xs text-muted">{formatDateTimeIST(order.createdAt)}</td>
                   <td className="px-4 py-3">
                     <StatusPill status={order.paymentStatus} />
+                    {order.paymentMethod && (
+                      <p className="text-[10px] font-bold text-slate-500 uppercase mt-0.5">
+                        {order.paymentMethod === "cod" ? "COD (Cash)" : `Razorpay (${order.paymentMethod})`}
+                      </p>
+                    )}
+                    {order.transactionId && (
+                      <p className="text-[10px] font-mono text-slate-400 truncate max-w-[110px]" title={order.transactionId}>
+                        {order.transactionId}
+                      </p>
+                    )}
                   </td>
                   <td className="px-4 py-3">
                     <StatusPill status={order.orderStatus} />
