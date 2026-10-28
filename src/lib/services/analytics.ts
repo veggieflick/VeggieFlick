@@ -91,20 +91,20 @@ export async function getDashboardStats(): Promise<DashboardStats> {
       averageOrderValue: lifetimeOrders ? Math.round(lifetimeRevenue / lifetimeOrders) : 0,
     };
   } catch (err) {
-    console.warn("getDashboardStats DB fallback:", err);
+    console.warn("getDashboardStats DB error:", err);
     return {
-      todayRevenue: 24850,
-      todayOrders: 48,
-      pendingOrders: 12,
-      completedOrders: 32,
-      cancelledOrders: 4,
-      newCustomers: 15,
-      lowStockItems: 3,
-      outOfStockItems: 1,
-      deliveryInProgress: 8,
-      activeCoupons: 4,
-      lifetimeRevenue: 582400,
-      averageOrderValue: 518,
+      todayRevenue: 0,
+      todayOrders: 0,
+      pendingOrders: 0,
+      completedOrders: 0,
+      cancelledOrders: 0,
+      newCustomers: 0,
+      lowStockItems: 0,
+      outOfStockItems: 0,
+      deliveryInProgress: 0,
+      activeCoupons: 0,
+      lifetimeRevenue: 0,
+      averageOrderValue: 0,
     };
   }
 }
@@ -131,18 +131,18 @@ export async function getRevenueTrend(days = 7) {
       }));
     }
   } catch (err) {
-    console.warn("getRevenueTrend DB fallback:", err);
+    console.warn("getRevenueTrend DB error:", err);
   }
 
-  // Fallback 7-day trend data
+  // Real 7-day trend showing actual zero data if no orders
   const result = [];
   for (let i = days - 1; i >= 0; i--) {
     const d = new Date(Date.now() - i * 24 * 60 * 60 * 1000);
     const dateStr = d.toISOString().split("T")[0];
     result.push({
       day: dateStr,
-      revenue: Math.floor(18000 + Math.random() * 12000),
-      orders: Math.floor(35 + Math.random() * 25),
+      revenue: 0,
+      orders: 0,
     });
   }
   return result;
@@ -196,17 +196,10 @@ export async function getTopProducts(limit = 6) {
       }));
     }
   } catch (err) {
-    console.warn("getTopProducts DB fallback:", err);
+    console.warn("getTopProducts DB error:", err);
   }
 
-  return [
-    { name: "Country Tomato", emoji: "🍅", units: 1420, revenue: 78100 },
-    { name: "Onion Slices", emoji: "🧅", units: 1180, revenue: 44840 },
-    { name: "Fresh Arai Keerai", emoji: "🥬", units: 890, revenue: 22250 },
-    { name: "Cut Sambar Veggie Mix", emoji: "🥕", units: 750, revenue: 33750 },
-    { name: "Ooty Carrot", emoji: "🥕", units: 620, revenue: 34100 },
-    { name: "Small Shallots (Chinna Vengayam)", emoji: "🧅", units: 540, revenue: 45900 },
-  ];
+  return [];
 }
 
 export async function getInventoryAlerts(limit = 8) {
@@ -230,38 +223,10 @@ export async function getInventoryAlerts(limit = 8) {
 
     if (rows.length > 0) return rows;
   } catch (err) {
-    console.warn("getInventoryAlerts DB fallback:", err);
+    console.warn("getInventoryAlerts DB error:", err);
   }
 
-  return [
-    {
-      variantId: "v-101",
-      productName: "Organic Curry Leaves",
-      emoji: "🌿",
-      variantName: "100 g bunch",
-      availableStock: 4,
-      reorderLevel: 15,
-      warehouseName: "Chennai Central Hub",
-    },
-    {
-      variantId: "v-102",
-      productName: "Small Shallots (Chinna Vengayam)",
-      emoji: "🧅",
-      variantName: "500 g",
-      availableStock: 8,
-      reorderLevel: 25,
-      warehouseName: "Chennai Central Hub",
-    },
-    {
-      variantId: "v-103",
-      productName: "Fresh Drumstick (Murungakkai)",
-      emoji: "🫛",
-      variantName: "250 g",
-      availableStock: 12,
-      reorderLevel: 20,
-      warehouseName: "Chennai Central Hub",
-    },
-  ];
+  return [];
 }
 
 export async function getRecentOrders(limit = 8) {
@@ -281,40 +246,11 @@ export async function getRecentOrders(limit = 8) {
       .orderBy(desc(orders.createdAt))
       .limit(limit);
 
-    if (rows.length > 0) return rows;
+    return rows;
   } catch (err) {
-    console.warn("getRecentOrders DB fallback:", err);
+    console.warn("getRecentOrders DB error:", err);
+    return [];
   }
-
-  return [
-    {
-      id: "ord-8812",
-      orderNumber: "VF-2026-8812",
-      customerName: "Lakshmi Subramanian",
-      grandTotal: "680.00",
-      orderStatus: "out_for_delivery" as const,
-      paymentStatus: "paid" as const,
-      createdAt: new Date(),
-    },
-    {
-      id: "ord-8811",
-      orderNumber: "VF-2026-8811",
-      customerName: "Sundararaman K",
-      grandTotal: "450.00",
-      orderStatus: "confirmed" as const,
-      paymentStatus: "paid" as const,
-      createdAt: new Date(Date.now() - 35 * 60 * 1000),
-    },
-    {
-      id: "ord-8810",
-      orderNumber: "VF-2026-8810",
-      customerName: "Rahul Menon",
-      grandTotal: "920.00",
-      orderStatus: "delivered" as const,
-      paymentStatus: "paid" as const,
-      createdAt: new Date(Date.now() - 120 * 60 * 1000),
-    },
-  ];
 }
 
 export async function getCustomerSegments() {
@@ -328,20 +264,17 @@ export async function getCustomerSegments() {
       .from(profiles)
       .where(eq(profiles.role, "customer"));
 
-    if (row && Number(row.total) > 0) {
-      return {
-        total: Number(row.total),
-        gold: Number(row.gold),
-        platinum: Number(row.platinum),
-      };
-    }
+    return {
+      total: Number(row?.total ?? 0),
+      gold: Number(row?.gold ?? 0),
+      platinum: Number(row?.platinum ?? 0),
+    };
   } catch (err) {
-    console.warn("getCustomerSegments DB fallback:", err);
+    console.warn("getCustomerSegments DB error:", err);
+    return {
+      total: 0,
+      gold: 0,
+      platinum: 0,
+    };
   }
-
-  return {
-    total: 1240,
-    gold: 380,
-    platinum: 145,
-  };
 }

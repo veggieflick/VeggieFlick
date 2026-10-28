@@ -593,6 +593,20 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
 
           await db.insert(orderItems).values(itemsToInsert);
         }
+
+        await db
+          .insert(payments)
+          .values({
+            orderId: dbId,
+            paymentGateway: isPrepaid ? "razorpay" : "cash",
+            paymentMethod: input.paymentMethod || "upi",
+            transactionId: isPrepaid ? `pay_${orderNumber.toLowerCase()}` : null,
+            razorpayOrderId: isPrepaid ? `order_${orderNumber.toLowerCase()}` : null,
+            idempotencyKey: input.idempotencyKey ?? `${dbId}-init`,
+            paymentStatus: "pending",
+            paidAmount: "0",
+          })
+          .catch(() => undefined);
       }
     } catch (fallbackDbErr) {
       console.warn("Direct DB order persistence notice:", fallbackDbErr);

@@ -2,7 +2,7 @@ import { createHmac } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { orders, payments } from "@/db/schema";
+import { orders, payments, orderTimeline } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
 import { requireUser } from "@/lib/auth";
 import { getOrderDetail } from "@/lib/services/order";
@@ -128,22 +128,54 @@ export async function PUT(request: Request) {
     }
 
     try {
-      await db
-        .update(payments)
-        .set({
-          paymentStatus: "paid",
-          transactionId: payload.razorpayPaymentId,
-          razorpayOrderId: payload.razorpayOrderId,
-          paidAmount: String(order.grandTotal),
-          paidAt: new Date(),
-          updatedAt: new Date(),
-        })
-        .where(eq(payments.orderId, order.id));
+      const [existingPay] = await db
+        .select({ id: payments.id })
+        .from(payments)
+        .where(eq(payments.orderId, order.id))
+        .limit(1)
+        .catch(() => []);
+
+      if (existingPay) {
+        await db
+          .update(payments)
+          .set({
+            paymentStatus: "paid",
+            transactionId: payload.razorpayPaymentId,
+            razorpayOrderId: payload.razorpayOrderId,
+            paidAmount: String(order.grandTotal),
+            paidAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(payments.orderId, order.id));
+      } else {
+        await db
+          .insert(payments)
+          .values({
+            orderId: order.id,
+            paymentGateway: "razorpay",
+            paymentMethod: "upi",
+            transactionId: payload.razorpayPaymentId,
+            razorpayOrderId: payload.razorpayOrderId,
+            paymentStatus: "paid",
+            paidAmount: String(order.grandTotal),
+            paidAt: new Date(),
+          })
+          .catch(() => undefined);
+      }
 
       await db
         .update(orders)
-        .set({ paymentStatus: "paid", updatedAt: new Date() })
+        .set({ paymentStatus: "paid", orderStatus: "confirmed", updatedAt: new Date() })
         .where(eq(orders.id, order.id));
+
+      await db
+        .insert(orderTimeline)
+        .values({
+          orderId: order.id,
+          status: "confirmed",
+          note: `Payment verified via Razorpay (${payload.razorpayPaymentId})`,
+        })
+        .catch(() => undefined);
     } catch (dbErr) {
       console.warn("DB payment status update notice:", dbErr);
     }

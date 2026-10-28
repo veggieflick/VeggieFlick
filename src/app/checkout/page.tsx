@@ -851,43 +851,29 @@ export default function CheckoutPage() {
                 </div>
               </div>
               <p className="text-xs text-muted mt-0.5">
-                Select Razorpay for instant online payment or choose Cash on Delivery.
+                Razorpay நேரடி ஆன்லைன் கட்டணம்: UPI (Google Pay, PhonePe, Paytm), Debit/Credit Cards & Net Banking.
               </p>
             </div>
 
-            {/* Primary Payment Selector (Razorpay vs COD) */}
-            <div className="grid gap-3 sm:grid-cols-2 mb-5">
-              {/* Option 1: Razorpay Secure Payment */}
-              <div
-                onClick={() => setPaymentMode("razorpay")}
-                className={`relative cursor-pointer rounded-2xl border-2 p-4 transition-all ${
-                  paymentMode === "razorpay"
-                    ? "border-emerald-600 bg-emerald-50/40 shadow-md ring-2 ring-emerald-500/20"
-                    : "border-slate-200 hover:border-slate-300 bg-white"
-                }`}
-              >
+            {/* Primary Payment Selector (Razorpay 100% Verified) */}
+            <div className="mb-5">
+              <div className="rounded-2xl border-2 border-emerald-600 bg-emerald-50/40 p-4 shadow-sm ring-2 ring-emerald-500/20">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="primaryPayment"
-                      checked={paymentMode === "razorpay"}
-                      onChange={() => setPaymentMode("razorpay")}
-                      className="h-4 w-4 accent-emerald-600"
-                    />
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-600 animate-pulse" />
                     <span className="font-extrabold text-slate-900 text-sm">
-                      Razorpay Secure Payment
+                      Razorpay Verified Payment Gateway (Live Mode)
                     </span>
                   </div>
                   <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px] tracking-wide uppercase">
-                    Recommended
+                    100% Secure
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 mt-1 pl-6">
-                  Razorpay ஆன்லைன் கட்டணம்: UPI, Google Pay, PhonePe, Cards & QR
+                <p className="text-xs text-slate-600 mt-1">
+                  Razorpay அதிகாரப்பூர்வ நேரடி கட்டணம்: UPI, Google Pay, PhonePe, Cards, Net Banking & QR Code.
                 </p>
                 {/* Brand Logos preview */}
-                <div className="mt-3 pl-6 flex flex-wrap items-center gap-2">
+                <div className="mt-3 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
                     <GooglePayIcon className="h-4 w-4 mr-1" />
                     <span className="text-[10px] font-bold text-slate-700">GPay</span>
@@ -905,39 +891,8 @@ export default function CheckoutPage() {
                   <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
                     <MastercardIcon className="h-3 w-6" />
                   </span>
-                </div>
-              </div>
-
-              {/* Option 2: Cash on Delivery (COD) */}
-              <div
-                onClick={() => setPaymentMode("cod")}
-                className={`relative cursor-pointer rounded-2xl border-2 p-4 transition-all ${
-                  paymentMode === "cod"
-                    ? "border-emerald-600 bg-emerald-50/40 shadow-md ring-2 ring-emerald-500/20"
-                    : "border-slate-200 hover:border-slate-300 bg-white"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="radio"
-                      name="primaryPayment"
-                      checked={paymentMode === "cod"}
-                      onChange={() => setPaymentMode("cod")}
-                      className="h-4 w-4 accent-emerald-600"
-                    />
-                    <span className="font-extrabold text-slate-900 text-sm">
-                      Cash on Delivery (COD)
-                    </span>
-                  </div>
-                  <Truck className="h-4 w-4 text-slate-500" />
-                </div>
-                <p className="text-xs text-slate-600 mt-1 pl-6">
-                  பணம் கொடுத்து வாங்க: Pay cash or UPI directly to rider upon delivery.
-                </p>
-                <div className="mt-3 pl-6">
-                  <span className="text-[11px] font-semibold text-emerald-800 bg-emerald-100/80 px-2 py-0.5 rounded">
-                    Doorstep Payment Available
+                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
+                    <RuPayIcon className="h-3.5 w-8" />
                   </span>
                 </div>
               </div>
