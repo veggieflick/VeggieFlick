@@ -665,15 +665,20 @@ export default function AdminStoreSettingsPage() {
               </a>
             </div>
 
-            <form onSubmit={handleSavePaymentSettings} className="space-y-4 text-xs">
+            <form onSubmit={handleSavePaymentSettings} autoComplete="off" className="space-y-4 text-xs">
               <div className="grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label htmlFor="razorpay_key_identifier" className="block font-bold text-slate-700 mb-1">
                     Razorpay Key ID *
                   </label>
                   <input
                     type="text"
-                    placeholder="rzp_test_... or rzp_live_..."
+                    id="razorpay_key_identifier"
+                    name="razorpay_key_identifier"
+                    autoComplete="off"
+                    data-lpignore="true"
+                    data-form-type="other"
+                    placeholder="rzp_live_... or rzp_test_..."
                     value={razorpayKeyId}
                     onChange={(e) => setRazorpayKeyId(e.target.value.trim())}
                     className="w-full rounded-xl border border-slate-200 px-3 py-2 font-mono font-bold text-slate-900 focus:border-emerald-600 focus:outline-none"
@@ -685,12 +690,17 @@ export default function AdminStoreSettingsPage() {
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-700 mb-1">
+                  <label htmlFor="razorpay_key_secret_code" className="block font-bold text-slate-700 mb-1">
                     Razorpay Key Secret *
                   </label>
                   <div className="relative">
                     <input
                       type={showSecret ? "text" : "password"}
+                      id="razorpay_key_secret_code"
+                      name="razorpay_key_secret_code"
+                      autoComplete="new-password"
+                      data-lpignore="true"
+                      data-form-type="other"
                       placeholder={
                         hasExistingSecret
                           ? "•••••••••••••••• (Secret saved on server)"
@@ -710,17 +720,22 @@ export default function AdminStoreSettingsPage() {
                     </button>
                   </div>
                   <p className="text-[11px] text-slate-400 mt-1">
-                    Leave blank to keep existing secret. Stored strictly server-side in .env.
+                    Leave blank to keep existing secret. Stored strictly server-side.
                   </p>
                 </div>
               </div>
 
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
+                <label htmlFor="razorpay_webhook_secret_code" className="block font-bold text-slate-700 mb-1">
                   Razorpay Webhook Secret (Optional)
                 </label>
                 <input
                   type="password"
+                  id="razorpay_webhook_secret_code"
+                  name="razorpay_webhook_secret_code"
+                  autoComplete="new-password"
+                  data-lpignore="true"
+                  data-form-type="other"
                   placeholder={
                     hasExistingWebhook
                       ? "•••••••••••••••• (Webhook secret saved)"
