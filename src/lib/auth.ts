@@ -98,11 +98,12 @@ export async function issueSession(user: SessionUser, remember = false): Promise
     .sign(secretKey());
 
   const store = await cookies();
-  const isHttps = process.env.NEXT_PUBLIC_SITE_URL?.startsWith("https://") ?? false;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const isSecure = process.env.NODE_ENV === "production" && siteUrl.startsWith("https://") && process.env.COOKIE_SECURE === "true";
   store.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production" && isHttps,
+    secure: isSecure,
     path: "/",
     maxAge,
   });
