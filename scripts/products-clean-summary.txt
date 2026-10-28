@@ -1,0 +1,60 @@
+1. [Cut Vegetables]  Aviyal  veg combo | Serves 4 | Rs.125.00 | img: BASE64_IMAGE (72767 chars)
+2. [Cut Vegetables] Ash Gourd | 500 g | Rs.35.00 | img: BASE64_IMAGE (66679 chars)
+3. [Cut Vegetables] Beans | 1 kg | Rs.195.00 | img: /images/products/cut-beans.jpg
+4. [Cut Vegetables] Beetroot | 500g | Rs.77.00 | img: /images/products/cut-beetroot.jpg
+5. [Cut Vegetables] Bisi Bele Bath Veg combo | Serves 4 | Rs.139.00 | img: BASE64_IMAGE (139523 chars)
+6. [Cut Vegetables] Bitter gourd | 500 g | Rs.35.00 | img: BASE64_IMAGE (119635 chars)
+7. [Salad] Black Channa Sprout | 250 g | Rs.89.00 | img: BASE64_IMAGE (124879 chars)
+8. [Cut Vegetables] ⁠Bottle Gourd | 500 g | Rs.35.00 | img: BASE64_IMAGE (48403 chars)
+9. [Cut Vegetables] Briyani veg combo | Serves 4 | Rs.179.00 | img: BASE64_IMAGE (197723 chars)
+10. [Cut Vegetables] Cabbage | 500 g | Rs.35.00 | img: BASE64_IMAGE (107751 chars)
+11. [Cut Vegetables] Capsicum  | 500 g | Rs.35.00 | img: BASE64_IMAGE (103467 chars)
+12. [Cut Vegetables] Carrot | 250 g | Rs.29.00 | img: /images/products/cut-carrot.jpg
+13. [Cut Vegetables] Cauliflower | 200g | Rs.50.00 | img: /images/products/cut-cauliflower.jpg
+14. [Cut Vegetables] Chayote | 500 g | Rs.35.00 | img: BASE64_IMAGE (34539 chars)
+15. [Fruits Cutting & Combo Pack] Chopped Apple | 500 g | Rs.35.00 | img: BASE64_IMAGE (96591 chars)
+16. [Cut Vegetables] Chopped Broccoli  | 250 g | Rs.85.00 | img: BASE64_IMAGE (174487 chars)
+17. [Fruits Cutting & Combo Pack] Chopped Gooseberry  | 300 g | Rs.48.00 | img: BASE64_IMAGE (76939 chars)
+18. [Fruits Cutting & Combo Pack] Chopped Guava | 500 g | Rs.35.00 | img: BASE64_IMAGE (63675 chars)
+19. [Fruits Cutting & Combo Pack] Chopped Kiwi | 500 g | Rs.35.00 | img: BASE64_IMAGE (236323 chars)
+20. [Fruits Cutting & Combo Pack] Chopped Papaya  | 500 g | Rs.35.00 | img: BASE64_IMAGE (147375 chars)
+21. [Fruits Cutting & Combo Pack] Chopped Pear | 300 g | Rs.59.00 | img: BASE64_IMAGE (75051 chars)
+22. [Fruits Cutting & Combo Pack] Chopped Pineapple | 500 g | Rs.35.00 | img: BASE64_IMAGE (56683 chars)
+23. [Fruits Cutting & Combo Pack] Chopped Strawberry  | 500 g | Rs.35.00 | img: BASE64_IMAGE (66231 chars)
+24. [Fruits Cutting & Combo Pack] Chopped Watermelon | 500 g | Rs.35.00 | img: BASE64_IMAGE (97991 chars)
+25. [Fruits Cutting & Combo Pack] Cucumber | 250 g | Rs.89.00 | img: BASE64_IMAGE (99211 chars)
+26. [Cut Vegetables] Cutted Mango | 500 g | Rs.35.00 | img: BASE64_IMAGE (107647 chars)
+27. [Fruits Cutting & Combo Pack] Dragon Fruit | 500 g | Rs.35.00 | img: BASE64_IMAGE (152415 chars)
+28. [Cut Vegetables] Elephant Foot yam | 500 g | Rs.35.00 | img: BASE64_IMAGE (107083 chars)
+29. [Fresh Vegetables] Exotic Fruit Salad Bowl | 300 g | Rs.119.00 | img: /images/products/fruit-salad-exotic.jpg
+30. [Cut Vegetables] Fresh Vegetables Salad Bowl | 250 g | Rs.99.00 | img: /images/products/veg-salad-fresh.jpg
+31. [Fruits Cutting & Combo Pack] Fruit Salad  | 500 g | Rs.35.00 | img: BASE64_IMAGE (269955 chars)
+32. [Cut Vegetables] Grated Coconut | 200 g | Rs.42.00 | img: /images/products/grated-coconut.jpg
+33. [Salad] Green Peas Sprout | 500 g | Rs.35.00 | img: BASE64_IMAGE (96315 chars)
+34. [Salad] Horse Gram Sprout | 200 g | Rs.55.00 | img: BASE64_IMAGE (167091 chars)
+35. [Cut Vegetables] Hyacinth Beans | 500 g | Rs.35.00 | img: BASE64_IMAGE (46755 chars)
+36. [Cut Vegetables] Ivy Gourd | 500 g | Rs.35.00 | img: BASE64_IMAGE (136303 chars)
+37. [Cut Vegetables] Knol-Khol | 500 g | Rs.35.00 | img: BASE64_IMAGE (76067 chars)
+38. [Cut Vegetables] Kothavarangai | 250 g | Rs.50.00 | img: BASE64_IMAGE (194431 chars)
+39. [Cut Vegetables] Lady's Finger | 250 g | Rs.28.00 | img: /images/products/cut-lady-finger.jpg
+40. [Salad] Moong Dal Sprout | 250 g | Rs.99.00 | img: BASE64_IMAGE (160815 chars)
+41. [Cut Vegetables] Mushroom | 500 g | Rs.35.00 | img: BASE64_IMAGE (54663 chars)
+42. [Cut Vegetables] Peeled Garlic | 500 g | Rs.35.00 | img: BASE64_IMAGE (128667 chars)
+43. [Cut Vegetables] Peeled small Onion | 500 g | Rs.35.00 | img: BASE64_IMAGE (93155 chars)
+44. [Cut Vegetables] Protein Sprouts Power Salad | 250 g | Rs.79.00 | img: /images/products/veg-salad-sprouts.jpg
+45. [Cut Vegetables] Radish | 500 g | Rs.35.00 | img: BASE64_IMAGE (36903 chars)
+46. [Cut Vegetables] Ridge Gourd | 500 g | Rs.35.00 | img: BASE64_IMAGE (155159 chars)
+47. [Cut Vegetables] Sambar veg mix | 500 g | Rs.49.00 | img: /images/products/sambar-cut-mix.jpg
+48. [Fruits Cutting & Combo Pack] Shredded Pomegranate | 500 g | Rs.150.00 | img: BASE64_IMAGE (170443 chars)
+49. [Cut Vegetables] Shredded spinach (Please watzup the spinach name) | 500 g | Rs.35.00 | img: BASE64_IMAGE (140555 chars)
+50. [Cut Vegetables] Sliced Big Onion | 1 kg | Rs.38.00 | img: /images/products/onion-slices.jpg
+51. [Cut Vegetables] Snake gourd | 500 g | Rs.35.00 | img: BASE64_IMAGE (78099 chars)
+52. [Salad] Soya Bean Sprout | 250 g | Rs.79.00 | img: BASE64_IMAGE (196911 chars)
+53. [Salad] Sprouts Salad | 500 g | Rs.35.00 | img: BASE64_IMAGE (243227 chars)
+54. [Cut Vegetables] Tomato Slices | 500 g | Rs.29.00 | img: /images/products/tomato-slices.jpg
+55. [Fresh Vegetables] Tropical Melon & Berry Bowl | 350 g | Rs.99.00 | img: /images/products/fruit-salad-melon.jpg
+56. [Salad] Vegetable Salad | 500 g | Rs.35.00 | img: BASE64_IMAGE (274771 chars)
+57. [Fresh Vegetables] Watermelon Mint Refresher Bowl | 350 g | Rs.65.00 | img: /images/products/fruit-salad-watermelon.jpg
+58. [Salad] White Channa sprout | 250 g | Rs.89.00 | img: BASE64_IMAGE (107179 chars)
+59. [Cut Vegetables] White Pulav veg combo | Serves 4 | Rs.129.00 | img: BASE64_IMAGE (83879 chars)
+60. [Cut Vegetables] Yellow Pumpkin | 500 g | Rs.35.00 | img: BASE64_IMAGE (81655 chars)
