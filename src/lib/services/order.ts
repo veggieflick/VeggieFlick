@@ -37,7 +37,7 @@ function isUUID(str: string): boolean {
 export type PlaceOrderInput = {
   addressId: string;
   deliverySlotId: string;
-  paymentMethod: "cod" | "upi" | "card" | "netbanking" | "wallet";
+  paymentMethod: "cod" | "upi" | "card" | "netbanking" | "wallet" | "razorpay";
   notes?: string;
   idempotencyKey?: string;
 };
@@ -325,7 +325,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
           deliveryCharge: String(deliveryCharge),
           taxAmount: String(taxAmount),
           grandTotal: String(grandTotal),
-          paymentStatus: isPrepaid ? "paid" : "pending",
+          paymentStatus: "pending",
           orderStatus: "placed",
           deliveryOtp: generateDeliveryOtp(),
           notes: input.notes ?? null,
@@ -364,15 +364,15 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         transactionId: isPrepaid ? `pay_${order.orderNumber.toLowerCase()}` : null,
         razorpayOrderId: isPrepaid ? `order_${order.orderNumber.toLowerCase()}` : null,
         idempotencyKey: input.idempotencyKey ?? `${order.id}-init`,
-        paymentStatus: isPrepaid ? "paid" : "pending",
-        paidAmount: isPrepaid ? String(grandTotal) : "0",
-        paidAt: isPrepaid ? new Date() : null,
+        paymentStatus: "pending",
+        paidAmount: "0",
+        paidAt: null,
       });
 
       await tx.insert(orderTimeline).values({
         orderId: order.id,
         status: "placed",
-        note: isPrepaid ? "Payment received. Order placed successfully." : "Order placed with Cash on Delivery.",
+        note: isPrepaid ? "Order placed. Awaiting Razorpay payment." : "Order placed with Cash on Delivery.",
       });
 
       if (couponRow) {
@@ -519,7 +519,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       deliveryCharge: String(calcDelivery),
       taxAmount: String(calcTax),
       grandTotal: String(calcGrandTotal),
-      paymentStatus: isPrepaid ? "paid" : "pending",
+      paymentStatus: "pending",
       paymentMethod: input.paymentMethod,
       orderStatus: "placed",
       deliveryOtp: generateDeliveryOtp(),
@@ -554,7 +554,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
           deliveryCharge: String(calcDelivery),
           taxAmount: String(calcTax),
           grandTotal: String(calcGrandTotal),
-          paymentStatus: isPrepaid ? "paid" : "pending",
+          paymentStatus: "pending",
           orderStatus: "placed",
           deliveryOtp: generateDeliveryOtp(),
           notes: input.notes ?? null,
