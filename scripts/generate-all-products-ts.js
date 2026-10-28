@@ -26,7 +26,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Chopped Vegetables (Instant/Ready to cook)",
     slug: "chopped-vegetables",
     tamilName: "நறுக்கிய காய்கறிகள் (Instant/Ready to cook)",
-    emoji: "🥦",
+    emoji: "",
     icon: "vegetables",
     tagline: "Washed, peeled & precision-cut cooking packs",
     description: "Daily fresh vegetables diced, sliced & peeled ready to cook with zero kitchen prep waste.",
@@ -39,7 +39,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Chopped Fruits",
     slug: "chopped-fruits",
     tamilName: "நறுக்கிய பழங்கள்",
-    emoji: "🍎",
+    emoji: "",
     icon: "fruit",
     tagline: "Cleanly cut, seedless & freshly diced fruits",
     description: "Freshly sliced exotic and seasonal fruits deseeded and packed for instant eating.",
@@ -52,7 +52,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Sprouts (pre order only)",
     slug: "sprouts",
     tamilName: "முளைகட்டிய பயறுகள் (Pre-Order Only)",
-    emoji: "🌱",
+    emoji: "",
     icon: "sprout",
     tagline: "Pre-Order: Naturally sprouted with 24-hr germination",
     description: "Naturally sprouted organic pulses with 24-hr germination rich in live enzymes & protein. Pre-order only.",
@@ -66,7 +66,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Combo",
     slug: "combos",
     tamilName: "சமையல் காம்போ கிட்ஸ்",
-    emoji: "🍲",
+    emoji: "",
     icon: "soup",
     tagline: "Pulav, Biriyani, Aviyal & Bisi Bele recipe kits",
     description: "Pulav, Biriyani, Aviyal & Bisi Bele Bath complete recipe kits with exact ingredients kg-wise.",
@@ -79,7 +79,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Fruit salad",
     slug: "fruit-salad",
     tamilName: "பழ சாலட் (Customizable)",
-    emoji: "🍓",
+    emoji: "",
     icon: "fruit",
     tagline: "Add fruits and berries based on your wish",
     description: "Fresh fruit & berry salad bowls (add fruits and berries based on your wish).",
@@ -92,7 +92,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Sprouts salads",
     slug: "sprouts-salads",
     tamilName: "முளைகட்டிய பயறு சாலட் (Pre-Order Only)",
-    emoji: "🫘",
+    emoji: "",
     icon: "sprout",
     tagline: "Diet-friendly sprouts salad bowls (Select any 3 items)",
     description: "Based on your diet plan select any 3 items - Pre-order only.",
@@ -106,7 +106,7 @@ const OFFICIAL_CATEGORIES = [
     name: "Vegetables salads",
     slug: "vegetables-salads",
     tamilName: "காய்கறி சாலட் (Select Any 3 Items)",
-    emoji: "🥗",
+    emoji: "",
     icon: "salad",
     tagline: "Fresh garden vegetable salad bowls (Select any 3 items)",
     description: "Based on your diet plan select any 3 items fresh tossed with light dressing.",
@@ -133,11 +133,7 @@ const allProducts = USER_PRODUCTS.map((p, idx) => {
     varId = "f3abeddc-bb61-49ea-bf6a-9f6d76ec684f";
   }
 
-  let emoji = "🥬";
-  if (p.catSlug === "chopped-fruits" || p.catSlug === "fruit-salad") emoji = "🍎";
-  if (p.catSlug === "sprouts" || p.catSlug === "sprouts-salads") emoji = "🌱";
-  if (p.catSlug === "combos") emoji = "🍲";
-  if (p.catSlug === "vegetables-salads") emoji = "🥗";
+  let emoji = "";
 
   return {
     id: prodId,

@@ -35,7 +35,7 @@ const COMBO_KITS: ComboKit[] = [
     description: "Full Biriyani cut pack with Big Onion slices, Tomato, Chilli, Carrot, Beans, Peas, Potato, Ginger, Garlic.",
     price: 179,
     originalPrice: 240,
-    emoji: "🍚",
+    emoji: "",
     imageUrl: "/images/products/vegetables-biryani-special-kit.png",
     items: [
       "Big Onion slices",
@@ -60,7 +60,7 @@ const COMBO_KITS: ComboKit[] = [
     description: "Authentic Kerala & Tamil aviyal vegetable mix sliced in traditional batons.",
     price: 125,
     originalPrice: 170,
-    emoji: "🥗",
+    emoji: "",
     imageUrl: "/images/products/traditional-aviyal-7-veggie-cut-mix.png",
     items: [
       "Elephant Foot Yam",
@@ -83,7 +83,7 @@ const COMBO_KITS: ComboKit[] = [
     description: "Complete authentic Bisi Bele Bath veggie mix cut and ready to boil.",
     price: 139,
     originalPrice: 190,
-    emoji: "🍛",
+    emoji: "",
     imageUrl: "/images/products/bisi-bele-bath-kit.png",
     items: [
       "Small Onion",
@@ -109,7 +109,7 @@ const COMBO_KITS: ComboKit[] = [
     description: "Delicate white pulav cut veggie mix with grated coconut and whole aromatics.",
     price: 129,
     originalPrice: 180,
-    emoji: "🍲",
+    emoji: "",
     imageUrl: "/images/products/pulav-special-veggie-combo-kit.png",
     items: [
       "Big Onion slices",
@@ -210,7 +210,6 @@ export function ComboKitsSection() {
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <span className="text-lg">{kit.emoji}</span>
                   <h3 className="text-sm font-extrabold text-ink leading-tight line-clamp-1">{kit.name}</h3>
                 </div>
                 <p className="text-[11px] text-muted">{kit.tamilName}</p>

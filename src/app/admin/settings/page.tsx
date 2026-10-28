@@ -31,6 +31,7 @@ import {
   Loader2,
   HelpCircle,
   Info,
+  Star,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatINR } from "@/lib/utils";
@@ -545,9 +546,9 @@ export default function AdminStoreSettingsPage() {
                     <p className="text-[11px] text-slate-500">
                       {gatewayConfigured
                         ? gatewayMode === "live"
-                          ? "🟢 Live Production Account"
-                          : "🟡 Test Sandbox Account"
-                        : "⚪ Keys Pending Configuration"}
+                          ? "Live Production Account"
+                          : "Test Sandbox Account"
+                        : "Keys Pending Configuration"}
                     </p>
                   </div>
                   <input
@@ -1124,7 +1125,12 @@ export default function AdminStoreSettingsPage() {
                   <tr key={rev.id} className="hover:bg-slate-50/80 transition">
                     <td className="px-6 py-3.5 font-bold text-slate-900">{rev.authorName}</td>
                     <td className="px-6 py-3.5 font-semibold text-slate-800">{rev.productName}</td>
-                    <td className="px-6 py-3.5 font-bold text-amber-600">{"★".repeat(rev.rating)}</td>
+                    <td className="px-6 py-3.5 font-bold text-amber-600">
+                      <span className="flex items-center gap-1">
+                        <Star size={13} className="fill-amber-500 text-amber-500" />
+                        <span>{rev.rating}/5</span>
+                      </span>
+                    </td>
                     <td className="px-6 py-3.5 text-slate-600 max-w-xs truncate">{rev.comment}</td>
                     <td className="px-6 py-3.5">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black ${

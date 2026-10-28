@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Calendar, Clock, RefreshCw, CheckCircle2, Sparkles, Truck } from "lucide-react";
+import { Calendar, Clock, RefreshCw, CheckCircle2, Sparkles, Truck, Leaf, Check } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { Breadcrumb, EmptyState } from "@/components/ui/primitives";
 
@@ -16,10 +16,10 @@ type SubscriptionItem = {
 };
 
 const SUGGESTED_SUBSCRIPTIONS = [
-  { name: "Farm Fresh Milk (A2 Cow Milk)", unit: "500 ml", frequency: "Daily 6:00 AM", price: "₹38", emoji: "🥛" },
-  { name: "Daily Keerai Bundle (Spinach / Sirukeerai)", unit: "1 Bunch", frequency: "Mon / Wed / Fri", price: "₹25", emoji: "🥬" },
-  { name: "Country Tomatoes (Desi Thakkali)", unit: "1 kg", frequency: "Every 3 Days", price: "₹34", emoji: "🍅" },
-  { name: "Tender Coconut Water (Sevvaneer)", unit: "1 Piece", frequency: "Daily Morning", price: "₹50", emoji: "🥥" },
+  { name: "Farm Fresh Milk (A2 Cow Milk)", unit: "500 ml", frequency: "Daily 6:00 AM", price: "₹38" },
+  { name: "Daily Keerai Bundle (Spinach / Sirukeerai)", unit: "1 Bunch", frequency: "Mon / Wed / Fri", price: "₹25" },
+  { name: "Country Tomatoes (Desi Thakkali)", unit: "1 kg", frequency: "Every 3 Days", price: "₹34" },
+  { name: "Tender Coconut Water (Sevvaneer)", unit: "1 Piece", frequency: "Daily Morning", price: "₹50" },
 ];
 
 export default function SubscriptionsPage() {
@@ -114,7 +114,9 @@ export default function SubscriptionsPage() {
             {SUGGESTED_SUBSCRIPTIONS.map((item) => (
               <div key={item.name} className="card p-4 flex flex-col justify-between border-slate-200 hover:border-emerald-300">
                 <div className="flex items-start gap-3">
-                  <span className="text-3xl">{item.emoji}</span>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
+                    <Leaf size={20} />
+                  </span>
                   <div>
                     <h3 className="text-sm font-bold text-ink">{item.name}</h3>
                     <p className="text-xs text-muted">{item.unit} · {item.price}</p>
@@ -142,16 +144,16 @@ export default function SubscriptionsPage() {
             </h3>
             <ul className="mt-4 grid gap-3 text-xs text-slate-700">
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <strong>Zero Delivery Fee</strong> on all recurring subscription orders.
+                <Check size={14} className="text-emerald-600 font-bold shrink-0 mt-0.5" />
+                <span><strong>Zero Delivery Fee</strong> on all recurring subscription orders.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <strong>4 AM Priority Farm Harvest</strong> reserved specifically for you.
+                <Check size={14} className="text-emerald-600 font-bold shrink-0 mt-0.5" />
+                <span><strong>4 AM Priority Farm Harvest</strong> reserved specifically for you.</span>
               </li>
               <li className="flex items-start gap-2">
-                <span className="text-emerald-600 font-bold">✓</span>
-                <strong>One-Tap Pause</strong> when traveling out of Chennai.
+                <Check size={14} className="text-emerald-600 font-bold shrink-0 mt-0.5" />
+                <span><strong>One-Tap Pause</strong> when traveling out of Chennai.</span>
               </li>
             </ul>
             <Link href="/shop" className="btn btn-outline w-full mt-6 text-xs font-bold">

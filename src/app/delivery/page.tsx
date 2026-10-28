@@ -98,7 +98,7 @@ export default function DeliveryPartnerPortal() {
             <p className="text-[11px] text-emerald-700 font-semibold mt-0.5">8 Orders Delivered Today</p>
           </div>
           <div className="text-right">
-            <span className="chip bg-emerald-100 text-emerald-900 font-bold text-xs">Rating 4.9 ★</span>
+            <span className="chip bg-emerald-100 text-emerald-900 font-bold text-xs">Rating 4.9</span>
           </div>
         </div>
 

@@ -199,7 +199,7 @@ export default function OrderDetailPage() {
     ? `${order.shippingSnapshot.line || ""}, ${order.shippingSnapshot.city || ""}`
     : "Chennai";
   const waMessage =
-    `🛒 *VeggieFlick Order Update*\n\n` +
+    `*VeggieFlick Order Update*\n\n` +
     `*Order Number:* ${order.orderNumber}\n` +
     `*Customer:* ${order.shippingSnapshot?.contactName || order.customerName}\n` +
     `*Phone:* ${order.shippingSnapshot?.contactPhone || order.customerPhone}\n` +

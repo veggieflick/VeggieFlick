@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ExternalLink, Loader2, MessageCircle, RefreshCcw } from "lucide-react";
+import { Clock, ExternalLink, Loader2, MessageCircle, RefreshCcw } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { formatDateTimeIST, formatINR, ORDER_STATUS_LABEL } from "@/lib/utils";
 import { StatusPill } from "@/components/ui/primitives";
@@ -164,7 +164,9 @@ export default function AdminOrdersPage() {
                       {order.orderNumber} <ExternalLink className="h-3 w-3 text-muted" />
                     </a>
                     {order.deliverySlot && (
-                      <p className="text-[11px] font-normal text-muted mt-0.5">🕒 {order.deliverySlot}</p>
+                      <p className="text-[11px] font-normal text-muted mt-0.5 flex items-center gap-1">
+                        <Clock size={11} className="shrink-0" /> {order.deliverySlot}
+                      </p>
                     )}
                   </td>
                   <td className="px-4 py-3">

@@ -160,7 +160,9 @@ function LoginFlow() {
 
         {/* Quick Demo Login Box */}
         <div className="mt-8 rounded-2xl border border-brand-200 bg-brand-50/60 p-4">
-          <p className="text-xs font-bold uppercase tracking-wider text-brand-800">⚡ Fast 1-Click Demo Login</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-brand-800 flex items-center gap-1.5">
+            <Zap className="h-3.5 w-3.5" /> Fast 1-Click Demo Login
+          </p>
           <p className="mt-1 text-xs text-muted">Skip OTP & test full shopping, cart, and checkout instantly!</p>
           <button
             type="button"
@@ -355,7 +357,7 @@ function LoginFlow() {
             disabled={busy}
             className="text-xs font-bold text-brand-700 hover:underline"
           >
-            ⚡ Need Instant Access? Click here for 1-Click Fast Sign In
+            Need Instant Access? Click here for 1-Click Fast Sign In
           </button>
         </div>
 

@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Gift, Sparkles, X, CheckCircle2, Copy } from "lucide-react";
+import { Gift, Sparkles, X, CheckCircle2, Copy, Leaf, type LucideIcon } from "lucide-react";
 import { useApp } from "@/components/providers";
 
 type Reward = {
   title: string;
   code: string;
   description: string;
-  emoji: string;
+  icon: LucideIcon;
 };
 
 const REWARDS: Reward[] = [
@@ -16,19 +16,19 @@ const REWARDS: Reward[] = [
     title: "₹25 Instant Wallet Cashback",
     code: "SCRATCH25",
     description: "Credited to your VeggieFlick Wallet on your next fresh produce order!",
-    emoji: "🎉",
+    icon: Sparkles,
   },
   {
     title: "FREE Fresh Coriander & Curry Leaf Bundle",
     code: "FREECURRY",
     description: "Added complimentary to your next morning delivery slot.",
-    emoji: "🥬",
+    icon: Leaf,
   },
   {
     title: "10% Extra Cashback Coupon",
     code: "VEGGIE10",
     description: "Valid on all cut vegetables and recipe meal kits.",
-    emoji: "🎁",
+    icon: Gift,
   },
 ];
 
@@ -78,11 +78,13 @@ export function ScratchCardModal({ isOpen, onClose }: ScratchCardModalProps) {
               className="w-full h-44 rounded-2xl bg-gradient-to-br from-amber-400 via-orange-500 to-amber-600 text-white font-extrabold flex flex-col items-center justify-center gap-2 shadow-xl hover:scale-[1.02] active:scale-95 transition-transform border-4 border-amber-200 cursor-pointer"
             >
               <Gift size={48} className="animate-bounce" />
-              <span className="text-base tracking-wider uppercase">✨ TAP TO SCRATCH CARD ✨</span>
+              <span className="text-base tracking-wider uppercase font-black">TAP TO SCRATCH CARD</span>
             </button>
           ) : (
             <div className="w-full h-44 rounded-2xl bg-gradient-to-br from-emerald-50 via-white to-emerald-100 border-2 border-emerald-400 p-4 flex flex-col items-center justify-center gap-2 shadow-inner animate-fade-in">
-              <span className="text-4xl">{reward.emoji}</span>
+              <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-800">
+                <reward.icon size={26} />
+              </span>
               <h4 className="text-base font-bold text-emerald-950">{reward.title}</h4>
               <p className="text-xs text-slate-600 leading-tight">{reward.description}</p>
               <div className="flex items-center gap-2 mt-1 rounded-lg bg-emerald-200/80 px-3 py-1 text-xs font-mono font-bold text-emerald-900">

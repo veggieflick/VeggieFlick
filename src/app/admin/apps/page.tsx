@@ -16,6 +16,7 @@ import {
   Sparkles,
   Truck,
   Zap,
+  X,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
 
@@ -221,8 +222,8 @@ export default function AdminAppStorePage() {
                   <p className="text-xs text-slate-400">{selectedApp.category} Integration</p>
                 </div>
               </div>
-              <button onClick={() => setSelectedApp(null)} className="text-slate-400 hover:text-slate-600 font-bold text-sm">
-                ✕
+              <button onClick={() => setSelectedApp(null)} className="text-slate-400 hover:text-slate-600 font-bold p-1 rounded-lg hover:bg-slate-100" aria-label="Close modal">
+                <X size={16} />
               </button>
             </div>
 

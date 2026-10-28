@@ -253,7 +253,7 @@ export async function PUT(
           slug: finalSlug,
           sku: `VF-${finalSlug.slice(0, 10).toUpperCase().replace(/-/g, "")}`,
           tamilName: tamilName || null,
-          emoji: emoji || "🥬",
+          emoji: emoji || "",
           shortDescription: shortDescription || null,
           isOrganic: !!isOrganic,
           isBestSeller: !!isBestSeller,

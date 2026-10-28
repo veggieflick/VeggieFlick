@@ -66,7 +66,7 @@ export function OrderStatusToast() {
           </span>
           <div>
             <span className="chip bg-emerald-500/30 text-emerald-200 text-[10px] font-extrabold tracking-wider border border-emerald-400/40">
-              🚀 LIVE DELIVERY UPDATE
+              LIVE DELIVERY UPDATE
             </span>
             <p className="text-sm font-bold mt-0.5">Order {activeAlert.orderNumber} is Out for Delivery!</p>
           </div>

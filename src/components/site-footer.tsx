@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Bike, Leaf, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
+import { Bike, Clock, Leaf, Mail, MapPin, Phone, ShieldCheck, Sparkles } from "lucide-react";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 const SHOP_LINKS = [
@@ -55,7 +55,8 @@ export function SiteFooter() {
               <Mail size={14} strokeWidth={1.6} className="text-emerald-700 shrink-0" /> hello@veggieflick.in
             </p>
             <p className="flex items-center gap-2 text-emerald-800 font-bold">
-              ⏰ <strong>Operational Hours:</strong> 6:00 AM – 9:00 PM Daily
+              <Clock size={14} className="text-emerald-700 shrink-0" />
+              <span><strong>Operational Hours:</strong> 6:00 AM – 9:00 PM Daily</span>
             </p>
           </div>
 
@@ -134,8 +135,8 @@ export function SiteFooter() {
       {/* Subscribed Customer Offers Notice Banner */}
       <div className="border-t border-line bg-gradient-to-r from-emerald-900 via-slate-900 to-teal-950 py-2.5 text-white">
         <div className="container-page flex flex-wrap items-center justify-between gap-2 text-xs font-semibold">
-          <span className="text-emerald-300">
-            ✨ <strong>Subscription Notice:</strong> Offers and promotions will be notified to subscribed customers via WhatsApp & SMS.
+          <span className="flex items-center gap-1.5 text-emerald-300">
+            <Sparkles size={14} className="text-emerald-400 shrink-0" /> <strong>Subscription Notice:</strong> Offers and promotions will be notified to subscribed customers via WhatsApp & SMS.
           </span>
           <Link href="/subscriptions" className="underline hover:text-emerald-200 text-[11px] font-bold">
             Subscribe Now →
@@ -156,8 +157,8 @@ export function SiteFooter() {
               ))}
             </div>
           </div>
-          <span className="text-[11px] font-bold text-emerald-400">
-            📍 Per-Order Delivery Fee: ₹30 – ₹100 based on distance (No Free Delivery)
+          <span className="flex items-center gap-1.5 text-[11px] font-bold text-emerald-400">
+            <MapPin size={13} className="text-emerald-400 shrink-0" /> Per-Order Delivery Fee: ₹30 – ₹100 based on distance (No Free Delivery)
           </span>
         </div>
       </div>

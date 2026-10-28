@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Scissors, Check, X } from "lucide-react";
+import { Scissors, Check, X, Leaf, Soup, Utensils, ChefHat, type LucideIcon } from "lucide-react";
 import { useLanguage } from "@/components/language-context";
 
 export type CutType = "whole" | "sambar" | "poriyal" | "curry";
@@ -10,14 +10,14 @@ export type CutOption = {
   id: CutType;
   labelKey: string;
   desc: string;
-  iconEmoji: string;
+  icon: LucideIcon;
 };
 
 const CUT_OPTIONS: CutOption[] = [
-  { id: "whole", labelKey: "cut.whole", desc: "Original fresh uncut whole produce", iconEmoji: "🥦" },
-  { id: "sambar", labelKey: "cut.sambar", desc: "Large even chunks ready for Sambar & Avial", iconEmoji: "🍲" },
-  { id: "poriyal", labelKey: "cut.poriyal", desc: "Fine diced cubes ideal for Poriyal & Stir Fry", iconEmoji: "🍳" },
-  { id: "curry", labelKey: "cut.curry", desc: "Medium sliced cubes for Kuzhambu & Curry", iconEmoji: "🥘" },
+  { id: "whole", labelKey: "cut.whole", desc: "Original fresh uncut whole produce", icon: Leaf },
+  { id: "sambar", labelKey: "cut.sambar", desc: "Large even chunks ready for Sambar & Avial", icon: Soup },
+  { id: "poriyal", labelKey: "cut.poriyal", desc: "Fine diced cubes ideal for Poriyal & Stir Fry", icon: ChefHat },
+  { id: "curry", labelKey: "cut.curry", desc: "Medium sliced cubes for Kuzhambu & Curry", icon: Utensils },
 ];
 
 type CutSelectorModalProps = {
@@ -69,7 +69,9 @@ export function CutSelectorModal({ isOpen, onClose, productName, onSelectCut }: 
                   : "border-line bg-white hover:border-slate-300 hover:bg-surface"
               }`}
             >
-              <span className="text-2xl">{opt.iconEmoji}</span>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100/70 text-emerald-800">
+                <opt.icon size={18} />
+              </span>
               <div className="flex-1">
                 <p className="text-xs font-bold text-ink">{t(opt.labelKey)}</p>
                 <p className="text-[11px] text-muted">{opt.desc}</p>

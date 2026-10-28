@@ -331,7 +331,7 @@ export default function CheckoutPage() {
             state: "Tamil Nadu",
             postalCode: pincode.length === 6 ? pincode : "600042",
           }));
-          notify("📍 Location detected! Please enter Flat/Door number.");
+          notify("Location detected! Please enter Flat/Door number.");
         } catch {
           notify("Could not reverse lookup coordinates. Please enter manually.");
         } finally {
@@ -658,8 +658,8 @@ export default function CheckoutPage() {
                       <span className="block text-slate-600 mt-0.5">
                         {address.doorNo}, {address.street}, {address.area}, {address.city} - {address.postalCode}
                       </span>
-                      <span className="mt-1 inline-block text-xs font-semibold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded">
-                        ✓ Serviceable from KK Nagar Hub
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded">
+                        <Check size={12} strokeWidth={2.5} /> Serviceable from KK Nagar Hub
                       </span>
                     </span>
                   </label>
@@ -685,7 +685,7 @@ export default function CheckoutPage() {
                     ) : (
                       <Navigation className="h-3.5 w-3.5 text-emerald-600" />
                     )}
-                    <span>📍 Use Live GPS Location</span>
+                    <span>Use Live GPS Location</span>
                   </button>
                 </div>
 
@@ -828,8 +828,8 @@ export default function CheckoutPage() {
                         <Calendar className="h-3.5 w-3.5 text-emerald-700" />
                         <span>{slot.slotName}</span>
                       </div>
-                      <span className="block text-xs text-emerald-800 font-semibold mt-1">
-                        ✓ Next Day Fresh Delivery
+                      <span className="flex items-center gap-1 text-xs text-emerald-800 font-semibold mt-1">
+                        <Check size={12} strokeWidth={2.5} /> Next Day Fresh Delivery
                       </span>
                     </div>
                   </label>
@@ -992,8 +992,8 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         {selectedUpiApp === "gpay" && (
-                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                            ✓
+                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                            <Check size={12} strokeWidth={3} />
                           </span>
                         )}
                       </div>
@@ -1017,8 +1017,8 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         {selectedUpiApp === "phonepe" && (
-                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                            ✓
+                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                            <Check size={12} strokeWidth={3} />
                           </span>
                         )}
                       </div>
@@ -1042,8 +1042,8 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         {selectedUpiApp === "paytm" && (
-                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                            ✓
+                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                            <Check size={12} strokeWidth={3} />
                           </span>
                         )}
                       </div>
@@ -1067,8 +1067,8 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         {selectedUpiApp === "any" && (
-                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold">
-                            ✓
+                          <span className="h-5 w-5 rounded-full bg-emerald-600 text-white flex items-center justify-center">
+                            <Check size={12} strokeWidth={3} />
                           </span>
                         )}
                       </div>
@@ -1092,7 +1092,7 @@ export default function CheckoutPage() {
                           className="btn btn-primary bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs px-4 py-2.5 inline-flex items-center justify-center gap-1.5 shrink-0 shadow-sm"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
-                          <span>🚀 Open {selectedUpiApp === "gpay" ? "Google Pay" : selectedUpiApp === "phonepe" ? "PhonePe" : "UPI App"}</span>
+                          <span>Open {selectedUpiApp === "gpay" ? "Google Pay" : selectedUpiApp === "phonepe" ? "PhonePe" : "UPI App"}</span>
                         </a>
                       </div>
                     </div>
@@ -1271,7 +1271,7 @@ export default function CheckoutPage() {
                           href={upiDeepLink}
                           className="btn btn-outline border-emerald-600 text-emerald-800 font-bold text-xs py-2 px-3 mt-1 text-center"
                         >
-                          🚀 Open UPI App on Mobile
+                          Open UPI App on Mobile
                         </a>
                       </div>
                     </div>
@@ -1330,7 +1330,7 @@ export default function CheckoutPage() {
               {cart.items.map((item) => (
                 <li key={item.id} className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5">
                   <span className="flex-1 truncate text-slate-700 font-medium">
-                    <span aria-hidden>{item.emoji}</span> {item.name} × {item.quantity}
+                    {item.name} × {item.quantity}
                   </span>
                   <span className="font-bold text-slate-900">{formatINR(item.totalPrice)}</span>
                 </li>
@@ -1362,7 +1362,7 @@ export default function CheckoutPage() {
 
             {selectedAddress && (
               <p className="mt-3 rounded-lg bg-emerald-50 border border-emerald-200 p-2 text-xs text-emerald-950 font-medium">
-                📍 Delivering to {selectedAddress.area}, Chennai ({selectedAddress.postalCode}).
+                Delivering to {selectedAddress.area}, Chennai ({selectedAddress.postalCode}).
               </p>
             )}
 

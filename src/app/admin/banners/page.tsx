@@ -35,9 +35,9 @@ const INITIAL_BANNERS: HomepageBanner[] = [
     id: "banner-1",
     title: "Fresh Ooty Cut Veggies & Gourmet Meal Kits",
     subtitle: "Cleaned, Ozonated & Chopped Daily at Koyambedu Hub. 18-Min Delivery to K.K. Nagar & Ashok Nagar.",
-    badge: "⚡ FAST 10 KM DELIVERY",
+    badge: "FAST 10 KM DELIVERY",
     ctaText: "Shop Cut Veggies Now",
-    ctaLink: "/shop?category=vegetables-shopping",
+    ctaLink: "/shop?category=chopped-vegetables",
     imageUrl: "https://images.unsplash.com/photo-1540420773420-3366772f4999?w=1200&q=80",
     bgGradient: "from-emerald-900 via-emerald-800 to-teal-900",
     isActive: true,
@@ -47,9 +47,9 @@ const INITIAL_BANNERS: HomepageBanner[] = [
     id: "banner-2",
     title: "100% Organic Sprouts & Chilled Fruit Salads",
     subtitle: "Zero Preservatives. Packed in Food-Grade Ozonated Containers for Peak Freshness.",
-    badge: "🌿 CERTIFIED ORGANIC",
+    badge: "CERTIFIED ORGANIC",
     ctaText: "Explore Fruit Salads",
-    ctaLink: "/shop?category=fruit-salads",
+    ctaLink: "/shop?category=fruit-salad",
     imageUrl: "https://images.unsplash.com/photo-1553279768-865429fa0078?w=1200&q=80",
     bgGradient: "from-amber-900 via-orange-800 to-rose-900",
     isActive: true,
@@ -59,9 +59,9 @@ const INITIAL_BANNERS: HomepageBanner[] = [
     id: "banner-3",
     title: "No-Tear Peeled Shallots & Garlic Preps",
     subtitle: "Save 30 Minutes Kitchen Time Every Single Day. Whole Small Onions Peeled with Zero Spoilage.",
-    badge: "🔥 KITCHEN TIME SAVER",
-    ctaText: "Get Peeled Mix (₹55)",
-    ctaLink: "/product/cut-peeled-onion-garlic",
+    badge: "KITCHEN TIME SAVER",
+    ctaText: "Get Peeled Mix",
+    ctaLink: "/product/peeled-small-onion",
     imageUrl: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?w=1200&q=80",
     bgGradient: "from-slate-900 via-purple-900 to-slate-900",
     isActive: true,
@@ -73,7 +73,7 @@ export default function AdminBannersPage() {
   const { notify } = useApp();
   const [banners, setBanners] = useState<HomepageBanner[]>(INITIAL_BANNERS);
   const [announcementText, setAnnouncementText] = useState(
-    "🚀 Fresh Harvest Special: Free Garlic Mix Pack on orders above ₹499! 18-min delivery across K.K. Nagar."
+    "Fresh Harvest Special: Free Garlic Mix Pack on orders above ₹499! Delivery across Chennai."
   );
   const [announcementActive, setAnnouncementActive] = useState(true);
 
@@ -389,7 +389,7 @@ export default function AdminBannersPage() {
                   <input
                     type="text"
                     name="badge"
-                    defaultValue={editingBanner?.badge || "⚡ FAST 10 KM DELIVERY"}
+                    defaultValue={editingBanner?.badge || "FAST 10 KM DELIVERY"}
                     className="w-full rounded-xl border border-slate-200 px-3 py-2 text-slate-900 font-bold"
                     required
                   />

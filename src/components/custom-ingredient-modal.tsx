@@ -7,98 +7,98 @@ import { formatINR } from "@/lib/utils";
 export type CustomIngredient = {
   id: string;
   name: string;
-  emoji: string;
+  emoji?: string;
 };
 
 // 1. Fruit Salad Ingredients (14 Items)
 export const FRUIT_SALAD_INGREDIENTS: CustomIngredient[] = [
-  { id: "raspberry", name: "Raspberry", emoji: "🍇" },
-  { id: "blueberry", name: "Blueberry", emoji: "🫐" },
-  { id: "cranberry", name: "Cranberry", emoji: "🍒" },
-  { id: "strawberry", name: "Strawberry", emoji: "🍓" },
-  { id: "plums", name: "Plums", emoji: "🍑" },
-  { id: "guava", name: "Guava", emoji: "🍐" },
-  { id: "watermelon", name: "Watermelon", emoji: "🍉" },
-  { id: "yellow_banana", name: "Yellow Banana", emoji: "🍌" },
-  { id: "pineapple", name: "Pineapple", emoji: "🍍" },
-  { id: "brown_banana", name: "Brown Banana", emoji: "🍌" },
-  { id: "green_grapes", name: "Green Grapes", emoji: "🍇" },
-  { id: "black_grapes", name: "Black Grapes", emoji: "🍇" },
-  { id: "apple", name: "Apple", emoji: "🍎" },
-  { id: "green_apple", name: "Green Apple", emoji: "🍏" },
+  { id: "raspberry", name: "Raspberry" },
+  { id: "blueberry", name: "Blueberry" },
+  { id: "cranberry", name: "Cranberry" },
+  { id: "strawberry", name: "Strawberry" },
+  { id: "plums", name: "Plums" },
+  { id: "guava", name: "Guava" },
+  { id: "watermelon", name: "Watermelon" },
+  { id: "yellow_banana", name: "Yellow Banana" },
+  { id: "pineapple", name: "Pineapple" },
+  { id: "brown_banana", name: "Brown Banana" },
+  { id: "green_grapes", name: "Green Grapes" },
+  { id: "black_grapes", name: "Black Grapes" },
+  { id: "apple", name: "Apple" },
+  { id: "green_apple", name: "Green Apple" },
 ];
 
 // 2. Sprouts Salad Ingredients (7 Items)
 export const SPROUTS_SALAD_INGREDIENTS: CustomIngredient[] = [
-  { id: "cucumber", name: "Cucumber", emoji: "🥒" },
-  { id: "groundnut", name: "Groundnut", emoji: "🥜" },
-  { id: "green_moong_dal", name: "Green Moong Dal", emoji: "🫘" },
-  { id: "black_channa", name: "Black Channa", emoji: "🫘" },
-  { id: "white_channa", name: "White Channa", emoji: "🫘" },
-  { id: "soya_beans", name: "Soya Beans", emoji: "🫘" },
-  { id: "green_peas", name: "Green Peas", emoji: "🫛" },
+  { id: "cucumber", name: "Cucumber" },
+  { id: "groundnut", name: "Groundnut" },
+  { id: "green_moong_dal", name: "Green Moong Dal" },
+  { id: "black_channa", name: "Black Channa" },
+  { id: "white_channa", name: "White Channa" },
+  { id: "soya_beans", name: "Soya Beans" },
+  { id: "green_peas", name: "Green Peas" },
 ];
 
 // 3. Vegetable Salad Ingredients (7 Items)
 export const VEGETABLE_SALAD_INGREDIENTS: CustomIngredient[] = [
-  { id: "cucumber", name: "Cucumber", emoji: "🥒" },
-  { id: "cabbage", name: "Cabbage", emoji: "🥬" },
-  { id: "corn", name: "Corn", emoji: "🌽" },
-  { id: "carrot", name: "Carrot", emoji: "🥕" },
-  { id: "sliced_beetroot", name: "Sliced Beetroot", emoji: "🍠" },
-  { id: "broccoli", name: "Broccoli", emoji: "🥦" },
-  { id: "mango", name: "Mango", emoji: "🥭" },
+  { id: "cucumber", name: "Cucumber" },
+  { id: "cabbage", name: "Cabbage" },
+  { id: "corn", name: "Corn" },
+  { id: "carrot", name: "Carrot" },
+  { id: "sliced_beetroot", name: "Sliced Beetroot" },
+  { id: "broccoli", name: "Broccoli" },
+  { id: "mango", name: "Mango" },
 ];
 
 // 4. Exact Combo Pack Ingredients
 export const COMBO_INGREDIENTS: Record<string, CustomIngredient[]> = {
   // Vegetable Biriyani Cutted Vegetable Combo
   "combo-biryani": [
-    { id: "onion", name: "Big Onion slices", emoji: "🧅" },
-    { id: "tomato", name: "Tomato", emoji: "🍅" },
-    { id: "chilli", name: "Chilli", emoji: "🌶️" },
-    { id: "carrot", name: "Carrot", emoji: "🥕" },
-    { id: "beans", name: "Beans", emoji: "🫛" },
-    { id: "peas", name: "Peas", emoji: "🟢" },
-    { id: "potato", name: "Potato", emoji: "🥔" },
-    { id: "ginger", name: "Ginger", emoji: "🫚" },
-    { id: "garlic", name: "Garlic", emoji: "🧄" },
+    { id: "onion", name: "Big Onion slices" },
+    { id: "tomato", name: "Tomato" },
+    { id: "chilli", name: "Chilli" },
+    { id: "carrot", name: "Carrot" },
+    { id: "beans", name: "Beans" },
+    { id: "peas", name: "Peas" },
+    { id: "potato", name: "Potato" },
+    { id: "ginger", name: "Ginger" },
+    { id: "garlic", name: "Garlic" },
   ],
   // Aviyal
   "combo-aviyal": [
-    { id: "yam", name: "Elephant Foot Yam", emoji: "🥔" },
-    { id: "drumstick", name: "Drumstick", emoji: "🥢" },
-    { id: "carrot", name: "Carrot", emoji: "🥕" },
-    { id: "beans", name: "Beans", emoji: "🫛" },
-    { id: "pusanikai", name: "Pusanikai", emoji: "🎃" },
-    { id: "valaikai", name: "Valaikai", emoji: "🍌" },
-    { id: "avaraikai", name: "Avaraikai", emoji: "🫛" },
+    { id: "yam", name: "Elephant Foot Yam" },
+    { id: "drumstick", name: "Drumstick" },
+    { id: "carrot", name: "Carrot" },
+    { id: "beans", name: "Beans" },
+    { id: "pusanikai", name: "Pusanikai" },
+    { id: "valaikai", name: "Valaikai" },
+    { id: "avaraikai", name: "Avaraikai" },
   ],
   // Bisibella Bath
   "combo-bisibele": [
-    { id: "small_onion", name: "Small Onion", emoji: "🧅" },
-    { id: "drumstick", name: "Drumstick", emoji: "🥢" },
-    { id: "carrot", name: "Carrot", emoji: "🥕" },
-    { id: "beans", name: "Beans", emoji: "🫛" },
-    { id: "capsicum", name: "Capsicum", emoji: "🫑" },
-    { id: "peas", name: "Peas", emoji: "🟢" },
-    { id: "pusanikai", name: "Pusanikai (White or Yellow)", emoji: "🎃" },
-    { id: "tomato", name: "Tomato", emoji: "🍅" },
-    { id: "potato", name: "Potato", emoji: "🥔" },
-    { id: "brinjal", name: "Brinjal", emoji: "🍆" },
+    { id: "small_onion", name: "Small Onion" },
+    { id: "drumstick", name: "Drumstick" },
+    { id: "carrot", name: "Carrot" },
+    { id: "beans", name: "Beans" },
+    { id: "capsicum", name: "Capsicum" },
+    { id: "peas", name: "Peas" },
+    { id: "pusanikai", name: "Pusanikai (White or Yellow)" },
+    { id: "tomato", name: "Tomato" },
+    { id: "potato", name: "Potato" },
+    { id: "brinjal", name: "Brinjal" },
   ],
   // White Pulav Cutted Vegetable Combo
   "combo-pulav": [
-    { id: "onion", name: "Big Onion slices", emoji: "🧅" },
-    { id: "tomato", name: "Tomato", emoji: "🍅" },
-    { id: "chilli", name: "Chilli", emoji: "🌶️" },
-    { id: "coconut", name: "Grated Coconut", emoji: "🥥" },
-    { id: "carrot", name: "Carrot", emoji: "🥕" },
-    { id: "beans", name: "Beans", emoji: "🫛" },
-    { id: "peas", name: "Peas", emoji: "🟢" },
-    { id: "potato", name: "Potato", emoji: "🥔" },
-    { id: "ginger", name: "Ginger", emoji: "🫚" },
-    { id: "garlic", name: "Garlic", emoji: "🧄" },
+    { id: "onion", name: "Big Onion slices" },
+    { id: "tomato", name: "Tomato" },
+    { id: "chilli", name: "Chilli" },
+    { id: "coconut", name: "Grated Coconut" },
+    { id: "carrot", name: "Carrot" },
+    { id: "beans", name: "Beans" },
+    { id: "peas", name: "Peas" },
+    { id: "potato", name: "Potato" },
+    { id: "ginger", name: "Ginger" },
+    { id: "garlic", name: "Garlic" },
   ],
 };
 
@@ -391,8 +391,8 @@ export function CustomIngredientModal({
                   }`}
                 >
                   <span className="flex items-center gap-2 truncate">
-                    <span className="text-base">{item.emoji}</span>
-                    <span className="truncate">{item.name}</span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-600 shrink-0" />
+                    <span className="truncate font-semibold">{item.name}</span>
                   </span>
                   <span
                     className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${

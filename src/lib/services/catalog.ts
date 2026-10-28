@@ -308,7 +308,7 @@ function getActiveFallbackProducts(): (ProductCard & { imageUrl?: string })[] {
         name,
         tamilName,
         slug: p.slug,
-        emoji: p.emoji || "🥬",
+        emoji: p.emoji || "",
         imageUrl: live?.imageUrl || p.imageUrl || (p.images && p.images[0]) || null,
         shortDescription: p.shortDescription ?? null,
         isOrganic: Boolean(live?.isOrganic ?? p.isOrganic),
@@ -514,7 +514,7 @@ export async function getProductBySlug(slug: string) {
 
       const finalName = row.product.name;
       const finalTamilName = row.product.tamilName || liveMatch?.tamilName;
-      const finalEmoji = row.product.emoji || liveMatch?.emoji || "🥬";
+      const finalEmoji = row.product.emoji || liveMatch?.emoji || "";
       const finalShortDesc = row.product.shortDescription || liveMatch?.shortDescription;
 
       const formattedVariants = variants.map((v) => {
@@ -574,7 +574,7 @@ export async function getProductBySlug(slug: string) {
       name: liveMatch.name,
       tamilName: liveMatch.tamilName,
       slug: liveMatch.slug || slug,
-      emoji: liveMatch.emoji || "🥬",
+      emoji: liveMatch.emoji || "",
       shortDescription: liveMatch.shortDescription || "",
       categoryName: liveMatch.categoryName || "Chopped Vegetable",
       categorySlug: liveMatch.categorySlug || "chopped-vegetable",
@@ -742,7 +742,7 @@ export async function searchSuggestions(term: string, limit = 8) {
     .map((p) => ({
       name: p.name,
       slug: p.slug,
-      emoji: p.emoji || "🥬",
+      emoji: p.emoji || "",
       categoryName: p.categoryName,
       price: String(p.price),
     }));

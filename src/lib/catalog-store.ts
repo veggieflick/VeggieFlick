@@ -110,7 +110,7 @@ export function deleteStoredProduct(productId: string): void {
         name: productId,
         slug: productId,
         sku: productId,
-        emoji: "🥬",
+        emoji: "",
         status: "deleted",
         categoryName: "General",
         price: "0",

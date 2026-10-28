@@ -47,7 +47,7 @@ const DEFAULT_DEMO_INVENTORY = [
   {
     variantId: "v-101",
     productName: "Country Tomato (Desi)",
-    emoji: "🍅",
+    emoji: "",
     variantName: "1 kg",
     sku: "VF-0001",
     availableStock: 140,
@@ -58,7 +58,7 @@ const DEFAULT_DEMO_INVENTORY = [
   {
     variantId: "v-102",
     productName: "Onion Slices",
-    emoji: "🧅",
+    emoji: "",
     variantName: "1 kg",
     sku: "VF-0002",
     availableStock: 260,
@@ -69,7 +69,7 @@ const DEFAULT_DEMO_INVENTORY = [
   {
     variantId: "v-103",
     productName: "Fresh Arai Keerai Bunch",
-    emoji: "🥬",
+    emoji: "",
     variantName: "1 bunch",
     sku: "VF-0003",
     availableStock: 80,
@@ -80,7 +80,7 @@ const DEFAULT_DEMO_INVENTORY = [
   {
     variantId: "v-104",
     productName: "Organic Curry Leaves",
-    emoji: "🌿",
+    emoji: "",
     variantName: "100 g",
     sku: "VF-0006",
     availableStock: 4,
@@ -191,7 +191,7 @@ export async function POST(request: Request) {
           name,
           slug,
           sku: `VF-${Math.floor(1000 + Math.random() * 9000)}`,
-          emoji: body.emoji ?? "🥦",
+          emoji: body.emoji ?? "",
           shortDescription: body.shortDescription ?? "",
           description: body.description ?? "",
           origin: body.origin ?? "Tamil Nadu",
@@ -230,7 +230,7 @@ export async function POST(request: Request) {
         name,
         slug,
         sku: `VF-${Math.floor(1000 + Math.random() * 9000)}`,
-        emoji: body.emoji ?? "🥦",
+        emoji: body.emoji ?? "",
         status: "active",
         categoryName: "Fresh Vegetables",
         isOrganic: Boolean(body.isOrganic),

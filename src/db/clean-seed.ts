@@ -89,7 +89,7 @@ async function cleanSeed() {
           p.tamilName || null,
           p.slug,
           sku,
-          p.emoji || "🥬",
+          p.emoji || "",
           p.shortDescription || null,
           !!p.isFeatured,
           !!p.isBestSeller,

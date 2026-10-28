@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import { Gift, Minus, Plus, ShoppingBag, Tag, Trash2, X } from "lucide-react";
+import { Clock, Gift, Minus, Plus, ShoppingBag, Sparkles, Tag, Trash2, X } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { useStoreStatus } from "@/components/store-status-context";
 import { formatINR } from "@/lib/utils";
@@ -170,18 +170,19 @@ export function CartDrawer() {
                 </dl>
                 {cart.items.some((item) => item.name.toLowerCase().includes("sprout") || item.slug.includes("sprout")) && (
                   <div className="mb-3 rounded-xl border border-teal-300 bg-teal-50/90 p-2.5 text-[11px] font-bold text-teal-950 flex items-start gap-2 shadow-2xs">
-                    <span className="text-sm shrink-0">🌱</span>
+                    <Clock size={15} className="text-teal-700 shrink-0 mt-0.5" />
                     <span><strong>Sprouts Pre-Order Item:</strong> Requires 24-hr germination time. Delivery will be scheduled for tomorrow.</span>
                   </div>
                 )}
                 {!isStoreOpen ? (
                   <div className="mb-3 rounded-xl border border-rose-300 bg-rose-50 p-2.5 text-[11px] font-bold text-rose-900 flex items-center gap-2">
                     <span className="h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse shrink-0" />
-                    <span>🔴 <strong>Store Offline:</strong> Ordering is currently paused. Browsing mode active.</span>
+                    <span><strong>Store Offline:</strong> Ordering is currently paused. Browsing mode active.</span>
                   </div>
                 ) : (
-                  <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/90 p-2.5 text-[11px] font-semibold text-amber-950">
-                    ⚡ <strong>Subscribed Customers:</strong> Special offers, coupons and slot updates will be notified directly to subscribed customers.
+                  <div className="mb-3 rounded-xl border border-amber-200 bg-amber-50/90 p-2.5 text-[11px] font-semibold text-amber-950 flex items-center gap-2">
+                    <Sparkles size={14} className="text-amber-600 shrink-0" />
+                    <span><strong>Subscribed Customers:</strong> Special offers, coupons and slot updates will be notified directly.</span>
                   </div>
                 )}
                 

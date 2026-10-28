@@ -7,7 +7,7 @@ import { SectionHeading, Badge } from "@/components/ui/primitives";
 import { AnimatedSection } from "@/components/ui/animated-section";
 import { ComboKitsSection } from "@/components/combo-kits-section";
 import { HeroDialogueHeading } from "@/components/hero-dialogue-heading";
-import { CORE_CATEGORIES } from "@/lib/data/all-products";
+import { CinematicCategoriesShowcase } from "@/components/cinematic-categories-showcase";
 
 export const dynamic = "force-dynamic";
 
@@ -38,8 +38,9 @@ export default async function HomePage() {
               <Badge tone="brand" icon="fresh">
                 {counts.productCount || 26}+ Fresh Products
               </Badge>
-              <span className="chip bg-emerald-100/90 font-extrabold text-emerald-950 border border-emerald-300/80 shadow-xs">
-                ✨ Washed & Ready To Cook
+              <span className="chip bg-emerald-100/90 font-extrabold text-emerald-950 border border-emerald-300/80 shadow-xs flex items-center gap-1.5">
+                <Sparkles size={13} className="text-emerald-700" />
+                Washed & Ready To Cook
               </span>
             </div>
 
@@ -118,51 +119,8 @@ export default async function HomePage() {
         </span>
       </div>
 
-      {/* 1. CORE 7 CATEGORIES SHOWCASE */}
-      <AnimatedSection className="container-page py-10 md:py-14">
-        <SectionHeading
-          eyebrow="Produce Aisles"
-          title="Featured Categories"
-          description="Select from our 7 core fresh categories — from ready-to-cook vegetables and fresh cut fruits to natural germinated sprouts, recipe combo kits, and fresh salads."
-          href="/shop"
-          linkLabel="Browse All Categories"
-        />
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CORE_CATEGORIES.map((cat) => (
-            <Link
-              key={cat.id}
-              href={`/shop?category=${cat.slug}`}
-              className={`group relative flex h-52 flex-col justify-between overflow-hidden rounded-3xl bg-gradient-to-br ${cat.gradient} border border-emerald-800/40 p-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl`}
-            >
-              <div className="flex items-center justify-between">
-                <span className="rounded-full bg-white/20 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white backdrop-blur">
-                  {cat.badge}
-                </span>
-                <span className="text-3xl transition-transform duration-300 group-hover:scale-125">
-                  {cat.emoji}
-                </span>
-              </div>
-
-              {/* Content */}
-              <div className="relative z-10 text-white">
-                <h3 className="text-lg font-black tracking-tight text-white transition-colors group-hover:text-amber-300">
-                  {cat.name}
-                </h3>
-                <p className="text-[11px] font-semibold text-emerald-200/90">{cat.tamilName}</p>
-                <p className="mt-1 text-xs text-white/80 line-clamp-2 leading-relaxed">
-                  {cat.tagline}
-                </p>
-
-                <div className="mt-2.5 inline-flex items-center gap-1 text-xs font-bold text-amber-300 transition-transform group-hover:translate-x-1">
-                  <span>Explore Aisle</span>
-                  <ArrowRight size={13} strokeWidth={2.5} />
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </AnimatedSection>
+      {/* 1. CINEMATIC 7 CORE FRESH CATEGORIES SHOWCASE */}
+      <CinematicCategoriesShowcase />
 
       {/* 2. CHOPPED VEGETABLE SECTION */}
       <AnimatedSection id="chopped-vegetables" className="container-page py-8 md:py-12 scroll-mt-20">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Send } from "lucide-react";
+import { Send, Sparkles } from "lucide-react";
 
 export function NewsletterForm({ variant = "compact" }: { variant?: "compact" | "hero" }) {
   const [email, setEmail] = useState("");
@@ -58,8 +58,9 @@ export function NewsletterForm({ variant = "compact" }: { variant?: "compact" | 
           {message}
         </p>
       ) : (
-        <p className="mt-2 text-[11px] font-semibold text-emerald-800/90 flex items-center gap-1">
-          ✨ <strong>Subscription Notice:</strong> Exclusive offers and promotions will be notified to subscribed customers.
+        <p className="mt-2 text-[11px] font-semibold text-emerald-800/90 flex items-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5 text-emerald-700 shrink-0" />
+          <span><strong>Subscription Notice:</strong> Exclusive offers and promotions will be notified to subscribed customers.</span>
         </p>
       )}
     </form>

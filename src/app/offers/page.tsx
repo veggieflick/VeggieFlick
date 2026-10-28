@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Tag, Sparkles, Percent, Gift, ArrowRight, CheckCircle2, ShieldCheck, Clock } from "lucide-react";
+import { Tag, Sparkles, Percent, Gift, ArrowRight, CheckCircle2, ShieldCheck, Clock, Bike, Leaf } from "lucide-react";
 import { Breadcrumb } from "@/components/ui/primitives";
 
 export const metadata: Metadata = {
@@ -54,22 +54,22 @@ const OFFERS = [
 
 const PERKS = [
   {
-    icon: "🌱",
+    icon: Leaf,
     title: "Zero Waste Cooking",
     desc: "Save 20-30 minutes of prep every morning with 100% usable washed and cut produce.",
   },
   {
-    icon: "🛵",
+    icon: Bike,
     title: "Distance-Based Delivery",
     desc: "Fair per-order delivery charges (₹30 to ₹100) across a 25 km radius around KK Nagar.",
   },
   {
-    icon: "🎁",
+    icon: Gift,
     title: "Surprise Scratch Card",
     desc: "Win discount coupons or cashback on every completed order with our digital scratch card.",
   },
   {
-    icon: "⏰",
+    icon: Clock,
     title: "Convenient Delivery Slots",
     desc: "Early morning 6:00 AM slots and evening slots tailored to your cooking schedule.",
   },
@@ -150,7 +150,7 @@ export default function OffersPage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {PERKS.map((perk) => (
             <div key={perk.title} className="rounded-2xl bg-white p-4.5 border border-slate-200/90 shadow-xs">
-              <span className="text-2xl mb-2 block">{perk.icon}</span>
+              <perk.icon className="text-emerald-700 mb-2.5" size={24} />
               <h3 className="text-sm font-bold text-ink">{perk.title}</h3>
               <p className="mt-1 text-xs text-slate-600 leading-relaxed">{perk.desc}</p>
             </div>

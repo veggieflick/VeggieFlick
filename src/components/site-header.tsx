@@ -13,6 +13,7 @@ import {
   Search,
   ShoppingBag,
   Sparkles,
+  Tag,
   User,
   X,
 } from "lucide-react";
@@ -126,7 +127,7 @@ export function SiteHeader() {
       {!isStoreOpen && (
         <div className="bg-rose-600 text-white font-extrabold text-xs py-2 px-4 text-center border-b border-rose-700 shadow-md flex items-center justify-center gap-2">
           <span className="inline-block h-2 w-2 rounded-full bg-white animate-ping" />
-          <span>🔴 STORE OFFLINE (கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது) — Browsing mode active. All ordering disabled.</span>
+          <span>STORE OFFLINE (கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது) — Browsing mode active. All ordering disabled.</span>
         </div>
       )}
 
@@ -344,29 +345,33 @@ export function SiteHeader() {
             <Link href="/" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
               Home
             </Link>
-            <Link href="/shop?category=chopped-vegetable" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-emerald-950 font-bold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-              🥦 Chopped Vegetable
+            <Link href="/shop?category=chopped-vegetables" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-emerald-950 font-bold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              Chopped Vegetables
             </Link>
-            <Link href="/shop?category=fruits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
-              🍎 Fruits
+            <Link href="/shop?category=chopped-fruits" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold transition-colors hover:bg-emerald-50 hover:text-emerald-800">
+              Chopped Fruits
             </Link>
             <Link href="/shop?category=sprouts" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-teal-900 bg-teal-50 border border-teal-200/60 font-bold hover:bg-teal-100">
-              🌱 Sprouts (Pre-Order)
+              Sprouts (Pre-Order)
             </Link>
-            <Link href="/shop?category=vegetable-salad-fruit-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
-              🥗 Salads
+            <Link href="/shop?category=combos" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-amber-900 bg-amber-50/80 border border-amber-200/60 font-bold hover:bg-amber-100">
+              Combos
             </Link>
-            <Link href="/shop?category=sprouts-combo" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
-              🫘 Sprouts Combo
+            <Link href="/shop?category=fruit-salad" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
+              Fruit Salad
             </Link>
-            <Link href="/shop?category=vegetable-rice-aviyal-combo" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-amber-900 bg-amber-50/80 border border-amber-200/60 font-bold hover:bg-amber-100">
-              🍲 Combos (kg-wise)
+            <Link href="/shop?category=sprouts-salads" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
+              Sprouts Salads
+            </Link>
+            <Link href="/shop?category=vegetables-salads" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 font-semibold hover:bg-emerald-50">
+              Vegetables Salads
             </Link>
           </div>
 
           <div className="flex items-center gap-1 shrink-0 border-l border-slate-200 pl-2">
-            <Link href="/offers" className="flex shrink-0 items-center gap-1 rounded-lg px-2.5 py-1.5 text-rose-700 bg-rose-50 border border-rose-200 font-black hover:bg-rose-100 shadow-2xs">
-              <span>🏷️ Offers</span>
+            <Link href="/offers" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-rose-700 bg-rose-50 border border-rose-200 font-black hover:bg-rose-100 shadow-2xs">
+              <Tag size={13} strokeWidth={2} />
+              <span>Offers</span>
             </Link>
             <Link href="/about" className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-slate-800 transition-colors hover:bg-emerald-50 hover:text-emerald-800">
               About Us
@@ -401,15 +406,19 @@ export function SiteHeader() {
             </div>
             <div className="grid gap-1 text-sm font-semibold text-slate-800">
               <Link href="/" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Home</Link>
-              <Link href="/shop?category=chopped-vegetable" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-900 font-bold hover:bg-emerald-50">🥦 Chopped Vegetable</Link>
-              <Link href="/shop?category=fruits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">🍎 Fruits</Link>
-              <Link href="/shop?category=sprouts" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-teal-900 bg-teal-50 font-extrabold">🌱 Sprouts (Pre-Order 1 Day Before)</Link>
-              <Link href="/shop?category=vegetable-salad-fruit-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">🥗 Vegetable Salad & Fruit Salad</Link>
-              <Link href="/shop?category=sprouts-combo" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">🫘 Sprouts Combo</Link>
-              <Link href="/shop?category=vegetable-rice-aviyal-combo" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">🍲 Vegetable Rice & Aviyal Combo (kg-wise)</Link>
+              <Link href="/shop?category=chopped-vegetables" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-emerald-900 font-bold hover:bg-emerald-50">Chopped Vegetables</Link>
+              <Link href="/shop?category=chopped-fruits" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Chopped Fruits</Link>
+              <Link href="/shop?category=sprouts" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-teal-900 bg-teal-50 font-extrabold">Sprouts (Pre-Order)</Link>
+              <Link href="/shop?category=combos" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-amber-900 bg-amber-50 font-bold">Combos</Link>
+              <Link href="/shop?category=fruit-salad" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Fruit Salad</Link>
+              <Link href="/shop?category=sprouts-salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Sprouts Salads</Link>
+              <Link href="/shop?category=vegetables-salads" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Vegetables Salads</Link>
               
               <div className="my-2 border-t border-slate-200" />
-              <Link href="/offers" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 text-rose-700 bg-rose-50 font-black">🏷️ Offers & Deals</Link>
+              <Link href="/offers" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 rounded-xl px-3 py-2.5 text-rose-700 bg-rose-50 font-black">
+                <Tag size={15} />
+                <span>Offers & Deals</span>
+              </Link>
               <Link href="/about" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">About Us</Link>
               <Link href="/contact" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-2.5 hover:bg-emerald-50">Contact Us</Link>
             </div>

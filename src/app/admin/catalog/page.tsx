@@ -71,7 +71,7 @@ export default function AdminCatalogPage() {
   const [formData, setFormData] = useState({
     name: "",
     tamilName: "",
-    emoji: "🥬",
+    emoji: "",
     categoryName: "Fresh Vegetables",
     price: 30,
     mrp: 40,
@@ -233,7 +233,7 @@ export default function AdminCatalogPage() {
     setFormData({
       name: "",
       tamilName: "",
-      emoji: "🥬",
+      emoji: "",
       categoryName: selectedCategory !== "All Categories" ? selectedCategory : "Fresh Vegetables",
       price: 35,
       mrp: 45,
@@ -256,7 +256,7 @@ export default function AdminCatalogPage() {
     setFormData({
       name: p.name,
       tamilName: p.tamilName || "",
-      emoji: p.emoji || "🥬",
+      emoji: p.emoji || "",
       categoryName: p.categoryName || "Fresh Vegetables",
       price: p.price,
       mrp: p.mrp,
@@ -364,7 +364,7 @@ export default function AdminCatalogPage() {
         <div>
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-              ⚡ Supabase DB Connected
+              Supabase DB Connected
             </span>
             <span className="text-xs text-slate-500 font-mono">
               Total Products: {products.length}
@@ -473,7 +473,7 @@ export default function AdminCatalogPage() {
         <h2 className="text-lg font-bold text-slate-900">
           {selectedCategory} <span className="text-sm font-normal text-slate-500">({filteredProducts.length} items)</span>
         </h2>
-        <span className="text-xs text-slate-400">⚡ Direct inline edits with per-product Save button</span>
+        <span className="text-xs text-slate-400">Direct inline edits with per-product Save button</span>
       </div>
 
       {/* Products Table with Per-Product Save Button */}
@@ -520,7 +520,7 @@ export default function AdminCatalogPage() {
                             ) : p.imageUrl ? (
                               <img src={p.imageUrl} alt={p.name} className="h-full w-full object-cover" />
                             ) : (
-                              <span className="text-2xl">{p.emoji || "🥬"}</span>
+                              <Boxes className="h-6 w-6 text-slate-300" />
                             )}
                             <label className="absolute inset-0 flex cursor-pointer items-center justify-center bg-slate-900/60 opacity-0 group-hover:opacity-100 transition text-white">
                               <Upload className="h-4 w-4" />

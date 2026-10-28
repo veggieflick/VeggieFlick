@@ -112,7 +112,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
   const handleAddClick = () => {
     if (!isStoreOpen) {
-      notify("🔴 கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது (Store is Offline)", "error");
+      notify("கடையில் தற்போது ஆர்டர் எடுப்பது நிறுத்திவைக்கப்பட்டுள்ளது (Store is Offline)", "error");
       return;
     }
     if (isCustomizable) {
@@ -120,7 +120,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
     } else {
       void addItem(cardData.id, cardData.variantId, 1);
       if (isPreOrder) {
-        notify(`🌱 Added ${cardData.name} to basket. (Pre-Order: requires 1-day advance germination time)`);
+        notify(`Added ${cardData.name} to basket. (Pre-Order: requires 1-day advance germination time)`);
       }
     }
   };
@@ -200,7 +200,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
             )}
             {isPreOrder && (
               <span className="chip bg-teal-800 text-teal-100 font-extrabold text-[10px] tracking-wide shadow-sm border border-teal-600/50">
-                🌱 Pre-Order (1 Day Before)
+                Pre-Order (1 Day Before)
               </span>
             )}
             {cardData.isCutVegetable ? (
@@ -312,7 +312,7 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
                     : "btn-outline border-emerald-800 text-emerald-800 hover:bg-emerald-800 hover:text-white"
                 }`}
               >
-                {isPreOrder ? "🌱 Pre-Order" : "Add"}
+                {isPreOrder ? "Pre-Order" : "Add"}
               </motion.button>
             )}
           </div>

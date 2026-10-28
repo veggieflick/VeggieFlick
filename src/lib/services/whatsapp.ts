@@ -25,7 +25,7 @@ export async function sendWhatsAppOrderAlert(data: OrderNotificationData) {
     .join("\n");
 
   const messageText =
-    `🛒 *NEW ORDER RECEIVED - VeggieFlick*\n\n` +
+    `*NEW ORDER RECEIVED - VeggieFlick*\n\n` +
     `*Order #:* ${data.orderNumber}\n` +
     `*Customer:* ${data.customerName}\n` +
     `*Phone:* ${data.customerPhone}\n` +
@@ -34,7 +34,7 @@ export async function sendWhatsAppOrderAlert(data: OrderNotificationData) {
     `*Address:* ${data.address}\n` +
     (data.slot ? `*Slot:* ${data.slot}\n` : "") +
     `\n*Items Ordered:*\n${itemsFormatted || "• Standard Fresh Vegetable Pack"}\n\n` +
-    `🔗 View in Admin: https://www.veggieflick.com/admin/orders`;
+    `View in Admin: https://www.veggieflick.com/admin/orders`;
 
   console.log("=== WhatsApp Order Alert Generated ===");
   console.log(messageText);

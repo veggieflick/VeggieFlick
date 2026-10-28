@@ -164,7 +164,7 @@ export function SectionHeading({
       <div>
         {eyebrow && (
           <span className="chip bg-emerald-50 text-emerald-800 border border-emerald-200/80 font-extrabold text-[11px] uppercase tracking-widest mb-2">
-            ✨ {eyebrow}
+            {eyebrow}
           </span>
         )}
         <h2 className="text-balance text-[28px] font-extrabold tracking-[-0.02em] text-ink md:text-4xl mt-1">

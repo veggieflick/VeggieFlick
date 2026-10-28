@@ -584,7 +584,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
               variantId: validVid,
               productName: item.name,
               variantName: item.variantName,
-              emoji: item.emoji || "🥬",
+              emoji: item.emoji || "",
               quantity: item.quantity,
               unitPrice: String(item.unitPrice),
               totalPrice: String(item.totalPrice),

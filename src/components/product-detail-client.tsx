@@ -211,7 +211,7 @@ export function ProductPurchasePanel({
 
         {isSprouts && (
           <div className="mb-4 rounded-2xl border border-teal-300 bg-teal-50/90 p-3.5 text-xs text-teal-950 font-bold flex items-start gap-2 shadow-2xs">
-            <span className="text-base shrink-0">🌱</span>
+            <Leaf className="h-5 w-5 text-teal-700 shrink-0 mt-0.5" />
             <div>
               <span className="block font-black text-teal-900 text-sm">Special Pre-Order: 1 Day in Advance</span>
               <span className="block font-medium text-teal-800 mt-0.5">
@@ -223,7 +223,7 @@ export function ProductPurchasePanel({
 
         {categorySlug === "vegetable-rice-aviyal-combo" && (
           <div className="mb-4 rounded-2xl border border-amber-300 bg-amber-50/90 p-3 text-xs text-amber-950 font-bold flex items-center justify-between gap-2">
-            <span>🍲 Select options kg-wise (500g, 1 kg, 2 kg) or request custom proportions.</span>
+            <span>Select options kg-wise (500g, 1 kg, 2 kg) or request custom proportions.</span>
             <a
               href={`https://wa.me/919840532826?text=${encodeURIComponent(`Hi VeggieFlick! I would like to customize ${productName} with custom vegetable proportions.`)}`}
               target="_blank"
@@ -242,7 +242,7 @@ export function ProductPurchasePanel({
             onClick={() => void handleAdd(false)}
             className="btn btn-primary disabled:opacity-50"
           >
-            {busy ? "Adding…" : isSprouts ? "🌱 Pre-Order (1 Day Advance)" : "Add to basket"}
+            {busy ? "Adding…" : isSprouts ? "Pre-Order (1 Day Advance)" : "Add to basket"}
           </button>
           <button
             type="button"

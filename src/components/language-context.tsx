@@ -23,11 +23,11 @@ const DICTIONARIES: Record<Language, Dictionary> = {
     "nav.admin": "Staff Portal",
 
     // Banner & Hero
-    "hero.free_delivery_banner": "🚀 FREE DELIVERY on all orders above ₹199 across Chennai!",
+    "hero.free_delivery_banner": "FREE DELIVERY on all orders above ₹199 across Chennai!",
     "hero.cta_shop": "Shop today's harvest",
     "hero.cta_fresh": "Fresh today collection",
     "hero.fresh_badge": "Harvested at 4 AM · Chennai only",
-    "hero.easy_cooking": "✨ Easy Cooking & Ready to Meal",
+    "hero.easy_cooking": "Easy Cooking & Ready to Meal",
     "hero.next_slot": "Next available slot",
     "hero.next_slot_time": "Tomorrow · 06:00 – 08:00 AM",
 
@@ -46,7 +46,7 @@ const DICTIONARIES: Record<Language, Dictionary> = {
     "cut.curry": "Curry Cubes",
 
     // Recipe Details
-    "recipe.add_all_ingredients": "🛒 Add All Recipe Ingredients to Cart",
+    "recipe.add_all_ingredients": "Add All Recipe Ingredients to Cart",
     "recipe.ingredients_added": "All recipe ingredients added to your basket!",
     "recipe.prep_time": "Prep Time",
     "recipe.cook_time": "Cook Time",
