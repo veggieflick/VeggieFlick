@@ -18,8 +18,8 @@ export default async function HomePage() {
     sproutsProducts,
     counts,
   ] = await Promise.all([
-    listCollection({ category: "chopped-vegetable" }, 10, "popularity"),
-    listCollection({ category: "fruits" }, 6, "popularity"),
+    listCollection({ category: "chopped-vegetables" }, 10, "popularity"),
+    listCollection({ category: "chopped-fruits" }, 6, "popularity"),
     listCollection({ category: "sprouts" }, 4, "popularity"),
     catalogCounts(),
   ]);
@@ -54,7 +54,7 @@ export default async function HomePage() {
 
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <Link
-                href="/shop?category=chopped-vegetable"
+                href="/shop?category=chopped-vegetables"
                 className="btn btn-primary bg-emerald-800 hover:bg-emerald-900 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-md inline-flex items-center gap-2"
               >
                 <span>Shop Chopped Vegetables</span>
@@ -118,12 +118,12 @@ export default async function HomePage() {
         </span>
       </div>
 
-      {/* 1. CORE 6 CATEGORIES SHOWCASE */}
+      {/* 1. CORE 7 CATEGORIES SHOWCASE */}
       <AnimatedSection className="container-page py-10 md:py-14">
         <SectionHeading
           eyebrow="Produce Aisles"
           title="Featured Categories"
-          description="Select from our 6 core fresh categories — from ready-to-cook vegetables and fresh cut fruits to natural germinated sprouts and recipe combo kits."
+          description="Select from our 7 core fresh categories — from ready-to-cook vegetables and fresh cut fruits to natural germinated sprouts, recipe combo kits, and fresh salads."
           href="/shop"
           linkLabel="Browse All Categories"
         />
@@ -165,12 +165,12 @@ export default async function HomePage() {
       </AnimatedSection>
 
       {/* 2. CHOPPED VEGETABLE SECTION */}
-      <AnimatedSection id="chopped-vegetable" className="container-page py-8 md:py-12 scroll-mt-20">
+      <AnimatedSection id="chopped-vegetables" className="container-page py-8 md:py-12 scroll-mt-20">
         <SectionHeading
           eyebrow="Ready-To-Cook Produce"
-          title="Chopped Vegetable"
+          title="Chopped Vegetables"
           description="Farm-fresh produce precision-cut, washed in ozonated water, and vacuum-sealed for immediate pan-ready cooking with zero prep waste."
-          href="/shop?category=chopped-vegetable"
+          href="/shop?category=chopped-vegetables"
           linkLabel="View All Cut Veggies"
         />
 
@@ -185,11 +185,11 @@ export default async function HomePage() {
                 Zero Kitchen Mess, Instant Cooking
               </h3>
               <p className="text-xs text-slate-600 mt-0.5">
-                Cauliflower florets, diced carrots, chopped beans, sambar mix, peeled shallots & garlic.
+                Cauliflower florets, diced carrots, chopped beans, peeled shallots & garlic.
               </p>
             </div>
             <Link
-              href="/shop?category=chopped-vegetable"
+              href="/shop?category=chopped-vegetables"
               className="text-xs font-bold text-emerald-800 hover:text-emerald-950 inline-flex items-center gap-1"
             >
               See all chopped vegetables →

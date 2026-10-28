@@ -136,20 +136,53 @@ function buildFilters(query: Partial<ProductQuery>) {
   const filters = [eq(products.status, "active"), eq(productVariants.status, "active")];
 
   if (query.category) {
-    if (query.category === "vegetables-shopping") {
+    if (query.category === "chopped-vegetable" || query.category === "chopped-vegetables" || query.category === "cut-vegetables") {
       filters.push(
         or(
-          eq(categories.slug, "vegetables-shopping"),
-          eq(categories.slug, "fresh-vegetables"),
+          eq(categories.slug, "chopped-vegetables"),
+          eq(categories.slug, "chopped-vegetable"),
           eq(categories.slug, "cut-vegetables")
         )!
       );
-    } else if (query.category === "salad" || query.category === "salads") {
-      filters.push(or(eq(categories.slug, "salad"), eq(categories.slug, "salads"))!);
-    } else if (query.category === "recipe-combo-kits" || query.category === "ready-to-cook") {
-      filters.push(or(eq(categories.slug, "recipe-combo-kits"), eq(categories.slug, "ready-to-cook"))!);
-    } else if (query.category === "fruits-cutting-combo" || query.category === "fresh-fruits") {
-      filters.push(or(eq(categories.slug, "fruits-cutting-combo"), eq(categories.slug, "fresh-fruits"))!);
+    } else if (query.category === "fruits" || query.category === "chopped-fruits" || query.category === "fresh-fruits") {
+      filters.push(
+        or(
+          eq(categories.slug, "chopped-fruits"),
+          eq(categories.slug, "fruits"),
+          eq(categories.slug, "fresh-fruits")
+        )!
+      );
+    } else if (query.category === "combos" || query.category === "combo" || query.category === "recipe-combo-kits" || query.category === "vegetable-rice-aviyal-combo") {
+      filters.push(
+        or(
+          eq(categories.slug, "combos"),
+          eq(categories.slug, "combo"),
+          eq(categories.slug, "recipe-combo-kits"),
+          eq(categories.slug, "vegetable-rice-aviyal-combo")
+        )!
+      );
+    } else if (query.category === "fruit-salad" || query.category === "vegetable-salad-fruit-salad") {
+      filters.push(
+        or(
+          eq(categories.slug, "fruit-salad"),
+          eq(categories.slug, "vegetable-salad-fruit-salad")
+        )!
+      );
+    } else if (query.category === "sprouts-salads" || query.category === "sprouts-combo") {
+      filters.push(
+        or(
+          eq(categories.slug, "sprouts-salads"),
+          eq(categories.slug, "sprouts-combo")
+        )!
+      );
+    } else if (query.category === "vegetables-salads" || query.category === "salad" || query.category === "salads") {
+      filters.push(
+        or(
+          eq(categories.slug, "vegetables-salads"),
+          eq(categories.slug, "salad"),
+          eq(categories.slug, "salads")
+        )!
+      );
     } else {
       filters.push(eq(categories.slug, query.category));
     }

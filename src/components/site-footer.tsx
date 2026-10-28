@@ -3,12 +3,13 @@ import { Bike, Leaf, Mail, MapPin, Phone, ShieldCheck } from "lucide-react";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 const SHOP_LINKS = [
-  { label: "Chopped Vegetable", href: "/shop?category=chopped-vegetable" },
-  { label: "Fruits", href: "/shop?category=fruits" },
+  { label: "Chopped Vegetables", href: "/shop?category=chopped-vegetables" },
+  { label: "Chopped Fruits", href: "/shop?category=chopped-fruits" },
   { label: "Sprouts (Pre-Order)", href: "/shop?category=sprouts" },
-  { label: "Vegetable Salad & Fruit Salad", href: "/shop?category=vegetable-salad-fruit-salad" },
-  { label: "Sprouts Combo", href: "/shop?category=sprouts-combo" },
-  { label: "Vegetable Rice & Aviyal Combo", href: "/shop?category=vegetable-rice-aviyal-combo" },
+  { label: "Combo Kits", href: "/shop?category=combos" },
+  { label: "Fruit Salad", href: "/shop?category=fruit-salad" },
+  { label: "Sprouts Salads", href: "/shop?category=sprouts-salads" },
+  { label: "Vegetables Salads", href: "/shop?category=vegetables-salads" },
 ];
 
 const COMPANY_LINKS = [
