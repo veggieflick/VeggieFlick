@@ -7,26 +7,40 @@ import { requirePermission } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 async function updateEnvFile(updates: Record<string, string>) {
-  const envPath = path.resolve(process.cwd(), ".env");
-  let content = "";
-  try {
-    content = await fs.readFile(envPath, "utf-8");
-  } catch {
-    content = "";
-  }
-
   for (const [key, value] of Object.entries(updates)) {
-    const regex = new RegExp(`^${key}=.*$`, "m");
-    const newLine = `${key}="${value}"`;
-    if (regex.test(content)) {
-      content = content.replace(regex, newLine);
-    } else {
-      content += (content.endsWith("\n") || !content ? "" : "\n") + newLine + "\n";
-    }
     process.env[key] = value;
   }
 
-  await fs.writeFile(envPath, content, "utf-8");
+  const g = globalThis as any;
+  if (!g.__veggieflickPaymentConfig) g.__veggieflickPaymentConfig = {};
+  if (updates.RAZORPAY_KEY_ID) g.__veggieflickPaymentConfig.keyId = updates.RAZORPAY_KEY_ID;
+  if (updates.RAZORPAY_SECRET) g.__veggieflickPaymentConfig.secret = updates.RAZORPAY_SECRET;
+  if (updates.RAZORPAY_WEBHOOK_SECRET) g.__veggieflickPaymentConfig.webhookSecret = updates.RAZORPAY_WEBHOOK_SECRET;
+
+  try {
+    const envPath = path.resolve(process.cwd(), ".env");
+    let content = "";
+    try {
+      content = await fs.readFile(envPath, "utf-8");
+    } catch {
+      content = "";
+    }
+
+    for (const [key, value] of Object.entries(updates)) {
+      const regex = new RegExp(`^${key}=.*$`, "m");
+      const newLine = `${key}="${value}"`;
+      if (regex.test(content)) {
+        content = content.replace(regex, newLine);
+      } else {
+        content += (content.endsWith("\n") || !content ? "" : "\n") + newLine + "\n";
+      }
+    }
+
+    await fs.writeFile(envPath, content, "utf-8");
+  } catch (fsErr: any) {
+    // In serverless / read-only filesystem environments (Vercel, AWS Lambda), filesystem is read-only (EROFS).
+    console.warn("Notice: .env file write skipped in read-only environment:", fsErr?.message);
+  }
 }
 
 /** GET /api/v1/admin/settings/payment — read current Razorpay configuration metadata (secrets masked) */

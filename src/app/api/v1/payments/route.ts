@@ -33,8 +33,9 @@ export async function POST(request: Request) {
     if (order.paymentStatus === "paid") throw new ApiError("Order is already paid", 409, "ALREADY_PAID");
 
     const amountPaise = Math.round(toNumber(order.grandTotal) * 100);
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    const keySecret = process.env.RAZORPAY_SECRET;
+    const paymentConfig = (globalThis as any).__veggieflickPaymentConfig;
+    const keyId = process.env.RAZORPAY_KEY_ID || paymentConfig?.keyId;
+    const keySecret = process.env.RAZORPAY_SECRET || paymentConfig?.secret;
 
     if (keyId && keySecret) {
       const response = await fetch("https://api.razorpay.com/v1/orders", {
@@ -110,7 +111,7 @@ export async function PUT(request: Request) {
     }
     if (!order) throw new ApiError("Order not found", 404, "ORDER_NOT_FOUND");
 
-    const secret = process.env.RAZORPAY_SECRET;
+    const secret = process.env.RAZORPAY_SECRET || (globalThis as any).__veggieflickPaymentConfig?.secret;
     if (secret && payload.razorpaySignature) {
       const expected = createHmac("sha256", secret)
         .update(`${payload.razorpayOrderId}|${payload.razorpayPaymentId}`)
