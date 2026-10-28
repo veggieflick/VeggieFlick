@@ -59,12 +59,10 @@ const globalForOrders = globalThis as typeof globalThis & {
   __veggieflickOrderStore?: Map<string, any>;
 };
 
-const memoryOrderStore =
-  globalForOrders.__veggieflickOrderStore ?? new Map<string, any>();
-
-if (process.env.NODE_ENV !== "production") {
-  globalForOrders.__veggieflickOrderStore = memoryOrderStore;
+if (!globalForOrders.__veggieflickOrderStore) {
+  globalForOrders.__veggieflickOrderStore = new Map<string, any>();
 }
+const memoryOrderStore = globalForOrders.__veggieflickOrderStore;
 
 export async function placeOrder(profileId: string, input: PlaceOrderInput) {
   const cartSummary = await getCartSummary(false);
