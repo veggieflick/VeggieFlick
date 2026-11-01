@@ -162,6 +162,7 @@ const allProducts = USER_PRODUCTS.map((p, idx) => {
     discountPercentage: discount > 0 ? discount : 15,
     availableStock: 100,
     imageUrl: resolvedImg,
+    customIngredients: p.customIngredients || undefined,
   };
 });
 

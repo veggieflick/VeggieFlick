@@ -102,6 +102,9 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
 
   const isCustomizable =
     cardData.categorySlug === "salad" ||
+    cardData.categorySlug.includes("salad") ||
+    cardData.slug.includes("salad") ||
+    cardData.name.toLowerCase().includes("salad") ||
     cardData.categorySlug === "vegetable-salad-fruit-salad" ||
     cardData.categorySlug === "vegetable-rice-aviyal-combo" ||
     cardData.categorySlug === "sprouts-combo" ||

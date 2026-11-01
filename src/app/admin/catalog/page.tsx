@@ -44,14 +44,27 @@ type Product = {
   imageUrl?: string | null;
 };
 
+export function getCategoryDisplayName(catName?: string): string {
+  if (!catName) return "Chopped Vegetables";
+  const lower = catName.toLowerCase();
+  if (lower.includes("vegetables salads") || lower.includes("vegetables salad") || lower.includes("vegetable salad")) return "Vegetables salads";
+  if (lower.includes("sprouts salads") || lower.includes("sprouts salad")) return "Sprouts salads";
+  if (lower.includes("fruit salad") || lower.includes("fruit salads")) return "Fruit salad";
+  if (lower.includes("fruit")) return "Chopped Fruits";
+  if (lower.includes("sprout")) return "Sprouts";
+  if (lower.includes("combo")) return "Combo";
+  return "Chopped Vegetables";
+}
+
 const CATEGORIES = [
   "All Categories",
-  "Chopped Vegetable",
-  "Fruits",
+  "Chopped Vegetables",
+  "Chopped Fruits",
   "Sprouts",
-  "Vegetable Salad & Fruit Salad",
-  "Sprouts Combo",
-  "Vegetable Rice & Aviyal Combo",
+  "Combo",
+  "Fruit salad",
+  "Sprouts salads",
+  "Vegetables salads",
 ];
 
 export default function AdminCatalogPage() {
@@ -72,7 +85,7 @@ export default function AdminCatalogPage() {
     name: "",
     tamilName: "",
     emoji: "",
-    categoryName: "Fresh Vegetables",
+    categoryName: "Chopped Vegetables",
     price: 30,
     mrp: 40,
     variantName: "500 g",
@@ -234,7 +247,7 @@ export default function AdminCatalogPage() {
       name: "",
       tamilName: "",
       emoji: "",
-      categoryName: selectedCategory !== "All Categories" ? selectedCategory : "Fresh Vegetables",
+      categoryName: selectedCategory !== "All Categories" ? selectedCategory : "Chopped Vegetables",
       price: 35,
       mrp: 45,
       variantName: "500 g",
@@ -257,7 +270,7 @@ export default function AdminCatalogPage() {
       name: p.name,
       tamilName: p.tamilName || "",
       emoji: p.emoji || "",
-      categoryName: p.categoryName || "Fresh Vegetables",
+      categoryName: getCategoryDisplayName(p.categoryName),
       price: p.price,
       mrp: p.mrp,
       variantName: p.variantName || "500 g",
