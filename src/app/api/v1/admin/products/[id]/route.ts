@@ -57,6 +57,8 @@ export async function PUT(
       mrp500,
       price1kg,
       mrp1kg,
+      price2kg,
+      mrp2kg,
     } = body;
 
     if (!productId) {
@@ -331,7 +333,11 @@ export async function PUT(
         }
 
         // 3. Update Variant & Pricing in PostgreSQL DB
-        const hasWeightPackPrices = price250 !== undefined || price500 !== undefined || price1kg !== undefined;
+        const hasWeightPackPrices =
+          price250 !== undefined ||
+          price500 !== undefined ||
+          price1kg !== undefined ||
+          price2kg !== undefined;
 
         if (hasWeightPackPrices) {
           if (price250 !== undefined) {
@@ -375,6 +381,24 @@ export async function PUT(
                 and(
                   eq(productVariants.productId, targetDbId),
                   or(ilike(productVariants.variantName, "%1 kg%"), ilike(productVariants.variantName, "%1kg%"))
+                )
+              );
+          }
+          if (price2kg !== undefined) {
+            const num2k = Number(price2kg);
+            const mrp2kVal = Number(mrp2kg || Math.round(num2k * 1.25));
+            const disc2k = mrp2kVal > num2k ? Math.round(((mrp2kVal - num2k) / mrp2kVal) * 100) : 0;
+            await db
+              .update(productVariants)
+              .set({
+                sellingPrice: String(num2k),
+                mrp: String(mrp2kVal),
+                discountPercentage: String(disc2k),
+              })
+              .where(
+                and(
+                  eq(productVariants.productId, targetDbId),
+                  or(ilike(productVariants.variantName, "%2 kg%"), ilike(productVariants.variantName, "%2kg%"))
                 )
               );
           }

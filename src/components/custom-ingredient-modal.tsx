@@ -148,24 +148,22 @@ export function CustomIngredientModal({
   const isSproutsSalad = !isComboKit && (effectiveSubCat.includes("sprouts") || normName.includes("sprout"));
   const isVegSalad = !isComboKit && (effectiveSubCat.includes("veg") || normName.includes("veg"));
 
-  if (isComboKit) {
+  if (customIngredientsList && customIngredientsList.length > 0) {
+    ingredients = customIngredientsList;
+  } else if (isComboKit) {
     if (normName.includes("biriyani") || normName.includes("biryani")) {
       ingredients = COMBO_INGREDIENTS["combo-biryani"];
     } else if (normName.includes("aviyal")) {
       ingredients = COMBO_INGREDIENTS["combo-aviyal"];
-    } else if (normName.includes("bisibele") || normName.includes("bath")) {
+    } else if (normName.includes("bisibele") || normName.includes("bath") || normName.includes("bisibella") || normName.includes("bisimila")) {
       ingredients = COMBO_INGREDIENTS["combo-bisibele"];
     } else if (normName.includes("pulav")) {
       ingredients = COMBO_INGREDIENTS["combo-pulav"];
-    } else if (customIngredientsList && customIngredientsList.length > 0) {
-      ingredients = customIngredientsList;
     } else {
       ingredients = COMBO_INGREDIENTS["combo-pulav"];
     }
   } else {
-    if (customIngredientsList && customIngredientsList.length > 0) {
-      ingredients = customIngredientsList;
-    } else if (isSproutsSalad) {
+    if (isSproutsSalad) {
       ingredients = SPROUTS_SALAD_INGREDIENTS;
     } else if (isVegSalad) {
       ingredients = VEGETABLE_SALAD_INGREDIENTS;

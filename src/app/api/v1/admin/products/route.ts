@@ -96,6 +96,7 @@ export async function GET() {
         const v250 = pVars.find((v: any) => v.variantName?.includes("250"));
         const v500 = pVars.find((v: any) => v.variantName?.includes("500"));
         const v1kg = pVars.find((v: any) => v.variantName?.includes("1") && (v.variantName?.includes("kg") || v.variantName?.includes("k")));
+        const v2kg = pVars.find((v: any) => v.variantName?.includes("2") && (v.variantName?.includes("kg") || v.variantName?.includes("k")));
 
         productMap.set(key, {
           id: p.id,
@@ -119,6 +120,8 @@ export async function GET() {
           mrp500: v500 ? v500.mrp : (Number(p.price) >= 75 ? 180 : 160),
           price1kg: v1kg ? v1kg.price : (Number(p.price) >= 75 ? 279 : 239),
           mrp1kg: v1kg ? v1kg.mrp : (Number(p.price) >= 75 ? 330 : 290),
+          price2kg: v2kg ? v2kg.price : Math.round(Number(p.price || 129) * 1.95),
+          mrp2kg: v2kg ? v2kg.mrp : Math.round(Number(p.mrp || 160) * 1.95),
           categoryId: p.categoryId,
           categoryName: p.categoryName || "Chopped Vegetables",
           variantId: p.variantId,

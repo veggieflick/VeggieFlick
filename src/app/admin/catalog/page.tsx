@@ -50,6 +50,8 @@ type Product = {
   mrp500?: number;
   price1kg?: number;
   mrp1kg?: number;
+  price2kg?: number;
+  mrp2kg?: number;
 };
 
 export function getCategoryDisplayName(catName?: string): string {
@@ -114,6 +116,8 @@ export default function AdminCatalogPage() {
     mrp500: 180,
     price1kg: 279,
     mrp1kg: 330,
+    price2kg: 249,
+    mrp2kg: 310,
   });
 
   const showMessage = useCallback((text: string, type: "success" | "error") => {
@@ -284,6 +288,8 @@ export default function AdminCatalogPage() {
       mrp500: 180,
       price1kg: 279,
       mrp1kg: 330,
+      price2kg: 249,
+      mrp2kg: 310,
     });
     setIsModalOpen(true);
   };
@@ -294,24 +300,57 @@ export default function AdminCatalogPage() {
       p.categoryName?.toLowerCase().includes("salad") ||
       p.name?.toLowerCase().includes("salad");
 
+    const isCombo =
+      p.categoryName?.toLowerCase().includes("combo") ||
+      p.name?.toLowerCase().includes("combo") ||
+      p.name?.toLowerCase().includes("pulav") ||
+      p.name?.toLowerCase().includes("aviyal") ||
+      p.name?.toLowerCase().includes("bisi") ||
+      p.name?.toLowerCase().includes("biryani") ||
+      p.name?.toLowerCase().includes("biriyani");
+
     let initialIngredients = p.customIngredients || [];
-    if (initialIngredients.length === 0 && isSalad) {
-      if (p.name.toLowerCase().includes("fruit")) {
-        initialIngredients = [
-          "Raspberry", "Blueberry", "Cranberry", "Strawberry", "Plums", "Guava",
-          "Water melon", "Banana (yellow)", "Pine Apple", "Banana (brown)",
-          "Grapes (green)", "Grapes (black)", "Apple", "Green Apple"
-        ];
-      } else if (p.name.toLowerCase().includes("sprout")) {
-        initialIngredients = [
-          "Cucumber", "Groundnut", "Green Mong Dal", "Black channa",
-          "White channa", "Soya beans", "Green peas", "Horse gram"
-        ];
-      } else {
-        initialIngredients = [
-          "Cucumber", "Cabbage", "Corn", "Carrot", "Sliced beet root",
-          "Brocoli", "Mango", "Tomato", "Big Onion", "Coriander leaves"
-        ];
+    if (initialIngredients.length === 0) {
+      if (isCombo) {
+        if (p.name.toLowerCase().includes("pulav")) {
+          initialIngredients = [
+            "Big Onion slices", "Tomato", "Chilli", "Grated Coconut", "Carrot",
+            "Beans", "Peas", "Potato", "Ginger", "Garlic"
+          ];
+        } else if (p.name.toLowerCase().includes("aviyal")) {
+          initialIngredients = [
+            "Elephant Foot Yam", "Drumstick", "Carrot", "Beans", "Pusanikai",
+            "Valaikai", "Avaraikai"
+          ];
+        } else if (p.name.toLowerCase().includes("bisi")) {
+          initialIngredients = [
+            "Small Onion", "Drumstick", "Carrot", "Beans", "Capsicum",
+            "Peas", "Pusanikai (White or Yellow)", "Tomato", "Potato", "Brinjal"
+          ];
+        } else {
+          initialIngredients = [
+            "Big Onion slices", "Tomato", "Chilli", "Carrot", "Beans",
+            "Peas", "Potato", "Ginger", "Garlic"
+          ];
+        }
+      } else if (isSalad) {
+        if (p.name.toLowerCase().includes("fruit")) {
+          initialIngredients = [
+            "Raspberry", "Blueberry", "Cranberry", "Strawberry", "Plums", "Guava",
+            "Water melon", "Banana (yellow)", "Pine Apple", "Banana (brown)",
+            "Grapes (green)", "Grapes (black)", "Apple", "Green Apple"
+          ];
+        } else if (p.name.toLowerCase().includes("sprout")) {
+          initialIngredients = [
+            "Cucumber", "Groundnut", "Green Mong Dal", "Black channa",
+            "White channa", "Soya beans", "Green peas", "Horse gram"
+          ];
+        } else {
+          initialIngredients = [
+            "Cucumber", "Cabbage", "Corn", "Carrot", "Sliced beet root",
+            "Brocoli", "Mango", "Tomato", "Big Onion", "Coriander leaves"
+          ];
+        }
       }
     }
 
@@ -322,8 +361,8 @@ export default function AdminCatalogPage() {
       categoryName: getCategoryDisplayName(p.categoryName),
       price: p.price,
       mrp: p.mrp,
-      variantName: p.variantName || "250 g",
-      unit: p.unit || "g",
+      variantName: p.variantName || (isCombo ? "1 kg Pack" : "250 g"),
+      unit: p.unit || (isCombo ? "kg" : "g"),
       stock: p.availableStock ?? 100,
       imageUrl: p.imageUrl || "",
       shortDescription: p.shortDescription || "",
@@ -336,10 +375,12 @@ export default function AdminCatalogPage() {
       newIngredientInput: "",
       price250: p.price250 ?? (isSalad ? p.price : 79),
       mrp250: p.mrp250 ?? (isSalad ? p.mrp : 99),
-      price500: p.price500 ?? (p.price >= 75 ? 149 : 129),
-      mrp500: p.mrp500 ?? (p.price >= 75 ? 180 : 160),
-      price1kg: p.price1kg ?? (p.price >= 75 ? 279 : 239),
-      mrp1kg: p.mrp1kg ?? (p.price >= 75 ? 330 : 290),
+      price500: p.price500 ?? (isCombo ? Math.round(p.price * 0.6) : p.price >= 75 ? 149 : 129),
+      mrp500: p.mrp500 ?? (isCombo ? Math.round(p.mrp * 0.6) : p.price >= 75 ? 180 : 160),
+      price1kg: p.price1kg ?? (isCombo ? p.price : p.price >= 75 ? 279 : 239),
+      mrp1kg: p.mrp1kg ?? (isCombo ? p.mrp : p.price >= 75 ? 330 : 290),
+      price2kg: p.price2kg ?? (isCombo ? Math.round(p.price * 1.95) : 249),
+      mrp2kg: p.mrp2kg ?? (isCombo ? Math.round(p.mrp * 1.95) : 310),
     });
     setIsModalOpen(true);
   };
