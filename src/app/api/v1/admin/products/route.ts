@@ -46,6 +46,7 @@ export async function GET() {
           isFeatured: products.isFeatured,
           isFreshToday: products.isFreshToday,
           isCutVegetable: products.isCutVegetable,
+          customIngredients: products.customIngredients,
           categoryId: products.categoryId,
           categoryName: categories.name,
           categorySlug: categories.slug,
@@ -72,11 +73,30 @@ export async function GET() {
       console.warn("Supabase query notice, fallback to static catalog:", dbErr);
     }
 
+    // Group variants per product
+    const variantsByProd = new Map();
+    for (const p of rawProducts) {
+      if (p.variantId) {
+        if (!variantsByProd.has(p.id)) variantsByProd.set(p.id, []);
+        variantsByProd.get(p.id).push({
+          variantId: p.variantId,
+          variantName: p.variantName,
+          price: Number(p.price),
+          mrp: Number(p.mrp),
+        });
+      }
+    }
+
     // Deduplicate by product ID / Slug
     const productMap = new Map();
     for (const p of rawProducts) {
       const key = p.id;
       if (!productMap.has(key)) {
+        const pVars: any[] = variantsByProd.get(p.id) || [];
+        const v250 = pVars.find((v: any) => v.variantName?.includes("250"));
+        const v500 = pVars.find((v: any) => v.variantName?.includes("500"));
+        const v1kg = pVars.find((v: any) => v.variantName?.includes("1") && (v.variantName?.includes("kg") || v.variantName?.includes("k")));
+
         productMap.set(key, {
           id: p.id,
           name: p.name,
@@ -91,10 +111,18 @@ export async function GET() {
           isFeatured: !!p.isFeatured,
           isFreshToday: !!p.isFreshToday,
           isCutVegetable: !!p.isCutVegetable,
+          customIngredients: p.customIngredients || [],
+          variants: pVars,
+          price250: v250 ? v250.price : (p.price ? Number(p.price) : 79),
+          mrp250: v250 ? v250.mrp : (p.mrp ? Number(p.mrp) : 99),
+          price500: v500 ? v500.price : (Number(p.price) >= 75 ? 149 : 129),
+          mrp500: v500 ? v500.mrp : (Number(p.price) >= 75 ? 180 : 160),
+          price1kg: v1kg ? v1kg.price : (Number(p.price) >= 75 ? 279 : 239),
+          mrp1kg: v1kg ? v1kg.mrp : (Number(p.price) >= 75 ? 330 : 290),
           categoryId: p.categoryId,
-          categoryName: p.categoryName || "Fresh Vegetables",
+          categoryName: p.categoryName || "Chopped Vegetables",
           variantId: p.variantId,
-          variantName: p.variantName || "500 g",
+          variantName: p.variantName || "250 g",
           unit: p.unit || "g",
           mrp: p.mrp ? Number(p.mrp) : 40,
           price: p.price ? Number(p.price) : 30,

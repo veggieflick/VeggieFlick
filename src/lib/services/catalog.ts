@@ -74,6 +74,7 @@ const cardColumns = {
   discountPercentage: productVariants.discountPercentage,
   availableStock: inventory.availableStock,
   imageUrl: productImages.imageUrl,
+  customIngredients: products.customIngredients,
 };
 
 type CardRow = {
@@ -101,6 +102,7 @@ type CardRow = {
   discountPercentage: string;
   availableStock: number | null;
   imageUrl?: string | null;
+  customIngredients?: string[] | null;
 };
 
 function mapCard(row: CardRow): ProductCard {
@@ -129,11 +131,16 @@ function mapCard(row: CardRow): ProductCard {
     discountPercentage: toNumber(row.discountPercentage),
     availableStock: row.availableStock ?? 0,
     imageUrl: row.imageUrl ?? null,
+    customIngredients: row.customIngredients ?? undefined,
   };
 }
 
 function buildFilters(query: Partial<ProductQuery>) {
-  const filters = [eq(products.status, "active"), eq(productVariants.status, "active")];
+  const filters = [
+    eq(products.status, "active"),
+    eq(productVariants.status, "active"),
+    eq(productVariants.isDefault, true),
+  ];
 
   if (query.category) {
     if (query.category === "chopped-vegetable" || query.category === "chopped-vegetables" || query.category === "cut-vegetables") {
@@ -272,8 +279,15 @@ export async function listProducts(query: ProductQuery) {
       .where(where);
 
     if (rows && rows.length > 0) {
-      const items = rows.map(mapCard);
-      return { items, total: Number(total) };
+      const seen = new Set<string>();
+      const uniqueItems: ProductCard[] = [];
+      for (const row of rows) {
+        if (!seen.has(row.id)) {
+          seen.add(row.id);
+          uniqueItems.push(mapCard(row as any));
+        }
+      }
+      return { items: uniqueItems, total: uniqueItems.length };
     }
   } catch (err) {
     console.warn("listProducts query error:", err);
@@ -346,7 +360,15 @@ function getActiveFallbackProducts(): (ProductCard & { imageUrl?: string })[] {
     filtered = filtered.filter(p => p.discountPercentage >= minD);
   }
 
-  return { items: filtered.slice(0, query.limit ?? 24), total: filtered.length };
+  const seenFallback = new Set<string>();
+  const uniqueFallback: ProductCard[] = [];
+  for (const p of filtered) {
+    if (!seenFallback.has(p.id)) {
+      seenFallback.add(p.id);
+      uniqueFallback.push(p);
+    }
+  }
+  return { items: uniqueFallback.slice(0, query.limit ?? 24), total: uniqueFallback.length };
 }
 
 export async function listCollection(

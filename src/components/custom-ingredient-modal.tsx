@@ -163,14 +163,14 @@ export function CustomIngredientModal({
       ingredients = COMBO_INGREDIENTS["combo-pulav"];
     }
   } else {
-    if (isSproutsSalad) {
+    if (customIngredientsList && customIngredientsList.length > 0) {
+      ingredients = customIngredientsList;
+    } else if (isSproutsSalad) {
       ingredients = SPROUTS_SALAD_INGREDIENTS;
     } else if (isVegSalad) {
       ingredients = VEGETABLE_SALAD_INGREDIENTS;
     } else if (isFruitSalad) {
       ingredients = FRUIT_SALAD_INGREDIENTS;
-    } else if (customIngredientsList && customIngredientsList.length > 0) {
-      ingredients = customIngredientsList;
     }
   }
 

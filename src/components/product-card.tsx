@@ -161,6 +161,14 @@ export function ProductCard({ product, index = 0 }: { product: ProductCardData; 
         price={cardData.price}
         categorySlug={cardData.categorySlug}
         subCategorySlug={cardData.subCategorySlug}
+        customIngredientsList={
+          cardData.customIngredients && cardData.customIngredients.length > 0
+            ? cardData.customIngredients.map((name) => ({
+                id: name.toLowerCase().replace(/[^a-z0-9]/g, "_"),
+                name,
+              }))
+            : undefined
+        }
         onConfirm={({ weight, ingredients }) => {
           void addItem(cardData.id, cardData.variantId, 1);
           notify(

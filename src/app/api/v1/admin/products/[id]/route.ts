@@ -7,7 +7,7 @@ import {
   inventory,
   productImages,
 } from "@/db/schema";
-import { eq, ilike, or } from "drizzle-orm";
+import { eq, ilike, or, and } from "drizzle-orm";
 import { ALL_PRODUCTS, updateLiveProduct } from "@/lib/data/all-products";
 import { getPersistedCatalog } from "@/app/api/v1/admin/catalog/save/route";
 
@@ -50,6 +50,13 @@ export async function PUT(
       isFreshToday,
       isCutVegetable,
       status,
+      customIngredients,
+      price250,
+      mrp250,
+      price500,
+      mrp500,
+      price1kg,
+      mrp1kg,
     } = body;
 
     if (!productId) {
@@ -317,56 +324,114 @@ export async function PUT(
         if (isFreshToday !== undefined) updateFields.isFreshToday = !!isFreshToday;
         if (isCutVegetable !== undefined) updateFields.isCutVegetable = !!isCutVegetable;
         if (status !== undefined) updateFields.status = status;
+        if (Array.isArray(customIngredients)) updateFields.customIngredients = customIngredients;
 
         if (Object.keys(updateFields).length > 0) {
           await db.update(products).set(updateFields).where(eq(products.id, targetDbId));
         }
 
         // 3. Update Variant & Pricing in PostgreSQL DB
-        const variants = await db
-          .select({ id: productVariants.id })
-          .from(productVariants)
-          .where(eq(productVariants.productId, targetDbId));
+        const hasWeightPackPrices = price250 !== undefined || price500 !== undefined || price1kg !== undefined;
 
-        if (variants.length > 0) {
-          for (const varRow of variants) {
-            const variantId = varRow.id;
-            const numPrice = Number(price);
-            const numMrp = Number(mrp || price);
-            const discount = numMrp > numPrice ? Math.round(((numMrp - numPrice) / numMrp) * 100) : 0;
+        if (hasWeightPackPrices) {
+          if (price250 !== undefined) {
+            const num250 = Number(price250);
+            const mrp250Val = Number(mrp250 || Math.round(num250 * 1.25));
+            const disc250 = mrp250Val > num250 ? Math.round(((mrp250Val - num250) / mrp250Val) * 100) : 0;
+            await db
+              .update(productVariants)
+              .set({
+                sellingPrice: String(num250),
+                mrp: String(mrp250Val),
+                discountPercentage: String(disc250),
+              })
+              .where(and(eq(productVariants.productId, targetDbId), ilike(productVariants.variantName, "%250%")));
+          }
+          if (price500 !== undefined) {
+            const num500 = Number(price500);
+            const mrp500Val = Number(mrp500 || Math.round(num500 * 1.2));
+            const disc500 = mrp500Val > num500 ? Math.round(((mrp500Val - num500) / mrp500Val) * 100) : 0;
+            await db
+              .update(productVariants)
+              .set({
+                sellingPrice: String(num500),
+                mrp: String(mrp500Val),
+                discountPercentage: String(disc500),
+              })
+              .where(and(eq(productVariants.productId, targetDbId), ilike(productVariants.variantName, "%500%")));
+          }
+          if (price1kg !== undefined) {
+            const num1k = Number(price1kg);
+            const mrp1kVal = Number(mrp1kg || Math.round(num1k * 1.2));
+            const disc1k = mrp1kVal > num1k ? Math.round(((mrp1kVal - num1k) / mrp1kVal) * 100) : 0;
+            await db
+              .update(productVariants)
+              .set({
+                sellingPrice: String(num1k),
+                mrp: String(mrp1kVal),
+                discountPercentage: String(disc1k),
+              })
+              .where(
+                and(
+                  eq(productVariants.productId, targetDbId),
+                  or(ilike(productVariants.variantName, "%1 kg%"), ilike(productVariants.variantName, "%1kg%"))
+                )
+              );
+          }
+        } else {
+          // Standard single-variant product update
+          const variants = await db
+            .select({ id: productVariants.id })
+            .from(productVariants)
+            .where(eq(productVariants.productId, targetDbId));
 
-            const variantUpdateFields: Record<string, any> = {};
-            if (price !== undefined) variantUpdateFields.sellingPrice = String(numPrice);
-            if (mrp !== undefined) variantUpdateFields.mrp = String(numMrp);
-            if (price !== undefined || mrp !== undefined) variantUpdateFields.discountPercentage = String(discount);
-            if (variantName !== undefined) variantUpdateFields.variantName = variantName;
-            if (unit !== undefined) variantUpdateFields.unit = unit;
+          if (variants.length > 0) {
+            for (const varRow of variants) {
+              const variantId = varRow.id;
+              const numPrice = Number(price);
+              const numMrp = Number(mrp || price);
+              const discount = numMrp > numPrice ? Math.round(((numMrp - numPrice) / numMrp) * 100) : 0;
 
-            if (Object.keys(variantUpdateFields).length > 0) {
-              await db
-                .update(productVariants)
-                .set(variantUpdateFields)
-                .where(eq(productVariants.id, variantId));
-            }
+              const variantUpdateFields: Record<string, any> = {};
+              if (price !== undefined) variantUpdateFields.sellingPrice = String(numPrice);
+              if (mrp !== undefined) variantUpdateFields.mrp = String(numMrp);
+              if (price !== undefined || mrp !== undefined) variantUpdateFields.discountPercentage = String(discount);
+              if (variantName !== undefined) variantUpdateFields.variantName = variantName;
+              if (unit !== undefined) variantUpdateFields.unit = unit;
 
-            // 4. Update Stock in PostgreSQL DB
-            if (stock !== undefined) {
-              const invRows = await db
-                .select({ id: inventory.id })
-                .from(inventory)
-                .where(eq(inventory.variantId, variantId));
-
-              if (invRows.length > 0) {
+              if (Object.keys(variantUpdateFields).length > 0) {
                 await db
-                  .update(inventory)
-                  .set({ availableStock: Number(stock) })
-                  .where(eq(inventory.id, invRows[0].id));
-              } else {
-                await db.insert(inventory).values({
-                  variantId,
-                  availableStock: Number(stock),
-                });
+                  .update(productVariants)
+                  .set(variantUpdateFields)
+                  .where(eq(productVariants.id, variantId));
               }
+            }
+          }
+        }
+
+        // 4. Update Stock in PostgreSQL DB
+        if (stock !== undefined) {
+          const allVars = await db
+            .select({ id: productVariants.id })
+            .from(productVariants)
+            .where(eq(productVariants.productId, targetDbId));
+
+          for (const v of allVars) {
+            const invRows = await db
+              .select({ id: inventory.id })
+              .from(inventory)
+              .where(eq(inventory.variantId, v.id));
+
+            if (invRows.length > 0) {
+              await db
+                .update(inventory)
+                .set({ availableStock: Number(stock) })
+                .where(eq(inventory.id, invRows[0].id));
+            } else {
+              await db.insert(inventory).values({
+                variantId: v.id,
+                availableStock: Number(stock),
+              });
             }
           }
         }

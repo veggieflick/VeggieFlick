@@ -214,6 +214,7 @@ export const products = pgTable(
     emoji: varchar("emoji", { length: 32 }).default("vegetables").notNull(),
     shortDescription: text("short_description"),
     description: text("description"),
+    customIngredients: jsonb("custom_ingredients").$type<string[]>(),
     nutrition: jsonb("nutrition").$type<{ label: string; value: string }[]>(),
     origin: varchar("origin", { length: 120 }),
     shelfLife: varchar("shelf_life", { length: 80 }),

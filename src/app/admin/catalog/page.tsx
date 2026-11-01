@@ -16,6 +16,7 @@ import {
   Flame,
   Clock,
   Scissors,
+  Scale,
 } from "lucide-react";
 import { upsertStoredProduct } from "@/lib/catalog-store";
 
@@ -42,25 +43,32 @@ type Product = {
   sku: string;
   availableStock: number;
   imageUrl?: string | null;
+  customIngredients?: string[];
+  price250?: number;
+  mrp250?: number;
+  price500?: number;
+  mrp500?: number;
+  price1kg?: number;
+  mrp1kg?: number;
 };
 
 export function getCategoryDisplayName(catName?: string): string {
-  if (!catName) return "Chopped Vegetables";
-  const lower = catName.toLowerCase();
+  if (!catName) return "Chopped Vegetables (Instant/Ready to cook)";
+  const lower = catName.toLowerCase().trim();
   if (lower.includes("vegetables salads") || lower.includes("vegetables salad") || lower.includes("vegetable salad")) return "Vegetables salads";
   if (lower.includes("sprouts salads") || lower.includes("sprouts salad")) return "Sprouts salads";
   if (lower.includes("fruit salad") || lower.includes("fruit salads")) return "Fruit salad";
   if (lower.includes("fruit")) return "Chopped Fruits";
-  if (lower.includes("sprout")) return "Sprouts";
-  if (lower.includes("combo")) return "Combo";
-  return "Chopped Vegetables";
+  if (lower.includes("sprout")) return "Sprouts (pre order only)";
+  if (lower.includes("combo") || lower.includes("recipe") || lower.includes("kit")) return "Combo";
+  return "Chopped Vegetables (Instant/Ready to cook)";
 }
 
 const CATEGORIES = [
   "All Categories",
-  "Chopped Vegetables",
+  "Chopped Vegetables (Instant/Ready to cook)",
   "Chopped Fruits",
-  "Sprouts",
+  "Sprouts (pre order only)",
   "Combo",
   "Fruit salad",
   "Sprouts salads",
@@ -85,7 +93,7 @@ export default function AdminCatalogPage() {
     name: "",
     tamilName: "",
     emoji: "",
-    categoryName: "Chopped Vegetables",
+    categoryName: "Chopped Vegetables (Instant/Ready to cook)",
     price: 30,
     mrp: 40,
     variantName: "500 g",
@@ -98,6 +106,14 @@ export default function AdminCatalogPage() {
     isFeatured: false,
     isFreshToday: false,
     isCutVegetable: false,
+    customIngredients: [] as string[],
+    newIngredientInput: "",
+    price250: 79,
+    mrp250: 99,
+    price500: 149,
+    mrp500: 180,
+    price1kg: 279,
+    mrp1kg: 330,
   });
 
   const showMessage = useCallback((text: string, type: "success" | "error") => {
@@ -247,7 +263,7 @@ export default function AdminCatalogPage() {
       name: "",
       tamilName: "",
       emoji: "",
-      categoryName: selectedCategory !== "All Categories" ? selectedCategory : "Chopped Vegetables",
+      categoryName: selectedCategory !== "All Categories" ? selectedCategory : "Chopped Vegetables (Instant/Ready to cook)",
       price: 35,
       mrp: 45,
       variantName: "500 g",
@@ -260,12 +276,45 @@ export default function AdminCatalogPage() {
       isFeatured: true,
       isFreshToday: true,
       isCutVegetable: false,
+      customIngredients: [],
+      newIngredientInput: "",
+      price250: 79,
+      mrp250: 99,
+      price500: 149,
+      mrp500: 180,
+      price1kg: 279,
+      mrp1kg: 330,
     });
     setIsModalOpen(true);
   };
 
   const handleOpenEditModal = (p: Product) => {
     setEditingProduct(p);
+    const isSalad =
+      p.categoryName?.toLowerCase().includes("salad") ||
+      p.name?.toLowerCase().includes("salad");
+
+    let initialIngredients = p.customIngredients || [];
+    if (initialIngredients.length === 0 && isSalad) {
+      if (p.name.toLowerCase().includes("fruit")) {
+        initialIngredients = [
+          "Raspberry", "Blueberry", "Cranberry", "Strawberry", "Plums", "Guava",
+          "Water melon", "Banana (yellow)", "Pine Apple", "Banana (brown)",
+          "Grapes (green)", "Grapes (black)", "Apple", "Green Apple"
+        ];
+      } else if (p.name.toLowerCase().includes("sprout")) {
+        initialIngredients = [
+          "Cucumber", "Groundnut", "Green Mong Dal", "Black channa",
+          "White channa", "Soya beans", "Green peas", "Horse gram"
+        ];
+      } else {
+        initialIngredients = [
+          "Cucumber", "Cabbage", "Corn", "Carrot", "Sliced beet root",
+          "Brocoli", "Mango", "Tomato", "Big Onion", "Coriander leaves"
+        ];
+      }
+    }
+
     setFormData({
       name: p.name,
       tamilName: p.tamilName || "",
@@ -273,7 +322,7 @@ export default function AdminCatalogPage() {
       categoryName: getCategoryDisplayName(p.categoryName),
       price: p.price,
       mrp: p.mrp,
-      variantName: p.variantName || "500 g",
+      variantName: p.variantName || "250 g",
       unit: p.unit || "g",
       stock: p.availableStock ?? 100,
       imageUrl: p.imageUrl || "",
@@ -283,6 +332,14 @@ export default function AdminCatalogPage() {
       isFeatured: p.isFeatured,
       isFreshToday: p.isFreshToday,
       isCutVegetable: p.isCutVegetable,
+      customIngredients: initialIngredients,
+      newIngredientInput: "",
+      price250: p.price250 ?? (isSalad ? p.price : 79),
+      mrp250: p.mrp250 ?? (isSalad ? p.mrp : 99),
+      price500: p.price500 ?? (p.price >= 75 ? 149 : 129),
+      mrp500: p.mrp500 ?? (p.price >= 75 ? 180 : 160),
+      price1kg: p.price1kg ?? (p.price >= 75 ? 279 : 239),
+      mrp1kg: p.mrp1kg ?? (p.price >= 75 ? 330 : 290),
     });
     setIsModalOpen(true);
   };
@@ -360,12 +417,8 @@ export default function AdminCatalogPage() {
 
     const matchesCategory =
       selectedCategory === "All Categories" ||
-      p.categoryName.toLowerCase().trim() === selectedCategory.toLowerCase().trim() ||
-      (selectedCategory === "Cut Vegetables" && (p.categoryName === "Cut Vegetables" || p.isCutVegetable)) ||
-      (selectedCategory === "Fresh Vegetables" && (p.categoryName === "Vegetables Shopping" || p.categoryName === "Fresh Vegetables")) ||
-      (selectedCategory === "Salad" && (p.categoryName === "Salad" || p.categoryName === "Salads")) ||
-      (selectedCategory === "Fruits Cutting & Combo Pack" && (p.categoryName === "Fruits Cutting & Combo Pack" || p.categoryName === "Fresh Fruits")) ||
-      (selectedCategory === "Recipe Combo Kits" && (p.categoryName === "Recipe Combo Kits" || p.categoryName === "Ready To Cook"));
+      getCategoryDisplayName(p.categoryName) === selectedCategory ||
+      p.categoryName.toLowerCase().trim() === selectedCategory.toLowerCase().trim();
 
     return matchesSearch && matchesCategory;
   });
@@ -898,6 +951,187 @@ export default function AdminCatalogPage() {
                   />
                 </div>
               </div>
+
+              {/* Salad Dynamic Weights & Ingredients Section (Only for Salads) */}
+              {(formData.categoryName.toLowerCase().includes("salad") || formData.name.toLowerCase().includes("salad")) && (
+                <div className="space-y-4 rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4">
+                  {/* Grams & Pricing Editor */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
+                        <Scale className="h-4 w-4 text-emerald-700" />
+                        Pack Sizes & Dynamic Pricing (250g, 500g, 1kg)
+                      </h4>
+                      <span className="text-[10px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded-full border border-emerald-300">
+                        Storefront Live Sync
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {/* 250g */}
+                      <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-xs">
+                        <span className="block text-xs font-black text-slate-800">250g Pack</span>
+                        <span className="text-[10px] text-slate-500 block mb-2">Base Pack</span>
+                        <div className="space-y-1.5">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-600 block">Selling Price (₹)</label>
+                            <input
+                              type="number"
+                              value={formData.price250}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                setFormData({ ...formData, price250: val, price: val });
+                              }}
+                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-black text-emerald-800 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 block">MRP (₹)</label>
+                            <input
+                              type="number"
+                              value={formData.mrp250}
+                              onChange={(e) => {
+                                const val = Number(e.target.value);
+                                setFormData({ ...formData, mrp250: val, mrp: val });
+                              }}
+                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 500g */}
+                      <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-xs">
+                        <span className="block text-xs font-black text-slate-800">500g Pack</span>
+                        <span className="text-[10px] text-slate-500 block mb-2">Medium Pack</span>
+                        <div className="space-y-1.5">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-600 block">Selling Price (₹)</label>
+                            <input
+                              type="number"
+                              value={formData.price500}
+                              onChange={(e) => setFormData({ ...formData, price500: Number(e.target.value) })}
+                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-black text-emerald-800 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 block">MRP (₹)</label>
+                            <input
+                              type="number"
+                              value={formData.mrp500}
+                              onChange={(e) => setFormData({ ...formData, mrp500: Number(e.target.value) })}
+                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 1kg */}
+                      <div className="rounded-xl border border-emerald-200 bg-white p-3 shadow-xs">
+                        <span className="block text-xs font-black text-slate-800">1 kg Pack</span>
+                        <span className="text-[10px] text-slate-500 block mb-2">Family Pack</span>
+                        <div className="space-y-1.5">
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-600 block">Selling Price (₹)</label>
+                            <input
+                              type="number"
+                              value={formData.price1kg}
+                              onChange={(e) => setFormData({ ...formData, price1kg: Number(e.target.value) })}
+                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs font-black text-emerald-800 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold text-slate-400 block">MRP (₹)</label>
+                            <input
+                              type="number"
+                              value={formData.mrp1kg}
+                              onChange={(e) => setFormData({ ...formData, mrp1kg: Number(e.target.value) })}
+                              className="w-full rounded border border-slate-200 px-2 py-1 text-xs text-slate-500 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ingredients / Fruits Editor */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-xs font-black uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
+                        <Boxes className="h-4 w-4 text-emerald-700" />
+                        Salad Fruits / Ingredients ({formData.customIngredients.length} Items)
+                      </h4>
+                      <span className="text-[10px] text-slate-500">
+                        Customers choose from these items
+                      </span>
+                    </div>
+
+                    {/* Existing Items Chips */}
+                    <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 bg-white rounded-xl border border-slate-200 mb-2.5">
+                      {formData.customIngredients.map((ing, idx) => (
+                        <span
+                          key={idx}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-900 border border-emerald-300"
+                        >
+                          <span>{ing}</span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const next = formData.customIngredients.filter((_, i) => i !== idx);
+                              setFormData({ ...formData, customIngredients: next });
+                            }}
+                            className="hover:text-rose-600 text-slate-400 font-bold ml-0.5"
+                            title="Remove"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* Add new item input */}
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Add fruit or ingredient (e.g. Pomegranate, Custard Apple)..."
+                        value={formData.newIngredientInput}
+                        onChange={(e) => setFormData({ ...formData, newIngredientInput: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            const trimmed = formData.newIngredientInput.trim();
+                            if (trimmed && !formData.customIngredients.includes(trimmed)) {
+                              setFormData({
+                                ...formData,
+                                customIngredients: [...formData.customIngredients, trimmed],
+                                newIngredientInput: "",
+                              });
+                            }
+                          }
+                        }}
+                        className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-800 focus:border-emerald-500 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const trimmed = formData.newIngredientInput.trim();
+                          if (trimmed && !formData.customIngredients.includes(trimmed)) {
+                            setFormData({
+                              ...formData,
+                              customIngredients: [...formData.customIngredients, trimmed],
+                              newIngredientInput: "",
+                            });
+                          }
+                        }}
+                        className="rounded-lg bg-emerald-700 px-3 py-1.5 text-xs font-bold text-white hover:bg-emerald-800 shadow-xs flex items-center gap-1"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                        Add Item
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {/* Short Description */}
               <div>
