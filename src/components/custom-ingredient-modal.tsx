@@ -143,6 +143,10 @@ export function CustomIngredientModal({
 
   // Determine subcategory & ingredient pool
   let ingredients: CustomIngredient[] = FRUIT_SALAD_INGREDIENTS;
+  const effectiveSubCat = (subCategorySlug || categorySlug || "").toLowerCase();
+  const isFruitSalad = !isComboKit && (effectiveSubCat.includes("fruit") || normName.includes("fruit"));
+  const isSproutsSalad = !isComboKit && (effectiveSubCat.includes("sprouts") || normName.includes("sprout"));
+  const isVegSalad = !isComboKit && (effectiveSubCat.includes("veg") || normName.includes("veg"));
 
   if (isComboKit) {
     if (normName.includes("biriyani") || normName.includes("biryani")) {
@@ -159,12 +163,11 @@ export function CustomIngredientModal({
       ingredients = COMBO_INGREDIENTS["combo-pulav"];
     }
   } else {
-    const effectiveSubCat = (subCategorySlug || categorySlug || "").toLowerCase();
-    if (effectiveSubCat.includes("sprouts") || normName.includes("sprout")) {
+    if (isSproutsSalad) {
       ingredients = SPROUTS_SALAD_INGREDIENTS;
-    } else if (effectiveSubCat.includes("veg") || normName.includes("veg")) {
+    } else if (isVegSalad) {
       ingredients = VEGETABLE_SALAD_INGREDIENTS;
-    } else if (effectiveSubCat.includes("fruit") || normName.includes("fruit")) {
+    } else if (isFruitSalad) {
       ingredients = FRUIT_SALAD_INGREDIENTS;
     } else if (customIngredientsList && customIngredientsList.length > 0) {
       ingredients = customIngredientsList;
@@ -176,6 +179,61 @@ export function CustomIngredientModal({
   // For Salads: "250g" | "500g" | "1kg"
   const [comboWeight, setComboWeight] = useState<"500g" | "1kg" | "2kg">("1kg");
   const [saladWeight, setSaladWeight] = useState<"250g" | "500g" | "1kg">("250g");
+
+  // Selection Limits & Item Unit Name calculation
+  // 1. Fruit salad:
+  //    250g: 3 to 5 fruits
+  //    500g: 5 to 8 fruits
+  //    1kg: 7 to 12 fruits
+  // 2. Vegetables salad:
+  //    250g: 3 to 5 items
+  //    500g: 5 to 8 items
+  //    1kg: 7 to 10 items
+  // 3. Sprouts salad:
+  //    250g: 3 items
+  //    500g: 5 to 7 items
+  //    1kg: 7 to 8 items
+  let minRequired = 1;
+  let maxAllowed = ingredients.length;
+  let itemUnitName = "items";
+
+  if (isFruitSalad) {
+    itemUnitName = "fruits";
+    if (saladWeight === "250g") {
+      minRequired = 3;
+      maxAllowed = 5;
+    } else if (saladWeight === "500g") {
+      minRequired = 5;
+      maxAllowed = 8;
+    } else {
+      minRequired = 7;
+      maxAllowed = 12;
+    }
+  } else if (isVegSalad) {
+    itemUnitName = "vegetables";
+    if (saladWeight === "250g") {
+      minRequired = 3;
+      maxAllowed = 5;
+    } else if (saladWeight === "500g") {
+      minRequired = 5;
+      maxAllowed = 8;
+    } else {
+      minRequired = 7;
+      maxAllowed = Math.min(10, ingredients.length);
+    }
+  } else if (isSproutsSalad) {
+    itemUnitName = "sprouts";
+    if (saladWeight === "250g") {
+      minRequired = 3;
+      maxAllowed = 3;
+    } else if (saladWeight === "500g") {
+      minRequired = 5;
+      maxAllowed = 7;
+    } else {
+      minRequired = 7;
+      maxAllowed = Math.min(8, ingredients.length);
+    }
+  }
 
   // Selected Item IDs state (Default: all selected for combo, 3 selected for salad 250g)
   const defaultSelected = isComboKit
@@ -216,53 +274,56 @@ export function CustomIngredientModal({
     else if (saladWeight === "1kg") currentPrice = price1kg;
   }
 
-  // Selection Limits calculation for salads
-  // 250g: 3 items (min 1, max 3)
-  // 500g: 5 to 7 items (min 5, max 7)
-  // 1kg: 7 to 10 items (min 7, max 10)
-  const minRequired = isComboKit
-    ? 1
-    : saladWeight === "250g"
-    ? 1
-    : saladWeight === "500g"
-    ? 5
-    : Math.min(7, ingredients.length);
-
-  const maxAllowed = isComboKit
-    ? ingredients.length
-    : saladWeight === "250g"
-    ? 3
-    : saladWeight === "500g"
-    ? 7
-    : Math.min(10, ingredients.length);
-
   const count = selectedIds.length;
   const isTooFew = count < minRequired;
   const isMaxReached = !isComboKit && count >= maxAllowed;
 
   const handleSaladWeightChange = (newWeight: "250g" | "500g" | "1kg") => {
     setSaladWeight(newWeight);
-    if (newWeight === "250g") {
-      if (selectedIds.length > 3) {
-        setSelectedIds(selectedIds.slice(0, 3));
+    let targetMin = 3;
+    let targetMax = 5;
+
+    if (isFruitSalad) {
+      if (newWeight === "250g") {
+        targetMin = 3;
+        targetMax = 5;
+      } else if (newWeight === "500g") {
+        targetMin = 5;
+        targetMax = 8;
+      } else {
+        targetMin = 7;
+        targetMax = 12;
       }
-    } else if (newWeight === "500g") {
-      if (selectedIds.length < 5) {
-        const extraNeeded = 5 - selectedIds.length;
-        const unselected = ingredients.filter((i) => !selectedIds.includes(i.id)).map((i) => i.id);
-        setSelectedIds([...selectedIds, ...unselected.slice(0, extraNeeded)]);
-      } else if (selectedIds.length > 7) {
-        setSelectedIds(selectedIds.slice(0, 7));
+    } else if (isVegSalad) {
+      if (newWeight === "250g") {
+        targetMin = 3;
+        targetMax = 5;
+      } else if (newWeight === "500g") {
+        targetMin = 5;
+        targetMax = 8;
+      } else {
+        targetMin = 7;
+        targetMax = Math.min(10, ingredients.length);
       }
-    } else if (newWeight === "1kg") {
-      const minTarget = Math.min(7, ingredients.length);
-      if (selectedIds.length < minTarget) {
-        const extraNeeded = minTarget - selectedIds.length;
-        const unselected = ingredients.filter((i) => !selectedIds.includes(i.id)).map((i) => i.id);
-        setSelectedIds([...selectedIds, ...unselected.slice(0, extraNeeded)]);
-      } else if (selectedIds.length > 10) {
-        setSelectedIds(selectedIds.slice(0, 10));
+    } else if (isSproutsSalad) {
+      if (newWeight === "250g") {
+        targetMin = 3;
+        targetMax = 3;
+      } else if (newWeight === "500g") {
+        targetMin = 5;
+        targetMax = 7;
+      } else {
+        targetMin = 7;
+        targetMax = Math.min(8, ingredients.length);
       }
+    }
+
+    if (selectedIds.length < targetMin) {
+      const extraNeeded = targetMin - selectedIds.length;
+      const unselected = ingredients.filter((i) => !selectedIds.includes(i.id)).map((i) => i.id);
+      setSelectedIds([...selectedIds, ...unselected.slice(0, extraNeeded)]);
+    } else if (selectedIds.length > targetMax) {
+      setSelectedIds(selectedIds.slice(0, targetMax));
     }
   };
 
@@ -361,6 +422,7 @@ export function CustomIngredientModal({
               </div>
             ) : (
               <div className="grid grid-cols-3 gap-2">
+                {/* 250g Button */}
                 <button
                   type="button"
                   onClick={() => handleSaladWeightChange("250g")}
@@ -371,10 +433,13 @@ export function CustomIngredientModal({
                   }`}
                 >
                   <span className="block text-xs font-extrabold">250g Pack</span>
-                  <span className="block text-[10px] text-muted">Select 3 items</span>
+                  <span className="block text-[10px] text-muted">
+                    {isFruitSalad || isVegSalad ? "Select 3 to 5" : "Select 3 items"}
+                  </span>
                   <span className="mt-1 text-xs font-black text-emerald-800">{formatINR(price250)}</span>
                 </button>
 
+                {/* 500g Button */}
                 <button
                   type="button"
                   onClick={() => handleSaladWeightChange("500g")}
@@ -385,10 +450,13 @@ export function CustomIngredientModal({
                   }`}
                 >
                   <span className="block text-xs font-extrabold">500g Pack</span>
-                  <span className="block text-[10px] text-muted">Select 5 to 7</span>
+                  <span className="block text-[10px] text-muted">
+                    {isFruitSalad || isVegSalad ? "Select 5 to 8" : "Select 5 to 7"}
+                  </span>
                   <span className="mt-1 text-xs font-black text-emerald-800">{formatINR(price500)}</span>
                 </button>
 
+                {/* 1kg Button */}
                 <button
                   type="button"
                   onClick={() => handleSaladWeightChange("1kg")}
@@ -399,25 +467,32 @@ export function CustomIngredientModal({
                   }`}
                 >
                   <span className="block text-xs font-extrabold">1 kg Pack</span>
-                  <span className="block text-[10px] text-muted">Select 7 to 10</span>
+                  <span className="block text-[10px] text-muted">
+                    {isFruitSalad ? "Select 7 to 12" : isVegSalad ? "Select 7 to 10" : "Select 7 to 8"}
+                  </span>
                   <span className="mt-1 text-xs font-black text-emerald-800">{formatINR(price1kg)}</span>
                 </button>
               </div>
             )}
           </div>
 
-          {/* 2. Ingredients Banner */}
+          {/* 2. Ingredients Banner showing exact count & allowed range */}
           <div className="mb-3 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-amber-50 p-3 border border-emerald-200/80">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-slate-800">
                 {isComboKit ? (
                   <>Exact Combo Ingredients (<strong className="text-emerald-950 font-black">{activeWeightLabel}</strong>)</>
                 ) : (
-                  <>Selection for <strong className="text-emerald-950 font-black">{activeWeightLabel}</strong> (Limit: {saladWeight === "250g" ? "3 items" : saladWeight === "500g" ? "5-7 items" : `7-${Math.min(10, ingredients.length)} items`}):</>
+                  <>
+                    Selection for <strong className="text-emerald-950 font-black">{activeWeightLabel}</strong>:{" "}
+                    <span className="text-[11px] font-bold text-emerald-800">
+                      ({minRequired === maxAllowed ? `${minRequired} ${itemUnitName}` : `${minRequired} to ${maxAllowed} ${itemUnitName}`})
+                    </span>
+                  </>
                 )}
               </span>
               <span className="chip font-extrabold text-[11px] bg-white text-emerald-900 border border-emerald-300">
-                {count} / {maxAllowed} Selected
+                {count} / {maxAllowed} {itemUnitName} Selected
               </span>
             </div>
             {isComboKit ? (
@@ -427,13 +502,13 @@ export function CustomIngredientModal({
             ) : isTooFew ? (
               <p className="mt-1.5 text-[11px] font-bold text-amber-900 flex items-center gap-1">
                 <AlertCircle size={13} className="text-amber-700 shrink-0" />
-                Select at least {minRequired} ingredients ({minRequired - count} more needed).
+                Please select at least {minRequired} {itemUnitName} ({minRequired - count} more needed).
               </p>
             ) : (
               <p className="mt-1.5 text-[11px] font-medium text-emerald-800">
                 {isMaxReached
-                  ? `Maximum ${maxAllowed} ingredients reached for ${activeWeightLabel}!`
-                  : `You can select up to ${maxAllowed - count} more.`}
+                  ? `Maximum ${maxAllowed} ${itemUnitName} reached for ${activeWeightLabel}!`
+                  : `Selected ${count} ${itemUnitName}. You can select up to ${maxAllowed - count} more.`}
               </p>
             )}
           </div>
@@ -507,7 +582,9 @@ export function CustomIngredientModal({
               className="btn btn-primary btn-sm bg-emerald-800 text-white font-extrabold text-xs px-4 shadow-md hover:bg-emerald-900 disabled:opacity-50 flex items-center gap-1.5"
             >
               <ShoppingBag size={14} />
-              <span>Add to Basket ({activeWeightLabel})</span>
+              <span>
+                Add to Basket ({isComboKit ? activeWeightLabel : `${count} ${itemUnitName} • ${activeWeightLabel}`})
+              </span>
             </button>
           </div>
         </div>
