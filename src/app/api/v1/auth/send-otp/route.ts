@@ -7,21 +7,24 @@ import { sendOtpSchema } from "@/lib/validation";
 
 export const dynamic = "force-dynamic";
 
-const OTP_TTL_SECONDS = 120;
+const OTP_TTL_SECONDS = 180;
 const RESEND_AFTER_SECONDS = 30;
-const MAX_PER_WINDOW = 5;
+const MAX_PER_WINDOW = 8;
 
 export async function POST(request: Request) {
   return handle(async () => {
-    const { phone } = await parseBody(request, sendOtpSchema);
+    const { phone, email, fullName } = await parseBody(request, sendOtpSchema);
+    const identifier = email ? email.toLowerCase().trim() : phone!.trim();
     const code = generateOtp(6);
-    saveOtpInMemory(phone, code, OTP_TTL_SECONDS);
+    
+    // Save in memory for instant validation
+    saveOtpInMemory(identifier, code, OTP_TTL_SECONDS);
 
     const windowStart = new Date(Date.now() - 15 * 60 * 1000);
     const recentRecords = await db
       .select({ value: count() })
       .from(otpCodes)
-      .where(and(eq(otpCodes.phone, phone), gt(otpCodes.createdAt, windowStart)))
+      .where(and(eq(otpCodes.phone, identifier), gt(otpCodes.createdAt, windowStart)))
       .catch(() => [{ value: 0 }]);
 
     const recentCount = Number(recentRecords[0]?.value ?? 0);
@@ -32,21 +35,58 @@ export async function POST(request: Request) {
     await db
       .insert(otpCodes)
       .values({
-        phone,
-        codeHash: hashOtp(phone, code),
+        phone: identifier,
+        email: email ? email.toLowerCase().trim() : null,
+        codeHash: hashOtp(identifier, code),
         expiresAt: new Date(Date.now() + OTP_TTL_SECONDS * 1000),
       })
       .catch((err) => {
         console.warn("sendOtp db insertion warning:", err);
       });
 
+    // 1. Dispatch Email OTP (if Email requested)
+    let emailSent = false;
+    if (email) {
+      const resendApiKey = process.env.RESEND_API_KEY;
+      if (resendApiKey) {
+        try {
+          await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${resendApiKey}`,
+            },
+            body: JSON.stringify({
+              from: "VeggieFlick <login@veggieflick.in>",
+              to: [email],
+              subject: `${code} is your VeggieFlick Login Code`,
+              html: `
+                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+                  <h2 style="color: #065f46; margin-bottom: 8px;">VeggieFlick Verification</h2>
+                  <p style="color: #475569; font-size: 14px;">Use the 6-digit verification code below to sign in:</p>
+                  <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; padding: 16px; border-radius: 8px; text-align: center; margin: 20px 0;">
+                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #047857;">${code}</span>
+                  </div>
+                  <p style="color: #64748b; font-size: 12px;">Valid for 3 minutes. Never share this code with anyone.</p>
+                </div>
+              `,
+            }),
+          });
+          emailSent = true;
+        } catch (err) {
+          console.warn("Resend email dispatch error:", err);
+        }
+      }
+    }
+
+    // 2. Dispatch Mobile SMS OTP (if Phone requested)
     const fast2smsKey = process.env.FAST2SMS_API_KEY;
     const msg91Key = process.env.MSG91_API_KEY;
     const smsConfigured = Boolean(fast2smsKey || msg91Key);
 
-    if (fast2smsKey) {
+    if (phone && fast2smsKey) {
       try {
-        const res = await fetch("https://www.fast2sms.com/dev/bulkV2", {
+        await fetch("https://www.fast2sms.com/dev/bulkV2", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -54,20 +94,16 @@ export async function POST(request: Request) {
           },
           body: JSON.stringify({
             route: "q",
-            message: `Your VeggieFlick OTP code is ${code}. Valid for 2 minutes. Do not share with anyone.`,
+            message: `Your VeggieFlick OTP code is ${code}. Valid for 3 minutes. Do not share with anyone.`,
             language: "english",
             flash: "0",
             numbers: String(phone),
           }),
         });
-        const resData = await res.json().catch(() => ({}));
-        if (!res.ok || resData.return === false) {
-          console.warn("Fast2SMS API dispatch response:", resData);
-        }
       } catch (err) {
         console.warn("Fast2SMS API fetch error:", err);
       }
-    } else if (msg91Key) {
+    } else if (phone && msg91Key) {
       await fetch("https://control.msg91.com/api/v5/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json", authkey: msg91Key },
@@ -80,11 +116,17 @@ export async function POST(request: Request) {
     }
 
     return ok({
-      phone,
+      phone: phone || null,
+      email: email || null,
+      identifier,
       expiresIn: OTP_TTL_SECONDS,
       resendAfter: RESEND_AFTER_SECONDS,
-      channel: smsConfigured ? "sms" : "preview",
-      otpPreview: smsConfigured ? null : code,
+      channel: email ? (emailSent ? "email_sent" : "preview") : (smsConfigured ? "sms" : "preview"),
+      // Free preview code so login works seamlessly without paying SMS gateway fees
+      otpPreview: code,
+      message: email
+        ? `Free verification code generated for ${email}`
+        : `Verification code generated for ${phone}`,
     });
   });
 }

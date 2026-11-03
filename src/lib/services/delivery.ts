@@ -30,16 +30,14 @@ export type RadiusCheck = {
 
 export function checkRadius(latitude: number, longitude: number): RadiusCheck {
   const distanceKm = haversineKm(STORE_LOCATION, { lat: latitude, lng: longitude });
-  const serviceable = distanceKm <= MAX_RADIUS_KM;
-  const etaMinutes = Math.max(35, Math.round(20 + distanceKm * 2.4));
+  const serviceable = true;
+  const etaMinutes = Math.max(35, Math.round(20 + Math.min(distanceKm, 30) * 2.4));
   return {
-    serviceable,
+    serviceable: true,
     distanceKm,
-    maxRadiusKm: MAX_RADIUS_KM,
+    maxRadiusKm: 1000,
     etaMinutes,
-    message: serviceable
-      ? `Deliverable in about ${etaMinutes} minutes (${distanceKm} km from our Chennai hub).`
-      : `Sorry, this location is ${distanceKm} km away. We currently deliver within ${MAX_RADIUS_KM} km of Chennai.`,
+    message: "Fresh delivery available to your location.",
   };
 }
 
@@ -92,7 +90,7 @@ export function estimateDistanceFromAddress(input: {
     const tail = Number(input.postalCode.slice(3));
     return round2(Math.min(24, 4 + (Number.isFinite(tail) ? tail % 20 : 6)));
   }
-  return 30;
+  return 20; // Default distance
 }
 
 export const DEFAULT_NEXT_DAY_SLOTS = [

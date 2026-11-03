@@ -41,7 +41,7 @@ export async function GET() {
       },
       addresses: savedAddresses.map((address) => {
         const distanceKm = estimateDistanceFromAddress(address);
-        return { ...address, distanceKm, serviceable: distanceKm <= MAX_RADIUS_KM };
+        return { ...address, distanceKm, serviceable: true };
       }),
       maxRadiusKm: MAX_RADIUS_KM,
     });

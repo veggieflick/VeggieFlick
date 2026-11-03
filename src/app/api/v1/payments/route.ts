@@ -2,13 +2,33 @@ import { createHmac } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { orders, payments, orderTimeline } from "@/db/schema";
+import { orders, payments, orderTimeline, appSettings } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
 import { requireUser } from "@/lib/auth";
 import { getOrderDetail } from "@/lib/services/order";
 import { toNumber } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
+
+async function getRazorpayCredentials() {
+  const paymentConfig = (globalThis as any).__veggieflickPaymentConfig;
+  let keyId = process.env.RAZORPAY_KEY_ID || paymentConfig?.keyId;
+  let keySecret = process.env.RAZORPAY_SECRET || paymentConfig?.secret;
+
+  if (!keyId || !keySecret) {
+    try {
+      const rows = await db.select().from(appSettings);
+      for (const r of rows) {
+        if (r.key === "razorpay_key_id" && !keyId) keyId = r.value;
+        if (r.key === "razorpay_secret" && !keySecret) keySecret = r.value;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+  return { keyId, keySecret };
+}
+
 
 const createSchema = z.object({ orderId: z.string().trim().min(1) });
 
@@ -111,7 +131,7 @@ export async function PUT(request: Request) {
     }
     if (!order) throw new ApiError("Order not found", 404, "ORDER_NOT_FOUND");
 
-    const secret = process.env.RAZORPAY_SECRET || (globalThis as any).__veggieflickPaymentConfig?.secret;
+    const { keySecret: secret } = await getRazorpayCredentials();
     if (secret && payload.razorpaySignature) {
       const expected = createHmac("sha256", secret)
         .update(`${payload.razorpayOrderId}|${payload.razorpayPaymentId}`)

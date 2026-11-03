@@ -360,8 +360,9 @@ export function CustomIngredientModal({
   );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="card w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden bg-white p-5 shadow-2xl rounded-3xl border border-slate-200">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4 backdrop-blur-sm animate-fade-in">
+      <div className="card w-full sm:max-w-lg max-h-[94vh] sm:max-h-[88vh] flex flex-col overflow-hidden bg-white p-4 sm:p-5 shadow-2xl rounded-t-3xl sm:rounded-3xl border-t sm:border border-slate-200">
+        <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-2 shrink-0 sm:hidden" />
         {/* Modal Header */}
         <div className="flex items-start justify-between border-b border-line pb-3.5 shrink-0">
           <div>

@@ -59,8 +59,9 @@ export function AddressPickerModal({ isOpen, onClose, onSelectAddress }: Address
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm animate-fade-in">
-      <div className="card w-full max-w-lg bg-white p-5 shadow-2xl rounded-2xl">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center bg-black/50 p-0 sm:p-4 backdrop-blur-sm animate-fade-in">
+      <div className="card w-full sm:max-w-lg bg-white p-5 shadow-2xl rounded-t-3xl sm:rounded-2xl pb-safe">
+        <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mb-2 shrink-0 sm:hidden" />
         <div className="flex items-center justify-between border-b border-line pb-3">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-sky-700">

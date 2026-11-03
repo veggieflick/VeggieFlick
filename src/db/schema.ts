@@ -107,7 +107,8 @@ export const otpCodes = pgTable(
   "otp_codes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    phone: varchar("phone", { length: 20 }).notNull(),
+    phone: varchar("phone", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }),
     codeHash: text("code_hash").notNull(),
     attempts: integer("attempts").default(0).notNull(),
     consumed: boolean("consumed").default(false).notNull(),
@@ -724,9 +725,16 @@ export const subscriptionItems = pgTable(
   (t) => [index("sub_items_subscription_idx").on(t.subscriptionId)],
 );
 
+export const appSettings = pgTable("app_settings", {
+  key: varchar("key", { length: 100 }).primaryKey(),
+  value: text("value").notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+});
+
 export type Product = typeof products.$inferSelect;
 export type ProductVariant = typeof productVariants.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Profile = typeof profiles.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
+export type AppSetting = typeof appSettings.$inferSelect;

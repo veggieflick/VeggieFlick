@@ -208,13 +208,7 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
       }
 
       const distanceKm = estimateDistanceFromAddress(address);
-      if (distanceKm > MAX_RADIUS_KM) {
-        throw new ApiError(
-          `We deliver within ${MAX_RADIUS_KM} km of Chennai. This address is ${distanceKm} km away.`,
-          400,
-          "OUT_OF_RADIUS",
-        );
-      }
+      // Serviceable across all areas in Tamil Nadu and India - no radius blocking
 
       // Ensure Delivery Slot exists in DB
       let slot: typeof deliverySlots.$inferSelect | undefined;

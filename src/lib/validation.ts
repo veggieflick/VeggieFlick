@@ -7,17 +7,27 @@ export const phoneSchema = z
 
 export const uuidSchema = z.string().trim().min(1, "Invalid identifier");
 
-export const sendOtpSchema = z.object({
-  phone: phoneSchema,
-  fullName: z.string().trim().min(2).max(80).optional(),
-});
+export const sendOtpSchema = z
+  .object({
+    phone: phoneSchema.optional(),
+    email: z.string().trim().email("Please enter a valid email address").optional(),
+    fullName: z.string().trim().min(2).max(80).optional(),
+  })
+  .refine((data) => Boolean(data.phone || data.email), {
+    message: "Either mobile number or email address is required",
+  });
 
-export const verifyOtpSchema = z.object({
-  phone: phoneSchema,
-  code: z.string().trim().regex(/^\d{6}$/, "OTP must be 6 digits"),
-  fullName: z.string().trim().min(2).max(80).optional(),
-  rememberMe: z.boolean().optional().default(false),
-});
+export const verifyOtpSchema = z
+  .object({
+    phone: phoneSchema.optional(),
+    email: z.string().trim().email("Please enter a valid email address").optional(),
+    code: z.string().trim().regex(/^\d{6}$/, "OTP must be 6 digits"),
+    fullName: z.string().trim().min(2).max(80).optional(),
+    rememberMe: z.boolean().optional().default(false),
+  })
+  .refine((data) => Boolean(data.phone || data.email), {
+    message: "Either mobile number or email address is required",
+  });
 
 export const adminLoginSchema = z.object({
   email: z.string().trim().min(3, "Enter a valid username or email"),

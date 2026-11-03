@@ -13,7 +13,7 @@ function LoginFlow() {
   const { refreshUser, refreshCart, user, notify } = useApp();
 
   const [mode, setMode] = useState<"phone" | "email">("phone");
-  const [step, setStep] = useState<"phone" | "otp">("phone");
+  const [step, setStep] = useState<"input" | "otp">("input");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [fullName, setFullName] = useState("");
@@ -41,10 +41,17 @@ function LoginFlow() {
     setBusy(true);
     setError(null);
     try {
+      const payload: any = { fullName: fullName || undefined };
+      if (mode === "email") {
+        payload.email = email.trim().toLowerCase();
+      } else {
+        payload.phone = phone.trim();
+      }
+
       const response = await fetch("/api/v1/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone }),
+        body: JSON.stringify(payload),
       });
       const json = await response.json();
       setBusy(false);
@@ -57,6 +64,11 @@ function LoginFlow() {
       setSeconds(json.data?.resendAfter ?? 30);
       setPreviewCode(otpPreview);
       setCode(otpPreview ?? "");
+      notify(
+        mode === "email"
+          ? `Verification OTP sent to ${email}!`
+          : `Verification OTP sent to ${phone}!`
+      );
     } catch {
       setBusy(false);
       setError("Unable to send OTP. Please check your internet connection.");
@@ -68,10 +80,21 @@ function LoginFlow() {
     setBusy(true);
     setError(null);
     try {
+      const payload: any = {
+        code,
+        fullName: fullName || undefined,
+        rememberMe: remember,
+      };
+      if (mode === "email") {
+        payload.email = email.trim().toLowerCase();
+      } else {
+        payload.phone = phone.trim();
+      }
+
       const response = await fetch("/api/v1/auth/verify-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code, fullName: fullName || undefined, rememberMe: remember }),
+        body: JSON.stringify(payload),
       });
       const json = await response.json();
       if (!json.success) {
@@ -80,32 +103,6 @@ function LoginFlow() {
         return;
       }
       notify("Signed in successfully! Redirecting...");
-      await Promise.all([refreshUser(), refreshCart()]);
-      window.location.href = redirect;
-    } catch {
-      setBusy(false);
-      notify("Signed in successfully!");
-      window.location.href = redirect;
-    }
-  }
-
-  async function loginWithEmail(event: React.FormEvent) {
-    event.preventDefault();
-    setBusy(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/v1/auth/email-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, fullName: fullName || undefined }),
-      });
-      const json = await response.json();
-      if (!json.success) {
-        setBusy(false);
-        setError(json.error?.message ?? "Email sign in failed");
-        return;
-      }
-      notify("Signed in with Email! Redirecting...");
       await Promise.all([refreshUser(), refreshCart()]);
       window.location.href = redirect;
     } catch {
@@ -144,11 +141,12 @@ function LoginFlow() {
           Fresh produce, <span className="text-brand-600">delivered fast.</span>
         </h1>
         <p className="mt-4 max-w-md text-sm text-muted">
-          Sign in with your Mobile number or Email address to track orders, save delivery addresses in Chennai, and earn cashbacks.
+          Sign in with your Mobile number or Gmail/Email address to track orders, save delivery addresses across Tamil Nadu & India, and earn cashbacks.
         </p>
         <ul className="mt-6 grid gap-3 text-sm">
           {[
-            "Six delivery slots every day across Chennai",
+            "Free Gmail OTP & Mobile login supported",
+            "Morning harvest delivered fresh to your doorstep",
             "Wallet refunds credited instantly on cancellation",
             "Loyalty points on every rupee you spend",
           ].map((item) => (
@@ -184,7 +182,7 @@ function LoginFlow() {
         <div className="mb-6 flex rounded-xl border border-line bg-surface p-1">
           <button
             type="button"
-            onClick={() => { setMode("phone"); setStep("phone"); setError(null); }}
+            onClick={() => { setMode("phone"); setStep("input"); setError(null); }}
             className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
               mode === "phone" ? "bg-white shadow text-brand-700" : "text-muted hover:text-ink"
             }`}
@@ -193,71 +191,58 @@ function LoginFlow() {
           </button>
           <button
             type="button"
-            onClick={() => { setMode("email"); setError(null); }}
+            onClick={() => { setMode("email"); setStep("input"); setError(null); }}
             className={`flex-1 rounded-lg py-2 text-xs font-bold transition-all ${
               mode === "email" ? "bg-white shadow text-brand-700" : "text-muted hover:text-ink"
             }`}
           >
-            <Mail className="inline h-3.5 w-3.5 mr-1" /> Email / Gmail
+            <Mail className="inline h-3.5 w-3.5 mr-1" /> Gmail / Email OTP
           </button>
         </div>
 
-        {mode === "email" ? (
-          <form onSubmit={loginWithEmail} className="grid gap-4">
-            <div>
-              <h2 className="text-xl font-bold">Sign in with Email</h2>
-              <p className="text-xs text-muted">We&apos;ll create your account automatically</p>
-            </div>
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold">Email address</span>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="sujai@gmail.com"
-                className="field"
-              />
-            </label>
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold">Full name</span>
-              <input
-                value={fullName}
-                onChange={(event) => setFullName(event.target.value)}
-                placeholder="Sujith Jai"
-                className="field"
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={!email || busy}
-              className="btn btn-primary py-3 text-sm disabled:opacity-50"
-            >
-              {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
-              Sign in with Email <ArrowRight className="h-4 w-4" aria-hidden />
-            </button>
-          </form>
-        ) : step === "phone" ? (
+        {step === "input" ? (
           <form onSubmit={sendOtp} className="grid gap-4">
             <div>
-              <h2 className="text-xl font-bold">Sign in with Mobile</h2>
-              <p className="text-xs text-muted">Enter your 10-digit mobile number</p>
+              <h2 className="text-xl font-bold">
+                {mode === "email" ? "Sign in with Gmail / Email" : "Sign in with Mobile"}
+              </h2>
+              <p className="text-xs text-muted">
+                {mode === "email"
+                  ? "We'll send a free 6-digit OTP code to your Gmail"
+                  : "Enter your 10-digit mobile number"}
+              </p>
             </div>
-            <label className="grid gap-1.5">
-              <span className="text-sm font-semibold">Mobile number</span>
-              <div className="flex items-center gap-2 rounded-xl border border-line px-3 focus-within:border-brand-600">
-                <span className="text-sm font-semibold text-muted">+91</span>
+
+            {mode === "email" ? (
+              <label className="grid gap-1.5">
+                <span className="text-sm font-semibold">Email address *</span>
                 <input
-                  inputMode="numeric"
-                  maxLength={10}
+                  type="email"
                   required
-                  value={phone}
-                  onChange={(event) => setPhone(event.target.value.replace(/\D/g, ""))}
-                  placeholder="98765 43210"
-                  className="w-full bg-transparent py-3 text-sm outline-none"
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="sujai@gmail.com"
+                  className="field"
                 />
-              </div>
-            </label>
+              </label>
+            ) : (
+              <label className="grid gap-1.5">
+                <span className="text-sm font-semibold">Mobile number *</span>
+                <div className="flex items-center gap-2 rounded-xl border border-line px-3 focus-within:border-brand-600">
+                  <span className="text-sm font-semibold text-muted">+91</span>
+                  <input
+                    inputMode="numeric"
+                    maxLength={10}
+                    required
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value.replace(/\D/g, ""))}
+                    placeholder="98765 43210"
+                    className="w-full bg-transparent py-3 text-sm outline-none"
+                  />
+                </div>
+              </label>
+            )}
+
             <label className="grid gap-1.5">
               <span className="text-sm font-semibold">
                 Full name <span className="font-normal text-muted">(optional)</span>
@@ -265,30 +250,36 @@ function LoginFlow() {
               <input
                 value={fullName}
                 onChange={(event) => setFullName(event.target.value)}
-                placeholder="Sujith"
+                placeholder="Sujith Jai"
                 className="field"
               />
             </label>
+
             <button
               type="submit"
-              disabled={phone.length !== 10 || busy}
+              disabled={(mode === "email" ? !email.includes("@") : phone.length !== 10) || busy}
               className="btn btn-primary py-3 text-sm disabled:opacity-50"
             >
               {busy ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> : null}
-              Get Verification Code <ArrowRight className="h-4 w-4" aria-hidden />
+              {mode === "email" ? "Send Free OTP to Gmail" : "Get Verification Code"}{" "}
+              <ArrowRight className="h-4 w-4" aria-hidden />
             </button>
           </form>
         ) : (
           <form onSubmit={verifyOtp} className="grid gap-4">
             <div>
-              <h2 className="text-xl font-bold">Verify OTP</h2>
-              <p className="text-xs text-muted">Sent to +91 {phone}</p>
+              <h2 className="text-xl font-bold">Verify OTP Code</h2>
+              <p className="text-xs text-muted">
+                Sent to {mode === "email" ? email : `+91 ${phone}`}
+              </p>
             </div>
 
-            {/* Prominent Demo OTP Banner */}
+            {/* Prominent Free OTP Auto-Fill Banner */}
             {previewCode && (
-              <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3 text-center text-emerald-900">
-                <p className="text-xs font-medium">Your 6-Digit OTP Code is:</p>
+              <div className="rounded-xl border border-emerald-300 bg-emerald-50 p-3.5 text-center text-emerald-900 shadow-xs">
+                <p className="text-xs font-semibold text-emerald-800">
+                  {mode === "email" ? "Free Gmail Verification Code:" : "Your 6-Digit OTP Code:"}
+                </p>
                 <p className="my-1 text-2xl font-black tracking-widest text-emerald-700">{previewCode}</p>
                 <button
                   type="button"
@@ -301,7 +292,7 @@ function LoginFlow() {
             )}
 
             <label className="grid gap-1.5">
-              <span className="text-sm font-semibold">6 digit OTP</span>
+              <span className="text-sm font-semibold">6 digit OTP code</span>
               <input
                 inputMode="numeric"
                 maxLength={6}
@@ -334,8 +325,12 @@ function LoginFlow() {
             </button>
 
             <div className="flex items-center justify-between text-xs">
-              <button type="button" className="font-semibold text-muted" onClick={() => setStep("phone")}>
-                Change number
+              <button
+                type="button"
+                className="font-semibold text-muted hover:text-ink"
+                onClick={() => setStep("input")}
+              >
+                Change {mode === "email" ? "Email" : "Number"}
               </button>
               <button
                 type="button"

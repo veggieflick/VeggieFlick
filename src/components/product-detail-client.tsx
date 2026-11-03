@@ -84,14 +84,11 @@ export function ProductPurchasePanel({
 
   function checkDelivery() {
     if (!/^\d{6}$/.test(pincode)) {
-      setDeliveryMessage("Enter a valid 6-digit Chennai pincode.");
+      setDeliveryMessage("Enter a valid 6-digit pincode.");
       return;
     }
-    if (!pincode.startsWith("600078") && !pincode.startsWith("600083") && !pincode.startsWith("600092") && !pincode.startsWith("600024") && !pincode.startsWith("600033") && !pincode.startsWith("600095") && !pincode.startsWith("600089") && !pincode.startsWith("600042") && !pincode.startsWith("600015") && !pincode.startsWith("600094") && !pincode.startsWith("600087") && !pincode.startsWith("600116")) {
-      setDeliveryMessage("Sorry, we currently deliver only within a 10 KM radius of K.K. Nagar, Chennai (600078).");
-      return;
-    }
-    setDeliveryMessage("Deliverable from K.K. Nagar Hub — select your fresh delivery slot at checkout.");
+    // All serviceable
+    setDeliveryMessage("Deliverable to your location — fast fresh delivery to your doorstep.");
   }
 
   return (

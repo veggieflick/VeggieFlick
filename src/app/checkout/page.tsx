@@ -185,7 +185,7 @@ export default function CheckoutPage() {
   const [slotId, setSlotId] = useState<string | null>(null);
 
   // Dedicated Payment State
-  const [paymentMode, setPaymentMode] = useState<"razorpay" | "cod">("razorpay");
+  const [paymentMode, setPaymentMode] = useState<"razorpay" | "direct_upi" | "cod">("razorpay");
   const [razorpaySubMethod, setRazorpaySubMethod] = useState<"upi" | "card" | "qr" | "netbanking">("upi");
   const [selectedUpiApp, setSelectedUpiApp] = useState<"gpay" | "phonepe" | "paytm" | "any">("gpay");
   const [selectedBank, setSelectedBank] = useState<string>("HDFC");
@@ -537,7 +537,7 @@ export default function CheckoutPage() {
         const rzp = new (window as any).Razorpay(options);
         rzp.on("payment.failed", function (failResponse: any) {
           setBusy(false);
-          setError(failResponse.error?.description || "Payment failed. Please try a different payment method.");
+          setError((failResponse.error?.description || "Payment was not completed.") + " You can pay directly via Direct UPI (9840532826@okaxis) or select Cash on Delivery below.");
         });
         rzp.open();
         return;
@@ -557,6 +557,7 @@ export default function CheckoutPage() {
   function getCtaButtonText() {
     if (busy) return "Processing Order…";
     if (paymentMode === "cod") return `Place Order (Cash on Delivery) • ${formatINR(payableAmount)}`;
+    if (paymentMode === "direct_upi") return `Place Order via Direct UPI • ${formatINR(payableAmount)}`;
     if (razorpaySubMethod === "upi") {
       if (selectedUpiApp === "gpay") return `Pay ${formatINR(payableAmount)} via Google Pay (Razorpay)`;
       if (selectedUpiApp === "phonepe") return `Pay ${formatINR(payableAmount)} via PhonePe (Razorpay)`;
@@ -855,48 +856,172 @@ export default function CheckoutPage() {
               </p>
             </div>
 
-            {/* Primary Payment Selector (Razorpay 100% Verified) */}
-            <div className="mb-5">
-              <div className="rounded-2xl border-2 border-emerald-600 bg-emerald-50/40 p-4 shadow-sm ring-2 ring-emerald-500/20">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-600 animate-pulse" />
-                    <span className="font-extrabold text-slate-900 text-sm">
-                      Razorpay Verified Payment Gateway (Live Mode)
-                    </span>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-600 text-white font-black text-[10px] tracking-wide uppercase">
-                    100% Secure
+            {/* Primary Payment Mode Selection (3 Distinct Options) */}
+            <div className="grid gap-3 sm:grid-cols-3 mb-5">
+              {/* Option 1: Razorpay Gateway */}
+              <div
+                onClick={() => { setPaymentMode("razorpay"); setError(null); }}
+                className={`cursor-pointer rounded-2xl border-2 p-4 transition-all ${
+                  paymentMode === "razorpay"
+                    ? "border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-500/20 shadow-xs"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
+                    <CreditCard className="h-4 w-4 text-emerald-700" />
+                    <span>Razorpay Gateway</span>
+                  </span>
+                  <input
+                    type="radio"
+                    name="paymentMode"
+                    className="h-4 w-4 accent-emerald-600"
+                    checked={paymentMode === "razorpay"}
+                    onChange={() => { setPaymentMode("razorpay"); setError(null); }}
+                  />
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
+                  UPI, GPay, PhonePe, Cards & Net Banking via Razorpay.
+                </p>
+                <div className="mt-2.5 flex items-center gap-1">
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                    Online Pay
                   </span>
                 </div>
-                <p className="text-xs text-slate-600 mt-1">
-                  Razorpay அதிகாரப்பூர்வ நேரடி கட்டணம்: UPI, Google Pay, PhonePe, Cards, Net Banking & QR Code.
+              </div>
+
+              {/* Option 2: Direct UPI QR / App Transfer */}
+              <div
+                onClick={() => { setPaymentMode("direct_upi"); setError(null); }}
+                className={`cursor-pointer rounded-2xl border-2 p-4 transition-all ${
+                  paymentMode === "direct_upi"
+                    ? "border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-500/20 shadow-xs"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
+                    <QrCode className="h-4 w-4 text-emerald-700" />
+                    <span>Direct UPI & QR</span>
+                  </span>
+                  <input
+                    type="radio"
+                    name="paymentMode"
+                    className="h-4 w-4 accent-emerald-600"
+                    checked={paymentMode === "direct_upi"}
+                    onChange={() => { setPaymentMode("direct_upi"); setError(null); }}
+                  />
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
+                  Scan QR or Pay to <strong>9840532826@okaxis</strong>. Zero gateway issues.
                 </p>
-                {/* Brand Logos preview */}
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
-                    <GooglePayIcon className="h-4 w-4 mr-1" />
-                    <span className="text-[10px] font-bold text-slate-700">GPay</span>
+                <div className="mt-2.5 flex items-center gap-1">
+                  <span className="rounded bg-emerald-100 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
+                    100% Reliable
                   </span>
-                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
-                    <PhonePeIcon className="h-3.5 w-3.5 mr-1" />
-                    <span className="text-[10px] font-bold text-slate-700">PhonePe</span>
+                </div>
+              </div>
+
+              {/* Option 3: Cash on Delivery (COD) */}
+              <div
+                onClick={() => { setPaymentMode("cod"); setError(null); }}
+                className={`cursor-pointer rounded-2xl border-2 p-4 transition-all ${
+                  paymentMode === "cod"
+                    ? "border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-500/20 shadow-xs"
+                    : "border-slate-200 bg-white hover:border-slate-300"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-extrabold text-sm text-slate-900 flex items-center gap-1.5">
+                    <Truck className="h-4 w-4 text-emerald-700" />
+                    <span>Cash on Delivery</span>
                   </span>
-                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
-                    <PaytmIcon className="h-3.5 w-10 mr-1" />
-                  </span>
-                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
-                    <VisaIcon className="h-3 w-6" />
-                  </span>
-                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
-                    <MastercardIcon className="h-3 w-6" />
-                  </span>
-                  <span className="inline-flex items-center bg-white border border-slate-200 rounded px-1.5 py-0.5 shadow-2xs">
-                    <RuPayIcon className="h-3.5 w-8" />
+                  <input
+                    type="radio"
+                    name="paymentMode"
+                    className="h-4 w-4 accent-emerald-600"
+                    checked={paymentMode === "cod"}
+                    onChange={() => { setPaymentMode("cod"); setError(null); }}
+                  />
+                </div>
+                <p className="text-[11px] text-slate-600 mt-1.5 leading-relaxed">
+                  Pay cash or UPI at delivery doorstep. No advance payment required.
+                </p>
+                <div className="mt-2.5 flex items-center gap-1">
+                  <span className="rounded bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-700">
+                    Doorstep
                   </span>
                 </div>
               </div>
             </div>
+
+            {/* Direct UPI Content Panel */}
+            {paymentMode === "direct_upi" && (
+              <div className="rounded-2xl border-2 border-emerald-500/50 bg-linear-to-b from-emerald-50/60 to-white p-5 text-center mb-5 animate-in fade-in duration-200">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-700 text-white text-xs font-bold shadow-xs">
+                  <QrCode className="h-3.5 w-3.5" /> Direct UPI Transfer • {formatINR(payableAmount, true)}
+                </span>
+                <p className="text-xs text-slate-600 mt-2">
+                  Scan using <strong>Google Pay, PhonePe, Paytm, BHIM</strong> or any UPI App
+                </p>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-5 my-4">
+                  <div className="bg-white p-3 rounded-2xl border-2 border-emerald-500 shadow-md">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={upiQrUrl}
+                      alt="VeggieFlick UPI Payment QR"
+                      width={180}
+                      height={180}
+                      className="rounded-lg"
+                    />
+                    <span className="block text-[10px] font-bold text-slate-500 mt-1.5">
+                      Exact Amount: {formatINR(payableAmount, true)}
+                    </span>
+                  </div>
+
+                  <div className="grid gap-2.5 text-left max-w-xs">
+                    <div className="text-xs text-slate-700">
+                      <strong>VeggieFlick Official UPI ID:</strong>
+                      <div className="mt-1 flex items-center gap-2 bg-white px-3 py-2 rounded-lg border border-slate-300 font-mono font-bold text-slate-900 shadow-2xs">
+                        <span>9840532826@okaxis</span>
+                        <button
+                          type="button"
+                          onClick={copyUpiId}
+                          className="ml-auto text-emerald-700 hover:text-emerald-900 p-1"
+                          title="Copy UPI ID"
+                        >
+                          {copiedUpi ? <Check className="h-4 w-4 text-emerald-600" /> : <Copy className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="text-xs text-slate-600">
+                      <span>Merchant Name: </span>
+                      <strong className="text-slate-900">VeggieFlick</strong>
+                    </div>
+
+                    <a
+                      href={upiDeepLink}
+                      className="btn btn-outline border-emerald-600 text-emerald-800 font-bold text-xs py-2 px-3 text-center"
+                    >
+                      Open UPI App on Phone
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* COD Content Panel */}
+            {paymentMode === "cod" && (
+              <div className="rounded-2xl border-2 border-slate-200 bg-slate-50 p-5 text-center mb-5 animate-in fade-in duration-200">
+                <Truck className="h-8 w-8 text-emerald-700 mx-auto mb-2" />
+                <h4 className="font-extrabold text-sm text-slate-900">Cash on Delivery Confirmed</h4>
+                <p className="text-xs text-slate-600 mt-1 max-w-md mx-auto">
+                  You can pay <strong>{formatINR(payableAmount, true)}</strong> using Cash or UPI to the delivery executive when your fresh produce arrives at your doorstep tomorrow morning.
+                </p>
+              </div>
+            )}
 
             {/* Sub-Methods Architecture when Razorpay is active */}
             {paymentMode === "razorpay" && (

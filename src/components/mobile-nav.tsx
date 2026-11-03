@@ -19,7 +19,7 @@ const ITEMS = [
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { cart } = useApp();
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname === "/checkout") return null;
 
   return (
     <nav
