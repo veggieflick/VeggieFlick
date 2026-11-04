@@ -4,7 +4,7 @@ import { cartItems, carts, coupons, inventory, productVariants, products } from 
 import { ApiError } from "@/lib/api";
 import { getOrCreateGuestToken, getSession, readGuestToken } from "@/lib/auth";
 import { round2, toNumber } from "@/lib/utils";
-import { deliveryChargeForDistance } from "@/lib/services/delivery";
+import { deliveryChargeForDistance, FREE_DELIVERY_MIN_ORDER } from "@/lib/delivery-slabs";
 import { FALLBACK_COUPONS } from "@/lib/data/fallback-content";
 
 export type CartLine = {
@@ -211,7 +211,8 @@ export function computeTotals(
   const savings = round2(
     items.reduce((sum, item) => sum + Math.max(0, item.mrp - item.unitPrice) * item.quantity, 0),
   );
-  const { discount, freeDelivery } = computeDiscount(coupon, subtotal);
+  const { discount, freeDelivery: couponFreeDelivery } = computeDiscount(coupon, subtotal);
+  const freeDelivery = subtotal >= FREE_DELIVERY_MIN_ORDER || couponFreeDelivery;
   const taxAmount = round2(
     items.reduce((sum, item) => sum + (item.unitPrice * item.quantity * item.taxPercentage) / 100, 0),
   );
@@ -227,8 +228,8 @@ export function computeTotals(
     taxAmount,
     grandTotal,
     couponCode,
-    freeDeliveryThreshold: 0,
-    amountToFreeDelivery: 0,
+    freeDeliveryThreshold: FREE_DELIVERY_MIN_ORDER,
+    amountToFreeDelivery: Math.max(0, FREE_DELIVERY_MIN_ORDER - subtotal),
   };
 }
 

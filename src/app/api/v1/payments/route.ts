@@ -53,9 +53,7 @@ export async function POST(request: Request) {
     if (order.paymentStatus === "paid") throw new ApiError("Order is already paid", 409, "ALREADY_PAID");
 
     const amountPaise = Math.round(toNumber(order.grandTotal) * 100);
-    const paymentConfig = (globalThis as any).__veggieflickPaymentConfig;
-    const keyId = process.env.RAZORPAY_KEY_ID || paymentConfig?.keyId;
-    const keySecret = process.env.RAZORPAY_SECRET || paymentConfig?.secret;
+    const { keyId, keySecret } = await getRazorpayCredentials();
 
     if (keyId && keySecret) {
       const response = await fetch("https://api.razorpay.com/v1/orders", {

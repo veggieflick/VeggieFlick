@@ -6,19 +6,13 @@ import { haversineKm, round2 } from "@/lib/utils";
 /** VeggieFlick Chennai Central Hub (Koyambedu wholesale market area). */
 export const STORE_LOCATION = { lat: 13.0694, lng: 80.1948, label: "Koyambedu, Chennai" };
 export const MAX_RADIUS_KM = 25;
-export const FREE_DELIVERY_MIN_ORDER = 499;
+import {
+  FREE_DELIVERY_MIN_ORDER,
+  CHARGE_SLABS,
+  deliveryChargeForDistance,
+} from "@/lib/delivery-slabs";
 
-const CHARGE_SLABS = [
-  { upto: 5, charge: 30 },
-  { upto: 10, charge: 50 },
-  { upto: 15, charge: 70 },
-  { upto: 25, charge: 100 },
-];
-
-export function deliveryChargeForDistance(distanceKm: number): number {
-  const slab = CHARGE_SLABS.find((s) => distanceKm <= s.upto);
-  return slab ? slab.charge : 100;
-}
+export { FREE_DELIVERY_MIN_ORDER, CHARGE_SLABS, deliveryChargeForDistance };
 
 export type RadiusCheck = {
   serviceable: boolean;

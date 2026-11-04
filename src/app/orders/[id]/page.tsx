@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Circle, CreditCard, MapPin, MessageCircle, Phone, Star, Truck, XCircle } from "lucide-react";
+import { CheckCircle2, Circle, CreditCard, MapPin, MessageCircle, Phone, Star, Truck, XCircle, Smartphone } from "lucide-react";
 import { useApp } from "@/components/providers";
 import { ORDER_STATUS_FLOW, ORDER_STATUS_LABEL, formatDateTimeIST, formatINR } from "@/lib/utils";
 import { Breadcrumb, StatusPill } from "@/components/ui/primitives";
@@ -385,19 +385,28 @@ export default function OrderDetailPage() {
               </p>
             )}
             {order.paymentStatus !== "paid" && !cancelled && (
-              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 space-y-2">
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-3.5 space-y-2.5">
                 <div className="flex items-center justify-between text-xs font-bold text-amber-900">
-                  <span>Payment Pending:</span>
+                  <span>Payment Due:</span>
                   <span>{formatINR(order.grandTotal, true)}</span>
                 </div>
+                <a
+                  href={`upi://pay?pa=9840532826@okaxis&pn=VeggieFlick&am=${Number(order.grandTotal).toFixed(2)}&cu=INR&tn=Order-${order.orderNumber}`}
+                  className="btn btn-primary w-full py-2.5 text-xs font-bold bg-emerald-700 hover:bg-emerald-600 text-white flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <Smartphone size={14} /> Pay {formatINR(order.grandTotal, true)} via Google Pay / UPI
+                </a>
                 <button
                   type="button"
                   onClick={() => void payNow()}
                   disabled={busy}
-                  className="btn btn-primary w-full py-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 shadow-sm"
+                  className="btn btn-outline border-slate-300 w-full py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 flex items-center justify-center gap-2"
                 >
-                  <CreditCard size={14} /> Pay Now with Razorpay
+                  <CreditCard size={14} /> Pay via Razorpay Gateway
                 </button>
+                <p className="text-[11px] text-slate-500 text-center">
+                  Official UPI ID: <strong className="font-mono text-slate-800">9840532826@okaxis</strong>
+                </p>
               </div>
             )}
           </div>

@@ -23,7 +23,8 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useApp } from "@/components/providers";
-import { formatINR } from "@/lib/utils";
+import { formatINR, round2 } from "@/lib/utils";
+import { calculateDeliveryAndPayable, deliveryChargeForDistance, FREE_DELIVERY_MIN_ORDER } from "@/lib/delivery-slabs";
 import { Breadcrumb, EmptyState } from "@/components/ui/primitives";
 
 /* ------------------------------------------------------------------ */
@@ -184,6 +185,11 @@ export default function CheckoutPage() {
   const [addressId, setAddressId] = useState<string | null>(null);
   const [slotId, setSlotId] = useState<string | null>(null);
 
+  const selectedAddress = useMemo(
+    () => addresses.find((address) => address.id === addressId) ?? null,
+    [addresses, addressId],
+  );
+
   // Dedicated Payment State
   const [paymentMode, setPaymentMode] = useState<"razorpay" | "direct_upi" | "cod">("razorpay");
   const [razorpaySubMethod, setRazorpaySubMethod] = useState<"upi" | "card" | "qr" | "netbanking">("upi");
@@ -207,9 +213,15 @@ export default function CheckoutPage() {
   const [error, setError] = useState<string | null>(null);
   const [idempotencyKey] = useState(() => `vf-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`);
 
-  const payableAmount = useMemo(() => {
-    return cart.totals.grandTotal > 0 ? cart.totals.grandTotal : cart.totals.subtotal + 30;
-  }, [cart.totals.grandTotal, cart.totals.subtotal]);
+  const { deliveryCharge, payableAmount } = useMemo(() => {
+    return calculateDeliveryAndPayable({
+      subtotal: cart.totals.subtotal,
+      discount: cart.totals.discount,
+      taxAmount: cart.totals.taxAmount,
+      distanceKm: selectedAddress?.distanceKm,
+      isFreeDeliveryCoupon: cart.totals.deliveryCharge === 0 && cart.totals.discount > 0,
+    });
+  }, [cart.totals.subtotal, cart.totals.discount, cart.totals.taxAmount, cart.totals.deliveryCharge, selectedAddress?.distanceKm]);
 
   // Deep Link URI for mobile UPI apps
   const upiDeepLink = useMemo(() => {
@@ -269,10 +281,6 @@ export default function CheckoutPage() {
     return () => clearTimeout(timer);
   }, [user, loadContext]);
 
-  const selectedAddress = useMemo(
-    () => addresses.find((address) => address.id === addressId) ?? null,
-    [addresses, addressId],
-  );
 
   // Card Format Helpers
   function handleCardNumberChange(val: string) {
@@ -460,6 +468,14 @@ export default function CheckoutPage() {
         return;
       }
 
+      // Direct UPI Flow (Zero gateway issues, direct to official UPI 9840532826@okaxis)
+      if (paymentMode === "direct_upi") {
+        await refreshCart();
+        notify(`Order ${json.data.orderNumber} placed! Please complete UPI payment to 9840532826@okaxis`);
+        router.push(`/orders/${json.data.orderId}?placed=1&direct_upi=1`);
+        return;
+      }
+
       // Prepaid Razorpay Flow (UPI / Card / Netbanking / QR)
       const payRes = await fetch("/api/v1/payments", {
         method: "POST",
@@ -480,14 +496,32 @@ export default function CheckoutPage() {
           key: payJson.data.keyId,
           amount: payJson.data.amount,
           currency: payJson.data.currency || "INR",
-          name: "VeggieFlick",
-          description: `Order #${json.data.orderNumber} — Fresh Cut Veggies`,
+          name: "VeggieFlick Chennai",
+          description: `Order #${json.data.orderNumber} - Fresh Veggies & Salads`,
           order_id: payJson.data.razorpayOrderId,
           prefill: {
             name: cardForm.name || form.contactName || user?.fullName || "Customer",
             contact: form.contactPhone || user?.phone || "9840532826",
             email: user?.email || "customer@veggieflick.in",
             method: activeMethod,
+          },
+          config: {
+            display: {
+              blocks: {
+                upi: {
+                  name: "Pay via UPI (Google Pay, PhonePe, Paytm, BHIM)",
+                  instruments: [{ method: "upi" }],
+                },
+                other: {
+                  name: "Cards / Net Banking / Wallets",
+                  instruments: [{ method: "card" }, { method: "netbanking" }, { method: "wallet" }],
+                },
+              },
+              sequence: ["block.upi", "block.other"],
+              preferences: {
+                show_default_blocks: true,
+              },
+            },
           },
           notes: {
             orderId: json.data.orderId,
@@ -746,6 +780,28 @@ export default function CheckoutPage() {
                     />
                   </label>
 
+                                    <label className="grid gap-1">
+                    <span className="text-xs font-semibold text-slate-700">City / District *</span>
+                    <input
+                      required
+                      value={form.city}
+                      onChange={(e) => setForm({ ...form, city: e.target.value })}
+                      placeholder="Chennai"
+                      className="field bg-white"
+                    />
+                  </label>
+
+                  <label className="grid gap-1">
+                    <span className="text-xs font-semibold text-slate-700">State *</span>
+                    <input
+                      required
+                      value={form.state}
+                      onChange={(e) => setForm({ ...form, state: e.target.value })}
+                      placeholder="Tamil Nadu"
+                      className="field bg-white"
+                    />
+                  </label>
+
                   <label className="grid gap-1">
                     <span className="text-xs font-semibold text-slate-700">Pincode *</span>
                     <input
@@ -844,7 +900,7 @@ export default function CheckoutPage() {
             <div className="mb-4">
               <div className="flex items-center justify-between">
                 <h2 id="payment-heading" className="flex items-center gap-2 text-lg font-bold text-slate-900">
-                  <CreditCard className="h-5 w-5 text-emerald-600" aria-hidden /> 3. Payment Method / பணம் செலுத்துதல்
+                  <CreditCard className="h-5 w-5 text-emerald-600" aria-hidden /> 3. Payment Method / கட்டணம் செலுத்தும் முறை
                 </h2>
                 <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
                   <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
@@ -1476,7 +1532,7 @@ export default function CheckoutPage() {
               <div className="flex justify-between text-slate-600">
                 <dt>Delivery Charge</dt>
                 <dd className="font-semibold text-slate-900">
-                  {formatINR(cart.totals.deliveryCharge > 0 ? cart.totals.deliveryCharge : 50, true)}
+                  {deliveryCharge === 0 ? <span className="text-emerald-700 font-bold">FREE</span> : formatINR(deliveryCharge, true)}
                 </dd>
               </div>
               <div className="mt-1 flex justify-between border-t border-slate-200 pt-3 text-lg font-black text-slate-900">

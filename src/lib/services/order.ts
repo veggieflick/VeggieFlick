@@ -26,6 +26,7 @@ import { clearCart, computeDiscount, getCartSummary } from "@/lib/services/cart"
 import {
   MAX_RADIUS_KM,
   deliveryChargeForDistance,
+  FREE_DELIVERY_MIN_ORDER,
   estimateDistanceFromAddress,
 } from "@/lib/services/delivery";
 import { sendWhatsAppOrderAlert } from "@/lib/services/whatsapp";
@@ -291,7 +292,8 @@ export async function placeOrder(profileId: string, input: PlaceOrderInput) {
         }
       }
 
-      const { discount, freeDelivery } = computeDiscount(couponRow, subtotal);
+      const { discount, freeDelivery: couponFreeDelivery } = computeDiscount(couponRow, subtotal);
+      const freeDelivery = subtotal >= FREE_DELIVERY_MIN_ORDER || couponFreeDelivery;
       const deliveryCharge = freeDelivery ? 0 : deliveryChargeForDistance(distanceKm);
       const grandTotal = round2(Math.max(0, subtotal - discount + deliveryCharge + taxAmount));
 
