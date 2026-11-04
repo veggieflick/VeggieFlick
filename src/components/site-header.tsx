@@ -295,7 +295,7 @@ export function SiteHeader() {
                 ) : (
                   <>
                     <Link href="/login" className="block rounded-lg px-3 py-2 text-sm hover:bg-surface">
-                      Sign in with OTP
+                      Login / Sign In
                     </Link>
                     <Link href="/orders" className="block rounded-lg px-3 py-2 text-sm hover:bg-surface">
                       Track an order

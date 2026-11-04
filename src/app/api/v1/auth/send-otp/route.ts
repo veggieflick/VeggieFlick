@@ -4,6 +4,7 @@ import { otpCodes } from "@/db/schema";
 import { ApiError, handle, ok, parseBody } from "@/lib/api";
 import { generateOtp, hashOtp, saveOtpInMemory } from "@/lib/auth";
 import { sendOtpSchema } from "@/lib/validation";
+import { sendEmail } from "@/lib/services/email";
 
 export const dynamic = "force-dynamic";
 
@@ -16,9 +17,6 @@ export async function POST(request: Request) {
     const { phone, email, fullName } = await parseBody(request, sendOtpSchema);
     const identifier = email ? email.toLowerCase().trim() : phone!.trim();
     const code = generateOtp(6);
-    
-    // Save in memory for instant validation
-    saveOtpInMemory(identifier, code, OTP_TTL_SECONDS);
 
     const windowStart = new Date(Date.now() - 15 * 60 * 1000);
     const recentRecords = await db
@@ -32,6 +30,79 @@ export async function POST(request: Request) {
       throw new ApiError("Too many OTP requests. Please try again in a few minutes.", 429, "RATE_LIMIT_EXCEEDED");
     }
 
+    // 1. Dispatch Email (if Email requested)
+    if (email) {
+      const emailResult = await sendEmail({
+        to: email,
+        subject: `${code} is your VeggieFlick Login Code`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <h1 style="color: #065f46; font-size: 24px; margin: 0; font-weight: 800;">VeggieFlick</h1>
+              <p style="color: #64748b; font-size: 13px; margin-top: 4px;">Fresh Cut Veggies Delivered Fast</p>
+            </div>
+            <p style="color: #334155; font-size: 15px; line-height: 1.5;">Hello,</p>
+            <p style="color: #334155; font-size: 14px; line-height: 1.5;">Your 6-digit verification code to sign in to VeggieFlick is:</p>
+            <div style="background-color: #ecfdf5; border: 2px dashed #059669; padding: 18px; border-radius: 10px; text-align: center; margin: 24px 0;">
+              <span style="font-size: 34px; font-weight: 800; letter-spacing: 8px; color: #065f46; font-family: monospace;">${code}</span>
+            </div>
+            <p style="color: #64748b; font-size: 12px; line-height: 1.5;">This code is valid for 3 minutes. For your security, do not share this code with anyone.</p>
+            <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 24px 0;" />
+            <p style="color: #94a3b8; font-size: 11px; text-align: center;">VeggieFlick - Koyambedu & K.K. Nagar Hubs, Chennai.</p>
+          </div>
+        `,
+        text: `Your VeggieFlick verification code is ${code}. Valid for 3 minutes.`,
+      });
+
+      if (!emailResult.success) {
+        throw new ApiError(
+          emailResult.error || "Failed to deliver email to " + email + ". Please check mail configuration in Admin Settings.",
+          400,
+          "EMAIL_DISPATCH_FAILED"
+        );
+      }
+    }
+
+    // 2. Dispatch Mobile SMS OTP (if Phone requested)
+    if (phone) {
+      const fast2smsKey = process.env.FAST2SMS_API_KEY;
+      const msg91Key = process.env.MSG91_API_KEY;
+
+      if (fast2smsKey) {
+        try {
+          await fetch("https://www.fast2sms.com/dev/bulkV2", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              authorization: fast2smsKey,
+            },
+            body: JSON.stringify({
+              route: "q",
+              message: `Your VeggieFlick OTP code is ${code}. Valid for 3 minutes. Do not share with anyone.`,
+              language: "english",
+              flash: "0",
+              numbers: String(phone),
+            }),
+          });
+        } catch (err) {
+          console.warn("Fast2SMS API fetch error:", err);
+        }
+      } else if (msg91Key) {
+        await fetch("https://control.msg91.com/api/v5/otp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", authkey: msg91Key },
+          body: JSON.stringify({
+            template_id: process.env.MSG91_TEMPLATE_ID ?? "veggieflick_otp",
+            mobile: `91${phone}`,
+            otp: code,
+          }),
+        }).catch(() => undefined);
+      }
+    }
+
+    // Save in memory and DB only after dispatch attempt
+    saveOtpInMemory(identifier, code, OTP_TTL_SECONDS);
+
     await db
       .insert(otpCodes)
       .values({
@@ -44,89 +115,16 @@ export async function POST(request: Request) {
         console.warn("sendOtp db insertion warning:", err);
       });
 
-    // 1. Dispatch Email OTP (if Email requested)
-    let emailSent = false;
-    if (email) {
-      const resendApiKey = process.env.RESEND_API_KEY;
-      if (resendApiKey) {
-        try {
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${resendApiKey}`,
-            },
-            body: JSON.stringify({
-              from: "VeggieFlick <login@veggieflick.in>",
-              to: [email],
-              subject: `${code} is your VeggieFlick Login Code`,
-              html: `
-                <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
-                  <h2 style="color: #065f46; margin-bottom: 8px;">VeggieFlick Verification</h2>
-                  <p style="color: #475569; font-size: 14px;">Use the 6-digit verification code below to sign in:</p>
-                  <div style="background-color: #ecfdf5; border: 1px solid #a7f3d0; padding: 16px; border-radius: 8px; text-align: center; margin: 20px 0;">
-                    <span style="font-size: 32px; font-weight: bold; letter-spacing: 6px; color: #047857;">${code}</span>
-                  </div>
-                  <p style="color: #64748b; font-size: 12px;">Valid for 3 minutes. Never share this code with anyone.</p>
-                </div>
-              `,
-            }),
-          });
-          emailSent = true;
-        } catch (err) {
-          console.warn("Resend email dispatch error:", err);
-        }
-      }
-    }
-
-    // 2. Dispatch Mobile SMS OTP (if Phone requested)
-    const fast2smsKey = process.env.FAST2SMS_API_KEY;
-    const msg91Key = process.env.MSG91_API_KEY;
-    const smsConfigured = Boolean(fast2smsKey || msg91Key);
-
-    if (phone && fast2smsKey) {
-      try {
-        await fetch("https://www.fast2sms.com/dev/bulkV2", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            authorization: fast2smsKey,
-          },
-          body: JSON.stringify({
-            route: "q",
-            message: `Your VeggieFlick OTP code is ${code}. Valid for 3 minutes. Do not share with anyone.`,
-            language: "english",
-            flash: "0",
-            numbers: String(phone),
-          }),
-        });
-      } catch (err) {
-        console.warn("Fast2SMS API fetch error:", err);
-      }
-    } else if (phone && msg91Key) {
-      await fetch("https://control.msg91.com/api/v5/otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", authkey: msg91Key },
-        body: JSON.stringify({
-          template_id: process.env.MSG91_TEMPLATE_ID ?? "veggieflick_otp",
-          mobile: `91${phone}`,
-          otp: code,
-        }),
-      }).catch(() => undefined);
-    }
-
     return ok({
       phone: phone || null,
       email: email || null,
       identifier,
       expiresIn: OTP_TTL_SECONDS,
       resendAfter: RESEND_AFTER_SECONDS,
-      channel: email ? (emailSent ? "email_sent" : "preview") : (smsConfigured ? "sms" : "preview"),
-      // Free preview code so login works seamlessly without paying SMS gateway fees
-      otpPreview: code,
+      channel: email ? "email" : "sms",
       message: email
-        ? `Free verification code generated for ${email}`
-        : `Verification code generated for ${phone}`,
+        ? `Verification code has been sent to ${email}. Please check your inbox.`
+        : `Verification code has been sent to +91 ${phone}.`,
     });
   });
 }

@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import {
+  Mail,
+  Save,
   Building2,
   FileCheck2,
   CreditCard,
@@ -141,7 +143,7 @@ const INITIAL_REVIEWS: PendingReview[] = [
 export default function AdminStoreSettingsPage() {
   const { notify } = useApp();
   const [activeTab, setActiveTab] = useState<
-    "general" | "pricing" | "partners" | "payments" | "whatsapp" | "reviews"
+    "general" | "pricing" | "partners" | "payments" | "email" | "whatsapp" | "reviews"
   >("general");
 
   // Operational Store State
@@ -188,6 +190,98 @@ export default function AdminStoreSettingsPage() {
   const [savingPayment, setSavingPayment] = useState(false);
   const [testResult, setTestResult] = useState<{ connected: boolean; message: string } | null>(null);
   const [copiedWebhook, setCopiedWebhook] = useState(false);
+  // Email & Auth State
+  const [emailProvider, setEmailProvider] = useState<"gmail_smtp" | "resend" | "none">("gmail_smtp");
+  const [smtpUser, setSmtpUser] = useState("");
+  const [smtpPass, setSmtpPass] = useState("");
+  const [resendApiKey, setResendApiKey] = useState("");
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
+  const [isEmailConfigured, setIsEmailConfigured] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState("sujithjai007@gmail.com");
+  const [savingEmail, setSavingEmail] = useState(false);
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [emailTestResult, setEmailTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/v1/admin/settings/email")
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success && res.data) {
+          setIsEmailConfigured(Boolean(res.data.isConfigured));
+          if (res.data.provider !== "none") {
+            setEmailProvider(res.data.provider);
+          }
+          if (res.data.smtpUser) setSmtpUser(res.data.smtpUser);
+        }
+      })
+      .catch(() => undefined);
+  }, []);
+
+  const handleSaveEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingEmail(true);
+    try {
+      const res = await fetch("/api/v1/admin/settings/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "save",
+          provider: emailProvider,
+          smtpUser,
+          smtpPass,
+          resendApiKey,
+        }),
+      });
+      const json = await res.json();
+      setSavingEmail(false);
+      if (json.success) {
+        setIsEmailConfigured(true);
+        notify("Email credentials saved and activated successfully!");
+      } else {
+        notify(json.error?.message || "Could not save email credentials");
+      }
+    } catch {
+      setSavingEmail(false);
+      notify("Network error saving email credentials");
+    }
+  };
+
+  const handleTestEmail = async () => {
+    setTestingEmail(true);
+    setEmailTestResult(null);
+    try {
+      const res = await fetch("/api/v1/admin/settings/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "test",
+          testEmail: testEmailAddress,
+        }),
+      });
+      const json = await res.json();
+      setTestingEmail(false);
+      if (json.success && json.data) {
+        setEmailTestResult({
+          success: true,
+          message: json.data.message || `Test email delivered to ${testEmailAddress}!`,
+        });
+        notify(`Email delivered successfully to ${testEmailAddress}!`);
+      } else {
+        setEmailTestResult({
+          success: false,
+          message: json.error?.message || "Delivery failed",
+        });
+        notify(json.error?.message || "Delivery failed");
+      }
+    } catch {
+      setTestingEmail(false);
+      setEmailTestResult({
+        success: false,
+        message: "Network error sending test email",
+      });
+    }
+  };
+
 
   useEffect(() => {
     fetch("/api/v1/admin/settings/payment")
@@ -411,6 +505,7 @@ export default function AdminStoreSettingsPage() {
         {[
           { id: "general", label: "Business & Legal Profile", icon: Building2 },
           { id: "payments", label: "Razorpay Gateway", icon: CreditCard },
+          { id: "email", label: "Email & Gmail OTP", icon: Mail },
           { id: "pricing", label: "Rate & Fee Structure", icon: IndianRupee },
           { id: "partners", label: "Delivery Partners", icon: Truck },
           { id: "whatsapp", label: "WhatsApp & Payment QR", icon: QrCode },
@@ -918,6 +1013,200 @@ export default function AdminStoreSettingsPage() {
                   முதலில் <code>rzp_test_...</code> கீ மூலம் சோதனை செய்து பார்க்கலாம். KYC முடிந்ததும், டாஷ்போர்டில் <strong>Test Mode</strong>-லிருந்து <strong>Live Mode</strong>-க்கு மாற்றி, லைவ் கீ <code>rzp_live_...</code>-ஐ இந்த அட்மின் பக்கத்தில் பதிவு செய்து &quot;Save Gateway Credentials&quot; கொடுத்தால், உடனடியாக நேரடி பேமெண்ட் இயங்கத் தொடங்கும்!
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
+      {/* TAB: EMAIL & GMAIL OTP DISPATCH */}
+      {activeTab === "email" && (
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs lg:col-span-2 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h2 className="font-extrabold text-slate-900 flex items-center gap-2 text-sm">
+                  <Mail className="text-emerald-700" size={18} /> Gmail & Email OTP Dispatch Architecture
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Send real 6-digit login codes directly to customers' Gmail inboxes with zero SMS cost.
+                </p>
+              </div>
+              <span
+                className={`text-xs font-black px-3 py-1 rounded-full border flex items-center gap-1.5 ${
+                  isEmailConfigured
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                    : "bg-amber-50 text-amber-800 border-amber-200"
+                }`}
+              >
+                <span className={`h-2 w-2 rounded-full ${isEmailConfigured ? "bg-emerald-600" : "bg-amber-500"}`} />
+                {isEmailConfigured ? "Email Service Active" : "Configuration Needed"}
+              </span>
+            </div>
+
+            {/* Provider Selection */}
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-700 block">Choose Email Provider</label>
+              <div className="grid grid-cols-2 gap-3 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setEmailProvider("gmail_smtp")}
+                  className={`p-3.5 rounded-xl border text-left transition ${
+                    emailProvider === "gmail_smtp"
+                      ? "border-emerald-600 bg-emerald-50/70 font-extrabold text-emerald-950 ring-2 ring-emerald-500/20 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <span className="block font-bold text-sm text-slate-900">Gmail SMTP (Recommended)</span>
+                  <span className="block text-slate-500 text-[11px] mt-0.5">
+                    100% Free via your Gmail + Google 16-char App Password (500 emails/day)
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setEmailProvider("resend")}
+                  className={`p-3.5 rounded-xl border text-left transition ${
+                    emailProvider === "resend"
+                      ? "border-emerald-600 bg-emerald-50/70 font-extrabold text-emerald-950 ring-2 ring-emerald-500/20 shadow-xs"
+                      : "border-slate-200 hover:border-slate-300 bg-white"
+                  }`}
+                >
+                  <span className="block font-bold text-sm text-slate-900">Resend API</span>
+                  <span className="block text-slate-500 text-[11px] mt-0.5">
+                    Fast cloud API from resend.com (100 free emails/day)
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleSaveEmail} className="space-y-4">
+              {emailProvider === "gmail_smtp" && (
+                <div className="space-y-3 p-4 rounded-xl border border-slate-200 bg-slate-50">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="grid gap-1">
+                      <span className="text-xs font-bold text-slate-700">Sender Gmail Address</span>
+                      <input
+                        type="email"
+                        required
+                        value={smtpUser}
+                        onChange={(e) => setSmtpUser(e.target.value)}
+                        placeholder="veggieflick@gmail.com"
+                        className="field bg-white text-xs"
+                      />
+                    </label>
+
+                    <label className="grid gap-1">
+                      <span className="text-xs font-bold text-slate-700">Google App Password (16 Characters)</span>
+                      <div className="relative">
+                        <input
+                          type={showSmtpPass ? "text" : "password"}
+                          required
+                          value={smtpPass}
+                          onChange={(e) => setSmtpPass(e.target.value)}
+                          placeholder="abcd efgh ijkl mnop"
+                          className="field bg-white font-mono text-xs pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowSmtpPass(!showSmtpPass)}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                        >
+                          {showSmtpPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                        </button>
+                      </div>
+                    </label>
+                  </div>
+
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Note: Use the 16-character Google App Password (not your personal Gmail password). Spaces are removed automatically.
+                  </p>
+                </div>
+              )}
+
+              {emailProvider === "resend" && (
+                <div className="p-4 rounded-xl border border-slate-200 bg-slate-50">
+                  <label className="grid gap-1">
+                    <span className="text-xs font-bold text-slate-700">Resend API Key</span>
+                    <input
+                      type="password"
+                      required
+                      value={resendApiKey}
+                      onChange={(e) => setResendApiKey(e.target.value)}
+                      placeholder="re_123456789..."
+                      className="field bg-white font-mono text-xs"
+                    />
+                  </label>
+                </div>
+              )}
+
+              <div className="flex items-center gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={savingEmail}
+                  className="btn btn-primary bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs px-5 py-2.5 shadow-sm inline-flex items-center gap-1.5"
+                >
+                  {savingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  <span>Save Email Credentials</span>
+                </button>
+              </div>
+            </form>
+
+            {/* Live Test Panel */}
+            <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/50 space-y-3">
+              <h3 className="text-xs font-black uppercase tracking-wider text-emerald-950 flex items-center gap-1.5">
+                <CheckCircle2 size={15} className="text-emerald-700" /> Test Real Email Delivery to Gmail
+              </h3>
+              <p className="text-xs text-slate-600">
+                Send a real test email with a live code to confirm it arrives in your Gmail inbox:
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-2 max-w-md">
+                <input
+                  type="email"
+                  value={testEmailAddress}
+                  onChange={(e) => setTestEmailAddress(e.target.value)}
+                  placeholder="sujithjai007@gmail.com"
+                  className="field bg-white text-xs flex-1"
+                />
+                <button
+                  type="button"
+                  disabled={testingEmail || !testEmailAddress}
+                  onClick={handleTestEmail}
+                  className="btn btn-primary bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs px-4 py-2"
+                >
+                  {testingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Test Email"}
+                </button>
+              </div>
+
+              {emailTestResult && (
+                <div
+                  className={`p-3 rounded-lg text-xs font-semibold ${
+                    emailTestResult.success
+                      ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                      : "bg-red-100 text-red-900 border border-red-300"
+                  }`}
+                >
+                  {emailTestResult.message}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Google App Password Guide */}
+          <div className="space-y-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-3">
+              <span className="inline-block px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-extrabold text-[10px] uppercase tracking-wide">
+                Free Google App Password Guide
+              </span>
+              <h3 className="font-extrabold text-slate-900 text-sm">How to get your Gmail App Password:</h3>
+              <ol className="text-xs text-slate-600 space-y-2 list-decimal pl-4 leading-relaxed">
+                <li>Go to your Google Account: <a href="https://myaccount.google.com/security" target="_blank" rel="noreferrer" className="text-emerald-700 font-bold underline inline-flex items-center gap-0.5">Google Security <ExternalLink size={11} /></a></li>
+                <li>Make sure <strong>2-Step Verification</strong> is turned ON.</li>
+                <li>Go to <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-emerald-700 font-bold underline inline-flex items-center gap-0.5">App Passwords <ExternalLink size={11} /></a></li>
+                <li>Type <strong>VeggieFlick</strong> under App Name and click <strong>Create</strong>.</li>
+                <li>Copy the 16-letter yellow password and paste it in the box on the left!</li>
+              </ol>
             </div>
           </div>
         </div>
